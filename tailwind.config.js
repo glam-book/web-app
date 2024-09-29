@@ -4,6 +4,24 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      height: {
+        '10lh': '10lh',
+      },
+      maxWidth: {
+        prose: 'var(--prose)',
+        'prose-xl': 'var(--prose-xl)',
+      },
+      fontSize: {
+        '2xs': 'var(--fs--3)',
+        xs: 'var(--fs--2)',
+        sm: 'var(--fs--1)',
+        base: 'var(--fs-0)',
+        lg: 'var(--fs-1)',
+        xl: 'var(--fs-2)',
+        '2xl': 'var(--fs-3)',
+        '3xl': 'var(--fs-4)',
+        '4xl': 'var(--fs-5)',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

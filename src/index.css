@@ -4,23 +4,23 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 15 29% 86%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
+    --accent: 72.74 90.6% 64.12%;
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
+    --border: currentColor;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
     --chart-1: 12 76% 61%;
@@ -30,17 +30,25 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
 
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
-
     color-scheme: light dark;
 
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    --prose: 40ch;
+    --prose-xl: 65ch;
+
+    --fs--3: clamp(0.651rem, 0.6326rem + 0.0921vw, 0.704rem);
+    --fs--2: clamp(0.7813rem, 0.7469rem + 0.1717vw, 0.88rem);
+    --fs--1: clamp(0.9375rem, 0.881rem + 0.2826vw, 1.1rem);
+    --fs-0: clamp(1.125rem, 1.038rem + 0.4348vw, 1.375rem);
+    --fs-1: clamp(1.35rem, 1.2217rem + 0.6413vw, 1.7188rem);
+    --fs-2: clamp(1.62rem, 1.4362rem + 0.919vw, 2.1484rem);
+    --fs-3: clamp(1.944rem, 1.6861rem + 1.2896vw, 2.6855rem);
+    --fs-4: clamp(2.3328rem, 1.9766rem + 1.7811vw, 3.3569rem);
+    --fs-5: clamp(2.7994rem, 2.3135rem + 2.4292vw, 4.1962rem);
+
+    line-height: noramal;
   }
+
+  /* TODO */
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -58,7 +66,7 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
+    --border: currentColor;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
     --chart-1: 220 70% 50%;
@@ -67,13 +75,64 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
 
-@layer base {
+  html,
+  :host {
+    @apply leading-none font-mono;
+  }
+
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground min-h-dvh;
+    @apply text-base bg-background text-foreground min-h-dvh;
   }
+
+  #root {
+    @apply flex flex-col;
+  }
+}
+
+@layer utilities {
+  .highlighter {
+    background: linear-gradient(
+      180deg,
+      transparent 70%,
+      hsl(var(--accent)) 60%
+    );
+  }
+}
+
+.content-grid {
+  --gap: 1rem;
+
+  --breakout-size: minmax(0, 7rem);
+  --content-size-xl: minmax(0, calc(var(--prose-xl) - var(--prose)));
+  --content-size: min(var(--prose), calc(100% - var(--gap) * 2));
+
+  display: grid;
+  grid-template-columns:
+    [full-bleed-start] 1fr [without-gap-start] var(--gap) [breakout-start] var(
+      --breakout-size
+    )
+    [content-xl-start] var(--content-size-xl)
+    [content-start] var(--content-size)
+    [content-end] var(--content-size-xl) [content-xl-end] var(--breakout-size)
+    [breakout-end] var(--gap) [without-gap-end] 1fr [full-bleed-end];
+}
+.content-grid > * {
+  grid-column: content;
+}
+.content-grid > .content-xl {
+  grid-column: content-xl;
+}
+.content-grid > .breakout {
+  grid-column: breakout;
+}
+.content-grid > .without-gap {
+  grid-column: without-gap;
+}
+.content-grid > .full-bleed {
+  grid-column: full-bleed;
 }
