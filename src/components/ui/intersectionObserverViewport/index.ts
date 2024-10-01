@@ -1,0 +1,1 @@
+export { IntersectionObserverViewport } from './IntersectionObserverViewport';

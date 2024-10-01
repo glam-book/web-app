@@ -4,9 +4,6 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      height: {
-        '10lh': '10lh',
-      },
       maxWidth: {
         prose: 'var(--prose)',
         'prose-xl': 'var(--prose-xl)',

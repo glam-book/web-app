@@ -35,6 +35,8 @@
     --prose: 40ch;
     --prose-xl: 65ch;
 
+    /* translate: max(calc(50vw - 40ch / 2 + 3rem), 5ch) 0; */
+
     --fs--3: clamp(0.651rem, 0.6326rem + 0.0921vw, 0.704rem);
     --fs--2: clamp(0.7813rem, 0.7469rem + 0.1717vw, 0.88rem);
     --fs--1: clamp(0.9375rem, 0.881rem + 0.2826vw, 1.1rem);
@@ -49,32 +51,34 @@
   }
 
   /* TODO */
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: currentColor;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
+  /* @media (prefers-color-scheme: dark) {
+    :root {
+      --background: 0 0% 0%;
+      --foreground: 0 0% 98%;
+      --card: 0 0% 3.9%;
+      --card-foreground: 0 0% 98%;
+      --popover: 0 0% 3.9%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 0 0% 98%;
+      --primary-foreground: 0 0% 9%;
+      --secondary: 0 0% 14.9%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 0 0% 14.9%;
+      --muted-foreground: 0 0% 63.9%;
+      --accent: 0 0% 14.9%;
+      --accent-foreground: 0 0% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 0% 98%;
+      --border: currentColor;
+      --input: 0 0% 14.9%;
+      --ring: 0 0% 83.1%;
+      --chart-1: 220 70% 50%;
+      --chart-2: 160 60% 45%;
+      --chart-3: 30 80% 55%;
+      --chart-4: 280 65% 60%;
+      --chart-5: 340 75% 55%;
+    }
+  } */
 
   html,
   :host {
@@ -101,6 +105,10 @@
       transparent 70%,
       hsl(var(--accent)) 60%
     );
+  }
+
+  .every-4th-transparent:nth-child(4) {
+    color: transparent;
   }
 }
 

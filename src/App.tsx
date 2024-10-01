@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Dnd } from '@/components/ui/dnd';
 import { Timeline } from '@/components/ui/timeline';
 
 export function App() {
@@ -48,18 +47,14 @@ export function App() {
             doloremque quia? Ipsam harum totam.
           </p>
 
-          <section className="pl-2 pt-2 pb-2 flex flex-col border">
+          <section className="pl-2 pt-2 pb-2 flex flex-col bg-card border">
             <h2 className="mb-4 self-center text-xl font-serif highlighter">
               Timeline:
             </h2>
-            <Timeline className="relative" />
+            <Timeline className="relative">
+              <div>Record:</div>
+            </Timeline>
           </section>
-
-          <div className="flex flex-col relative">
-            <div className="h-20 border bg-sky-50"></div>
-            <div className="h-20 border border-t-0 bg-sky-50"></div>
-            <Dnd className="bg-[tomato] top-4 left-4" />
-          </div>
         </form>
       </div>
     </main>
