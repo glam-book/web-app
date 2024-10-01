@@ -51,9 +51,15 @@ export function App() {
             <h2 className="mb-4 self-center text-xl font-serif highlighter">
               Timeline:
             </h2>
-            <Timeline className="relative">
-              <div>Record:</div>
-            </Timeline>
+            <Timeline
+              className="relative"
+              cards={[
+                <div>Record:1</div>,
+                <div>Record:2</div>,
+                <div>Record:3</div>,
+                <div>Record:4</div>,
+              ]}
+            />
           </section>
         </form>
       </div>

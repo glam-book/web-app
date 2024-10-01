@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 
 type IntersectionObserverViewportProps =
@@ -12,41 +12,41 @@ type IntersectionObserverViewportProps =
     asChild?: boolean;
   };
 
-export const IntersectionObserverViewport = ({
-  callback,
-  options,
-  target,
-  className,
-  asChild = false,
-  ...props
-}: IntersectionObserverViewportProps) => {
-  const Comp = asChild ? Slot : 'div';
-  const compRef = useRef<HTMLDivElement>(null);
-  const callbackRef = useRef<IntersectionObserverCallback>(
-    (entries, observer) =>
-      entries.forEach((entrie) => {
-        callback?.(entrie, observer);
-      })
-  );
-  const optionsRef = useRef(options);
+export const IntersectionObserverViewport = forwardRef<
+  HTMLDivElement,
+  IntersectionObserverViewportProps
+>(
+  (
+    { callback, options, target, className, asChild = false, ...props },
+    ref
+  ) => {
+    const Comp = asChild ? Slot : 'div';
+    const compRef = useRef<HTMLDivElement>(null);
+    const callbackRef = useRef<IntersectionObserverCallback>(
+      (entries, observer) =>
+        entries.forEach((entrie) => {
+          callback?.(entrie, observer);
+        })
+    );
+    const optionsRef = useRef(options);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(callbackRef.current, {
-      ...optionsRef.current,
-      root: compRef.current,
-    });
+    useImperativeHandle(ref, () => compRef.current as HTMLDivElement, []);
 
-    if (target) {
-      observer.observe(target);
+    useEffect(() => {
+      const observer = new IntersectionObserver(callbackRef.current, {
+        ...optionsRef.current,
+        root: compRef.current,
+      });
 
-      console.log('bind obs', target);
+      if (target) {
+        observer.observe(target);
 
-      return () => {
-        observer.unobserve(target);
-        console.log('unbind obs', target);
-      };
-    }
-  }, [target]);
+        return () => {
+          observer.unobserve(target);
+        };
+      }
+    }, [target]);
 
-  return <Comp ref={compRef} className={className} {...props} />;
-};
+    return <Comp ref={compRef} className={className} {...props} />;
+  }
+);
