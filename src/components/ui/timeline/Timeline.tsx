@@ -3,6 +3,7 @@ import { Slot } from '@radix-ui/react-slot';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useSetEventListener } from '@/hooks';
 import { IntersectionObserverViewport } from '@/components/ui/intersectionObserverViewport';
 
 export type TimelineProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -58,21 +59,15 @@ export const Timeline = ({
       document.body.removeEventListener('click', clickOutsideHandler);
   }, []);
 
-  useEffect(() => {
-    const scrollHandler = () => {
-      if (!currentItem) return;
+  useSetEventListener(document, 'scroll', () => {
+    if (!currentItem) return;
 
-      const wrapperRect = wrapperRef.current?.getBoundingClientRect();
-      const aim =
-        document.documentElement.clientHeight / 2 - (wrapperRect?.top ?? 0);
-      const aimPercent = aim / (wrapperRect?.height ?? 0);
-      setIntersecionTime(getTimeByIndex(Math.round(divisions * aimPercent)));
-    };
-
-    document.addEventListener('scroll', scrollHandler);
-
-    return () => document.removeEventListener('scroll', scrollHandler);
-  }, [currentItem]);
+    const wrapperRect = wrapperRef.current?.getBoundingClientRect();
+    const aim =
+      document.documentElement.clientHeight / 2 - (wrapperRect?.top ?? 0);
+    const aimPercent = aim / (wrapperRect?.height ?? 0);
+    setIntersecionTime(getTimeByIndex(Math.round(divisions * aimPercent)));
+  });
 
   return (
     <Comp className={cn(className, 'flex gap-1')} {...props}>
@@ -159,9 +154,10 @@ export const Timeline = ({
                 Math.round((y / (wrapperRect?.height ?? 0)) * divisions)
               );
               const yy =
-                Math.round(y / ((wrapperRect?.height ?? 0) / divisions)) *
-                (wrapperRect?.height ?? 0) / divisions;
-              console.log(y / ((wrapperRect?.height ?? 0) / divisions))
+                (Math.round(y / ((wrapperRect?.height ?? 0) / divisions)) *
+                  (wrapperRect?.height ?? 0)) /
+                divisions;
+              console.log(y / ((wrapperRect?.height ?? 0) / divisions));
               console.log(yy);
               console.log(y);
               currentItem.style.top = `${yy}px`;
