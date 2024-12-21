@@ -30,7 +30,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
 
-    color-scheme: light dark;
+    color-scheme: light;
 
     --prose: 40ch;
     --prose-xl: 65ch;
@@ -109,6 +109,15 @@
 
   .every-4th-transparent:nth-child(4) {
     color: transparent;
+  }
+
+  .stripes-gradient {
+    background: repeating-linear-gradient(
+      transparent,
+      transparent calc(2.5lh - 1px),
+      currentColor calc(2.5lh - 1px),
+      currentColor 2.5lh
+    );
   }
 }
 

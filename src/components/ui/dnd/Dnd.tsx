@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 
 import { cn } from '@/lib/utils';
-import { closest } from '@/utils/closest';
+import { closest } from '@/utils';
 
 export type DndProps = React.HTMLAttributes<HTMLDivElement> & {
   onStart?: (event: React.PointerEvent<HTMLDivElement>) => void;

@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 
 export const useSetEventListener = (
-  element: HTMLElement | HTMLDocument,
+  element: HTMLElement | HTMLDocument | undefined | null,
   ...[eventName, listener, options]: Parameters<typeof addEventListener>
 ) => {
   const refToListener = useRef(listener);
@@ -11,17 +11,17 @@ export const useSetEventListener = (
     const listenerInUseEffectFuckReact = refToListener.current;
     const optionsInUseEffectFuckReact = refToOptions.current;
 
-    element.addEventListener(
+    element?.addEventListener(
       eventName,
       listenerInUseEffectFuckReact,
-      optionsInUseEffectFuckReact
+      optionsInUseEffectFuckReact,
     );
 
     return () =>
-      element.removeEventListener(
+      element?.removeEventListener(
         eventName,
         listenerInUseEffectFuckReact,
-        optionsInUseEffectFuckReact
+        optionsInUseEffectFuckReact,
       );
   }, [element, eventName]);
 };
