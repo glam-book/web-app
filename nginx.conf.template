@@ -1,0 +1,59 @@
+worker_processes  auto;
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include          /etc/nginx/mime.types;
+    default_type     application/octet-stream;
+    sendfile         on;
+    keepalive_timeout  65;
+    server_tokens off;  # Disable server version info for security
+
+    gzip on;  # Enable gzip compression for performance
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_min_length 256;
+    gzip_vary on;
+
+    server {
+        listen 80;
+        server_name web;
+
+        root /usr/share/nginx/html;
+        index index.html;
+
+        # Ensure routing works with React Router (redirect all to index.html)
+        location ${PUBLIC_URL} {
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Static file caching for improved performance
+        location ~* \.(js|css|png|jpg|jpeg|gif|svg|ico|ttf|woff|woff2)$ {
+            expires 1y;
+            add_header Cache-Control "public, no-transform";
+            access_log off;
+        }
+
+    	  location ~ ^/hp-api/ {
+    	      proxy_set_header X-Forwarded-Host $http_host;
+    	      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    	      proxy_set_header X-Forwarded-Proto $scheme;
+    	
+    	      proxy_buffers 8 64k;
+    	      proxy_busy_buffers_size 128k;
+    	      proxy_buffer_size 64k;
+    	
+    	      client_max_body_size 10m;
+    	
+    	      proxy_http_version 1.1;
+    	      proxy_pass http://back:8080;
+    	  }
+
+        # Logging (optional for debugging)
+        access_log  /var/log/nginx/access.log;
+        error_log   /var/log/nginx/error.log;
+    }
+}

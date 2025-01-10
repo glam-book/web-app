@@ -1,0 +1,9 @@
+services:
+  web:
+    build:
+      args:
+        PUBLIC_URL: /
+      context: .
+    ports:
+      - '3015:80'
+    container_name: tl-webapp
