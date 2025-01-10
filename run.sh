@@ -1,4 +1,4 @@
 #!/bin/sh
 
-export PUBLIC_URL=/
-PORT="3015:80"
+docker-compose down
+docker-compose up -d --build
