@@ -20,7 +20,7 @@ export const TimeLabel = ({
       )}
       dateTime={label}
     >
-      <span className="translate-y-[calc(-2.5lh/2)]">{label}</span>
+      <span className="text-xs font-mono">{label}</span>
     </time>
   );
 };

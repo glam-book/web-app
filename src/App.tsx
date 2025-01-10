@@ -3,10 +3,19 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Timeline } from '@/components/ui/timeline';
-import { ResizibleBox } from '@/components/ui/resizibleBox';
 
 export function App() {
   const [date, setDate] = useState<Date>();
+  const [cards, setCards] = useState([
+    {
+      title: 'Record: 1',
+      topPosition: 51.25,
+    },
+    {
+      title: 'Record: 2',
+      topPosition: 2.5 * 3 + 1.25,
+    },
+  ]);
 
   return (
     <main className="content-grid max-h-dvh overflow-y-auto snap-mandatory snap-y">
@@ -54,12 +63,8 @@ export function App() {
         </h2>
         <Timeline
           className="flex-1 relative bg-card border"
-          cards={[
-            <div>Record:1</div>,
-            // <div>Record:2</div>,
-            // <div>Record:3</div>,
-            // <div>Record:4</div>,
-          ]}
+          cards={cards}
+          setCards={setCards}
         />
       </section>
     </main>
