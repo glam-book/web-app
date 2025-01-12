@@ -28,17 +28,17 @@ export function App() {
           className="bg-blue-200"
           onClick={() => {
             const tg = window.Telegram.WebApp;
-            const initData = tg.initData;
-            console.log({ initData });
-            const base64InitData = btoa(initData);
+            const user = tg.initData;
+            const userHash = tg.initDataUnsafe.hash;
+            console.log({ user, userHash });
 
-            fetch('https://glam.owpk.ru/get-profile', {
+            fetch('https://tantal.owpk.ru/api', {
               method: 'GET',
               headers: {
-                'X-tg-data': base64InitData,
+                'X-tg-data': user,
+                'X-tg-hash': userHash,
               },
             })
-              .then((res) => res.json())
               .then(console.log)
               .catch(console.error);
           }}
