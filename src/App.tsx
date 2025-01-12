@@ -23,6 +23,29 @@ export function App() {
         <h1 className="my-4 highlighter text-center font-serif text-4xl">
           Glam book
         </h1>
+
+        <Button
+          className="bg-blue-200"
+          onClick={() => {
+            const tg = window.Telegram.WebApp;
+            const initData = tg.initData;
+            console.log({ initData });
+            const base64InitData = btoa(initData);
+
+            fetch('https://glam.owpk.ru/get-profile', {
+              method: 'GET',
+              headers: {
+                'X-tg-data': base64InitData,
+              },
+            })
+              .then((res) => res.json())
+              .then(console.log)
+              .catch(console.error);
+          }}
+        >
+          Telegram test button
+        </Button>
+
         <form
           className="pb-4 flex flex-col flex-1 space-y-4"
           action=""
