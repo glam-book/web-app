@@ -29,7 +29,7 @@ ARG PUBLIC_URL  # Добавляем ARG для использования пе�
 ENV PUBLIC_URL=$PUBLIC_URL
 
 # Copy the build output from the previous step to the Nginx html directory
-COPY --from=build /app/build /usr/share/nginx/html/${PUBLIC_URL}
+COPY --from=build /app/dist /usr/share/nginx/html/${PUBLIC_URL}
 
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
