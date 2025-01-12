@@ -5,10 +5,10 @@ type IntersectionObserverViewportProps =
   React.HTMLAttributes<HTMLDivElement> & {
     callback?: (
       entrie: IntersectionObserverEntry,
-      observer: IntersectionObserver
+      observer: IntersectionObserver,
     ) => void;
     options?: IntersectionObserverInit;
-    target?: Element;
+    target: Element | null | undefined;
     asChild?: boolean;
   };
 
@@ -18,7 +18,7 @@ export const IntersectionObserverViewport = forwardRef<
 >(
   (
     { callback, options, target, className, asChild = false, ...props },
-    ref
+    ref,
   ) => {
     const Comp = asChild ? Slot : 'div';
     const compRef = useRef<HTMLDivElement>(null);
@@ -26,7 +26,7 @@ export const IntersectionObserverViewport = forwardRef<
       (entries, observer) =>
         entries.forEach((entrie) => {
           callback?.(entrie, observer);
-        })
+        }),
     );
     const optionsRef = useRef(options);
 
@@ -48,5 +48,5 @@ export const IntersectionObserverViewport = forwardRef<
     }, [target]);
 
     return <Comp ref={compRef} className={className} {...props} />;
-  }
+  },
 );

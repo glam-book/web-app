@@ -1,0 +1,1 @@
+export { IntersectionTarget } from './IntersectionTarget';
