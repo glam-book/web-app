@@ -6,6 +6,8 @@ import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import { TimeLabel } from './timeLabel';
 import { TimelineCard } from '@/components/ui/timelineCard';
 
+import { foo } from './hooks/foo';
+
 type Card = {
   startTime: Date;
   endTime: Date;
@@ -50,6 +52,16 @@ export const Timeline = ({
 
   const getIndexByTime = (time: string) => timeList.indexOf(time);
 
+  const timeToLh = (time: string) => getIndexByTime(time) * 2.5;
+
+  const [a, aa] = useState(10);
+
+  useEffect(() => {
+    if (currentItem) {
+      aa(timeToLh(intersectionTime));
+    }
+  }, [currentItem, intersectionTime, timeToLh]);
+
   const [opts, setOpts] = useState({});
 
   useEffect(() => {
@@ -59,16 +71,6 @@ export const Timeline = ({
       threshold: [0, 1],
     });
   }, [compRef]);
-
-  useEffect(() => {
-    console.log('effect', currentItemId);
-    if (currentItemId !== undefined) {
-      const card = cards.at(currentItemId);
-      const intersectionIndex = getIndexByTime(intersectionTime);
-      console.log((card?.topPosition ?? 0) - intersectionIndex * 2.5);
-      setResizeYValueLh((card?.topPosition ?? 0) - intersectionIndex * 2.5);
-    }
-  }, [intersectionTime, currentItemId, cards, getIndexByTime]);
 
   return (
     <Comp
@@ -171,7 +173,7 @@ export const Timeline = ({
               <TimelineCard
                 key={item.id}
                 sign={item.sign}
-                topPositionLh={10}
+                topPositionLh={a}
                 sizeLh={10}
                 onClick={(e) => {
                   wasClickOnCard.current = true;
@@ -195,10 +197,8 @@ export const Timeline = ({
                       block: 'center',
                       behavior: 'smooth',
                     });
-                    requestAnimationFrame(() => {
-                      setCurrentItem(target);
-                      setCurrentItemId(index);
-                    });
+                    setCurrentItem(target);
+                    setCurrentItemId(index);
                     // const timer = window.setInterval(() => {
                     //   window.clearInterval(timer);
                     //   setCurrentItemId(index);
