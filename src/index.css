@@ -1,6 +1,20 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@utility border-border {
+  border: 1px solid black;
+}
+
+@theme {
+  --color-avocado: oklch(0.8 59 10);
+
+  --text-base: clamp(1.125rem, 1.038rem + 0.4348vw, 1.375rem);
+
+  /* --color-mint-500: oklch(0.99 1 1); */
+}
+
+:root {
+  /* font-size: var(--text-base); */
+}
 
 @layer base {
   :root {
@@ -82,46 +96,41 @@
 
   html,
   :host {
-    @apply leading-none font-mono;
+    /* @apply leading-none font-mono; */
   }
 
   * {
-    @apply border-border;
+    /* @apply border-border; */
   }
 
   body {
-    @apply text-base bg-background text-foreground min-h-dvh;
+    /* @apply text-base bg-background text-foreground min-h-dvh; */
   }
 
   #root {
-    @apply flex flex-col;
+    /* @apply flex flex-col; */
   }
 }
 
-@layer utilities {
-  .highlighter {
-    background: linear-gradient(
-      180deg,
-      transparent 70%,
-      hsl(var(--accent)) 60%
-    );
-  }
-
-  .every-4th-transparent:nth-child(4) {
-    color: transparent;
-  }
-
-  .stripes-gradient {
-    background: repeating-linear-gradient(
-      transparent,
-      transparent calc(2.5lh - 1px),
-      currentColor calc(2.5lh - 1px),
-      currentColor 2.5lh
-    );
-  }
+.every-4th-transparent:nth-child(4) {
+  color: transparent;
 }
 
-.content-grid {
+@utility stripes-gradient {
+ background: repeating-linear-gradient(
+      to bottom,
+      #039BE5 0px,
+      #039BE5 20px,
+      #90CAF9 20px,
+      #90CAF9 40px
+    );
+}
+
+@utility highlighter {
+  background: linear-gradient(180deg, transparent 70%, hsl(var(--accent)) 60%);
+}
+
+@utility content-grid {
   --gap: 1rem;
 
   --breakout-size: minmax(0, 7rem);
@@ -137,19 +146,21 @@
     [content-start] var(--content-size)
     [content-end] var(--content-size-xl) [content-xl-end] var(--breakout-size)
     [breakout-end] var(--gap) [without-gap-end] 1fr [full-bleed-end];
+
+  & > * {
+    grid-column: content;
+  }
 }
-.content-grid > * {
-  grid-column: content;
+
+@utility full-bleed {
+  grid-column: full-bleed;
 }
-.content-grid > .content-xl {
-  grid-column: content-xl;
-}
-.content-grid > .breakout {
-  grid-column: breakout;
-}
-.content-grid > .without-gap {
+@utility without-gap {
   grid-column: without-gap;
 }
-.content-grid > .full-bleed {
-  grid-column: full-bleed;
+@utility breakout {
+  grid-column: breakout;
+}
+@utility content-xl {
+  grid-column: content-xl;
 }

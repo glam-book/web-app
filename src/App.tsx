@@ -6,15 +6,18 @@ import { Timeline } from '@/components/ui/timeline';
 
 export function App() {
   const [date, setDate] = useState<Date>();
+  // const [is, setIs] = useState(false);
   const [cards, setCards] = useState([
     {
-      title: 'Record: 1',
-      topPosition: 51.25,
+      sign: 'Record: 1',
+      startTime: Date.now(),
+      endTime: Date.now() + 10 * 60 * 1000,
+      id: '1',
     },
-    {
-      title: 'Record: 2',
-      topPosition: 2.5 * 3 + 1.25,
-    },
+    // {
+    //   title: 'Record: 2',
+    //   topPosition: 2.5 * 3 + 1.25,
+    // },
   ]);
 
   return (
@@ -25,18 +28,16 @@ export function App() {
         </h1>
 
         <Button
-          className="bg-blue-200"
+          className="bg-avocado"
           onClick={() => {
             const tg = window.Telegram.WebApp;
             const user = tg.initData;
-            const userHash = tg.initDataUnsafe.hash;
-            console.log({ user, userHash });
+            console.log({ user });
 
             fetch('https://tantal.owpk.ru/api', {
               method: 'GET',
               headers: {
                 'X-tg-data': user,
-                'X-tg-hash': userHash,
               },
             })
               .then(console.log)
@@ -63,7 +64,7 @@ export function App() {
           <Button type="submit">Submit</Button>
         </form>
 
-        {/*<p className="mb-4 py-4 full-bleed content-grid bg-sky-50">
+        <p className="mb-4 py-4 full-bleed content-grid bg-sky-50">
           <span className="content-xl border border-dashed">
             Consectetur ut incidunt ex quos modi. Magni accusantium tenetur
             aliquam fugit natus Adipisci odio tempore vitae quia tenetur, sint
@@ -77,13 +78,14 @@ export function App() {
           perspiciatis deserunt sapiente iusto eveniet ipsam Laboriosam
           temporibus vero quia porro ipsam Tempora ullam neque inventore
           doloremque quia? Ipsam harum totam.
-        </p>*/}
+        </p>
       </section>
 
       <section className="py-4 h-[94svh] flex flex-col snap-start">
         <h2 className="mb-4 self-center text-xl font-serif highlighter backdrop-blur-sm justify-self-center">
           Timeline:
         </h2>
+
         <Timeline
           className="flex-1 relative bg-card border"
           cards={cards}

@@ -2,20 +2,21 @@ import { useState, useEffect, useRef } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
-import { ResizibleBox } from '@/components/ui/resizibleBox';
 import { TimeLabel } from './timeLabel';
+import { TimelineCard } from '@/components/ui/timelineCard';
 
 type Card = {
-  topPosition: number;
-  title: string;
+  startTime: Date;
+  endTime: Date;
+  sign: string;
+  id: number;
 };
 
 type TimelineProps = React.HTMLAttributes<HTMLDivElement> & {
   asChild?: boolean;
-  cards?: Map<number, Card>;
-  setCards: (cards: Map<number, Card>) => void;
+  cards?: Array<Card>;
+  setCards?: (cards: Array<Card>) => void;
 };
 
 export const Timeline = ({
@@ -33,6 +34,8 @@ export const Timeline = ({
   const [intersectionTime, setIntersecionTime] = useState('');
   const divisions = 96;
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const wasClickOnCard = useRef(false);
+  const [resizeYValueLh, setResizeYValueLh] = useState(0);
 
   const getTimeByIndex = (idx: number) => {
     const mm = `${String((idx * 15) % 60).padStart(2, '0')}`;
@@ -48,6 +51,7 @@ export const Timeline = ({
   const getIndexByTime = (time: string) => timeList.indexOf(time);
 
   const [opts, setOpts] = useState({});
+
   useEffect(() => {
     setOpts({
       root: compRef.current,
@@ -56,56 +60,73 @@ export const Timeline = ({
     });
   }, [compRef]);
 
+  useEffect(() => {
+    console.log('effect', currentItemId);
+    if (currentItemId !== undefined) {
+      const card = cards.at(currentItemId);
+      const intersectionIndex = getIndexByTime(intersectionTime);
+      console.log((card?.topPosition ?? 0) - intersectionIndex * 2.5);
+      setResizeYValueLh((card?.topPosition ?? 0) - intersectionIndex * 2.5);
+    }
+  }, [intersectionTime, currentItemId, cards, getIndexByTime]);
+
   return (
     <Comp
       className={cn(className, 'overflow-y-hidden relative text-2xs isolate')}
       {...props}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        console.log('contextmenu');
-        if (currentItem) {
-          requestAnimationFrame(() => {
-            // const index = getIndexByTime(intersectionTime);
-            // const y = 2.5 * index + 1.25;
-            // currentItem.style.top = `${y}lh`;
-            // setCurrentItem(undefined);
-            // setCurrentItemId(undefined);
-          });
+      onClick={(e) => {
+        console.log('click');
+        if (!wasClickOnCard.current) {
+          setCurrentItem(undefined);
+          setCurrentItemId(undefined);
+          return;
         }
+        wasClickOnCard.current = false;
       }}
     >
       <div className="absolute inset-0 flex flex-col justify-center">
         <div className="flex-1 border-b border-black border-dashed"></div>
         <div className="flex-1">
-          <div className="pl-2 flex gap-1">
+          <div className="pl-2 flex gap-1 h-full">
             <TimeLabel className="invisible" label="00:00" />
-            <div className="self-end border-dashed rounded bg-[tomato]">
-              Lorem error voluptatibus facilis officia sit Asperiores neque vel
-              illum rerum expedita. Possimus id atque odit animi veniam fuga
-              quas. Deserunt fuga enim eveniet tempora saepe Quis nesciunt dolor
-              quibusdam?
-            </div>
+            {/*<div
+              className="border-dashed rounded bg-[lime] w-full max-h-full self-start"
+              style={{ height: `min(100%, ${Math.max(resizeYValueLh + 2.5, 2.5)}lh)` }}
+            >
+              Record: 1
+            </div>*/}
           </div>
         </div>
       </div>
 
       <div
         className={cn(
-          'pl-2 relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full',
-          currentItem && 'overscroll-none',
+          'pl-2 relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal overscroll-auto',
+          // currentItem && 'overscroll-none',
         )}
         ref={compRef}
+        onScroll={(e) => {
+          // if (e.currentTarget.scrollTop <= 0) {
+          //   document.querySelector('main')?.scrollTo({
+          //     behavior: 'smooth',
+          //     top: 0,
+          //   });
+          // }
+        }}
       >
         <div className="h-[50%] flex items-end gap-1 bg-sky-50 overflow-hidden">
           <div>
-            {timeList.map((time) => (
-              <TimeLabel key={time} label={time} />
-            ))}
+            <>
+              {timeList.map((time) => (
+                <TimeLabel key={time} label={time} />
+              ))}
+              <div className="h-[1.25lh]"></div>
+            </>
           </div>
         </div>
 
         <div className="flex-1 flex gap-1">
-          <div>
+          <div className="[&>*:first-child]:h-[1.25lh] [&>*:first-child]:-translate-y-2/4">
             {timeList.map((time) => (
               <TimeLabel
                 key={time}
@@ -119,7 +140,7 @@ export const Timeline = ({
             ref={cardsContainerRef}
             className="relative flex-1 flex flex-col"
           >
-            {timeList.map((time) => (
+            {timeList.map((time, idx) => (
               <IntersectionTarget
                 key={time}
                 intersectionOpts={opts}
@@ -130,54 +151,54 @@ export const Timeline = ({
                   }
                 }}
                 className={cn(
-                  'flex-1 flex flex-col w-full',
-                  intersectionTime !== timeList.at(0) && 'snap-center',
+                  'flex-1 basis-full flex flex-col w-full snap-center',
+                  idx === 0 && 'basis-1/2 snap-end',
                 )}
               >
-                <div
-                  className="w-full flex-1 border-b border-dashed"
-                  // onPointerMove={console.log}
-                ></div>
-                <div className="w-full flex-1"></div>
+                {idx === 0 && (
+                  <div className="w-full flex-1 border-t border-dashed"></div>
+                )}
+                {idx !== 0 && (
+                  <>
+                    <div className="w-full flex-1 border-b border-dashed"></div>
+                    <div className="w-full flex-1"></div>
+                  </>
+                )}
               </IntersectionTarget>
             ))}
 
             {cards.map((item, index) => (
-              <div
-                key={index}
-                className={cn(
-                  'bg-[tomato] absolute w-full h-[2lh] text-2xs select-none overflow-y-visible transition-all',
-                  index === currentItemId && 'invisible',
-                )}
-                style={{ top: `${item.topPosition}lh` }}
-                onContextMenu={(e) => {
-                  e.preventDefault();
+              <TimelineCard
+                key={item.id}
+                sign={item.sign}
+                topPositionLh={10}
+                sizeLh={10}
+                onClick={(e) => {
+                  wasClickOnCard.current = true;
                   const target = e.currentTarget;
                   if (currentItem) {
-                    setCurrentItem(undefined);
-                    setCurrentItemId(undefined);
+                    // setCurrentItem(undefined);
+                    // setCurrentItemId(undefined);
                     // const yPercent =
                     //   y / (cardsContainerRef.current?.clientHeight ?? 0);
                     // const qDivisions = Math.round(divisions * yPercent);
                     // const time = getTimeByIndex(qDivisions);
                     // console.log(time);
-
-                    const timeIndex = getIndexByTime(intersectionTime);
-                    const roundedY =
-                      ((cardsContainerRef.current?.clientHeight ?? 0) /
-                        divisions) *
-                      timeIndex;
-
-                    target.style.top = `${roundedY}px`;
+                    // const timeIndex = getIndexByTime(intersectionTime);
+                    // const roundedY =
+                    //   ((cardsContainerRef.current?.clientHeight ?? 0) /
+                    //     divisions) *
+                    //   timeIndex;
+                    // target.style.top = `${roundedY}px`;
                   } else {
                     target.scrollIntoView({
                       block: 'center',
                       behavior: 'smooth',
                     });
-                    // requestAnimationFrame(() => {
-                    //   setCurrentItem(target);
-                    //   setCurrentItemId(index);
-                    // });
+                    requestAnimationFrame(() => {
+                      setCurrentItem(target);
+                      setCurrentItemId(index);
+                    });
                     // const timer = window.setInterval(() => {
                     //   window.clearInterval(timer);
                     //   setCurrentItemId(index);
@@ -188,21 +209,7 @@ export const Timeline = ({
                     // }, 100);
                   }
                 }}
-              >
-                <ResizibleBox
-                  onResizeBox={(y, yDiff, target) => {
-                    const rect = target.getBoundingClientRect();
-                    console.log(yDiff);
-                    // target.style.height = `${rect.height + yDiff}px`;
-                    // target.style.top = `${y + compRef.}px`;
-                    // const card = cards.at(index);
-                    // const newCards = cards.filter((_, i) => i !== index);
-                  }}
-                  className="h-[15lh]"
-                >
-                  <div className="rounded bg-[tomato]">{item.title}</div>
-                </ResizibleBox>
-              </div>
+              />
             ))}
           </div>
 
