@@ -1,18 +1,20 @@
 import { useState } from 'react';
+import { addHours } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Timeline } from '@/components/ui/timeline';
+import { Switch } from '@/components/ui/switch';
 
 export function App() {
   const [date, setDate] = useState<Date>();
   // const [is, setIs] = useState(false);
   const [cards, setCards] = useState([
     {
-      sign: 'Record: 1',
-      startTime: Date.now(),
-      endTime: Date.now() + 10 * 60 * 1000,
       id: '1',
+      sign: 'Record: 1',
+      from: new Date(),
+      to: addHours(new Date(), 2),
     },
     // {
     //   title: 'Record: 2',
@@ -26,6 +28,9 @@ export function App() {
         <h1 className="my-4 highlighter text-center font-serif text-4xl">
           Glam book
         </h1>
+
+        <Button>hihe</Button>
+        <Switch></Switch>
 
         <Button
           className="bg-avocado"
@@ -81,15 +86,11 @@ export function App() {
         </p>
       </section>
 
-      <section className="py-4 h-[94svh] flex flex-col snap-start">
-        <h2 className="mb-4 self-center text-xl font-serif highlighter backdrop-blur-sm justify-self-center">
-          Timeline:
-        </h2>
-
+      <section className="pb-1 h-[99svh] flex flex-col snap-start">
         <Timeline
           className="flex-1 relative bg-card border"
           cards={cards}
-          setCards={setCards}
+          onChange={console.log}
         />
       </section>
     </main>

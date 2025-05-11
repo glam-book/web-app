@@ -1,31 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 
 import { cn } from '@/lib/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
+import { TimelineCard, TimelineCardState } from '@/components/ui/timelineCard';
+
 import { TimeLabel } from './timeLabel';
-import { TimelineCard } from '@/components/ui/timelineCard';
-
-import { foo } from './hooks/foo';
-
-type Card = {
-  startTime: Date;
-  endTime: Date;
-  sign: string;
-  id: number;
-};
-
-type TimelineProps = React.HTMLAttributes<HTMLDivElement> & {
-  asChild?: boolean;
-  cards?: Array<Card>;
-  setCards?: (cards: Array<Card>) => void;
-};
+import type { TimelineProps } from './types';
 
 export const Timeline = ({
+  onChange,
   className,
   asChild = false,
   cards = [],
-  setCards,
   ...props
 }: TimelineProps) => {
   const Comp = asChild ? Slot : 'div';
@@ -46,21 +33,27 @@ export const Timeline = ({
     return time;
   };
 
-  const timeList = Array.from({ length: divisions }, (_, idx) =>
-    getTimeByIndex(idx),
+  const timeList = useMemo(
+    () => Array.from({ length: divisions }, (_, idx) => getTimeByIndex(idx)),
+    [],
   );
 
-  const getIndexByTime = (time: string) => timeList.indexOf(time);
+  const getIndexByTime = useCallback(
+    (time: string) => timeList.indexOf(time),
+    [timeList],
+  );
 
-  const timeToLh = (time: string) => getIndexByTime(time) * 2.5;
+  const timeToLh = useCallback(
+    (time: string) => getIndexByTime(time) * 2.5,
+    [getIndexByTime],
+  );
 
-  const [a, aa] = useState(10);
-
-  useEffect(() => {
-    if (currentItem) {
-      aa(timeToLh(intersectionTime));
-    }
-  }, [currentItem, intersectionTime, timeToLh]);
+  const [{ posLh: currentPosLh, sizeLh: currentSizeLh }, setParamsCurrent] =
+    useState<{ posLh: number; sizeLh: number; diffPosLh: number }>({
+      posLh: 10,
+      sizeLh: 15,
+      diffPosLh: 0,
+    });
 
   const [opts, setOpts] = useState({});
 
@@ -77,28 +70,18 @@ export const Timeline = ({
       className={cn(className, 'overflow-y-hidden relative text-2xs isolate')}
       {...props}
       onClick={(e) => {
-        console.log('click');
         if (!wasClickOnCard.current) {
           setCurrentItem(undefined);
           setCurrentItemId(undefined);
           return;
         }
+
         wasClickOnCard.current = false;
       }}
     >
       <div className="absolute inset-0 flex flex-col justify-center">
-        <div className="flex-1 border-b border-black border-dashed"></div>
-        <div className="flex-1">
-          <div className="pl-2 flex gap-1 h-full">
-            <TimeLabel className="invisible" label="00:00" />
-            {/*<div
-              className="border-dashed rounded bg-[lime] w-full max-h-full self-start"
-              style={{ height: `min(100%, ${Math.max(resizeYValueLh + 2.5, 2.5)}lh)` }}
-            >
-              Record: 1
-            </div>*/}
-          </div>
-        </div>
+        <div className="flex-1 border-b border-black border-dashed" />
+        <div className="flex-1" />
       </div>
 
       <div
@@ -107,13 +90,29 @@ export const Timeline = ({
           // currentItem && 'overscroll-none',
         )}
         ref={compRef}
-        onScroll={(e) => {
-          // if (e.currentTarget.scrollTop <= 0) {
-          //   document.querySelector('main')?.scrollTo({
-          //     behavior: 'smooth',
-          //     top: 0,
-          //   });
-          // }
+        onScrollEnd={() => {
+          if (currentItem) {
+            const aimPositionLh = timeToLh(intersectionTime);
+            console.log({ aimPositionLh, currentSizeLh });
+
+            setParamsCurrent((prev) => ({
+              ...prev,
+              posLh: aimPositionLh < prev.posLh ? aimPositionLh : prev.posLh,
+              sizeLh: Math.max(aimPositionLh - currentPosLh, 2.5),
+            }));
+
+            // setParamsCurrent(({ posLh, sizeLh, diffPosLh }) => {
+            //   const newDiffPosLh = posLh - newPosLh;
+            //   const newSizeLh = Math.max(sizeLh + newDiffPosLh, 2.5);
+            //   console.log({ newDiffPosLh, diffPosLh, newSizeLh, sizeLh });
+
+            //   return {
+            //     posLh: newPosLh,
+            //     sizeLh: newSizeLh,
+            //     diffPosLh: newDiffPosLh,
+            //   };
+            // });
+          }
         }}
       >
         <div className="h-[50%] flex items-end gap-1 bg-sky-50 overflow-hidden">
@@ -173,11 +172,15 @@ export const Timeline = ({
               <TimelineCard
                 key={item.id}
                 sign={item.sign}
-                topPositionLh={a}
-                sizeLh={10}
+                topPositionLh={currentPosLh}
+                toUnitsForDisplay={(n) => `${n}lh`}
+                className="transition-foo absolute"
+                sizeLh={currentSizeLh}
+                state={index === currentItemId && TimelineCardState.selected}
                 onClick={(e) => {
                   wasClickOnCard.current = true;
                   const target = e.currentTarget;
+
                   if (currentItem) {
                     // setCurrentItem(undefined);
                     // setCurrentItemId(undefined);
@@ -197,6 +200,7 @@ export const Timeline = ({
                       block: 'center',
                       behavior: 'smooth',
                     });
+
                     setCurrentItem(target);
                     setCurrentItemId(index);
                     // const timer = window.setInterval(() => {

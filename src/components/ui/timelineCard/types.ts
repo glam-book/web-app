@@ -1,7 +1,14 @@
-export type TimelineCardProps = {
-  sign: string;
-  topPositionLh: number;
-  sizeLh: number;
-  className?: string;
-  onClick?: (e: React.MouseEvent) => void;
+export enum TimelineCardState {
+  idle = 'idle',
+  selected = 'selected',
 }
+
+export type TimelineCardProps = {
+  toUnitsForDisplay: (n: number) => string;
+  onChange?: (o: { position: number; size: number }) => void;
+  sign: string;
+  defaultPosition: number;
+  defaultSize: number;
+  aimPosition: number;
+  className?: string;
+};
