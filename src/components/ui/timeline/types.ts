@@ -8,6 +8,8 @@ type Card = {
 export type TimelineProps = React.HTMLAttributes<HTMLDivElement> & {
   asChild?: boolean;
   cards?: Card[];
+  sectionDisplaySize?: number;
+  sectionSizeInMinutes?: number;
   onChange?: (card: Card) => void;
 };
 

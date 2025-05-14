@@ -2,22 +2,20 @@ import { useState, useEffect, useRef } from 'react';
 
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
+import { useFreakyState } from '@/hooks';
 
-import type { TimelineCardProps } from './types';
-import { TimelineCardState } from './types';
+import type { CardProps } from './types';
 
-export const TimelineCard = ({
-  sign,
-  defaultPosition,
-  defaultSize,
+export const Card = ({
+  fields,
   aimPosition,
   className,
-  toUnitsForDisplay,
+  toDisplayUnits,
   onChange,
-}: TimelineCardProps) => {
+}: CardProps) => {
+  console.log('card render');
+  const [localFields, setLocalFields] = useFreakyState(fields);
   const [isResizeMode, setResizeMode] = useState(false);
-  const [position, setPosition] = useState(defaultPosition);
-  const [size, setSize] = useState(defaultSize);
   const [isSelected, setSelected] = useState(false);
   const wasClickedOnTheCard = useRef(false);
 
@@ -25,6 +23,7 @@ export const TimelineCard = ({
     const handler = () => {
       if (!wasClickedOnTheCard.current) {
         setSelected(false);
+        onChange?.(localFields);
       }
 
       wasClickedOnTheCard.current = false;
@@ -35,15 +34,30 @@ export const TimelineCard = ({
     return () => document.removeEventListener('click', handler);
   }, []);
 
-  const onClick = () => {
+  useEffect(() => {}, [isSelected]);
+
+  useEffect(() => {
+    if (isSelected) {
+      console.log(aimPosition);
+    }
+  }, [aimPosition, isSelected]);
+
+  const onClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     wasClickedOnTheCard.current = true;
-    console.log('1');
+
+    e.currentTarget.scrollIntoView({
+      block: 'center',
+      behavior: 'smooth',
+    });
+
+    setSelected(true);
   };
 
   return (
-    <div
-      className={cn('w-full bg-[tomato]', className)}
-      style={{ top: toUnitsForDisplay(position) }}
+    <button
+      type="button"
+      className={cn('absolute w-full bg-[tomato]', className)}
+      style={{ top: toDisplayUnits(localFields.position) }}
       onClick={onClick}
     >
       <div className="absolute w-full flex -translate-y-full bg-lime-50">
@@ -59,11 +73,11 @@ export const TimelineCard = ({
       >
         <div
           className="bg-inherit rounded-sm transition-foo"
-          style={{ height: toUnitsForDisplay(size) }}
+          style={{ height: toDisplayUnits(localFields.size) }}
         >
-          {sign}
+          {localFields.sign}
         </div>
       </div>
-    </div>
+    </button>
   );
 };

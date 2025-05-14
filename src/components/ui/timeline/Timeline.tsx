@@ -1,18 +1,32 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 
 import { cn } from '@/lib/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
-import { TimelineCard, TimelineCardState } from '@/components/ui/timelineCard';
+import { curry } from '@/utils';
 
-import { TimeLabel } from './timeLabel';
+import { Card } from './components/card';
+import { CardsContainer } from './components/cardsContainer';
+import { TimeLabel } from './components/timeLabel';
+import {
+  defaultSectionDisplaySize,
+  defaultsSectionSizeInMinutes,
+} from './constants';
 import type { TimelineProps } from './types';
+import {
+  getTimeList,
+  validateSectionSize,
+  convertDateToUnits,
+  getNumberOfSections,
+} from './utils';
 
 export const Timeline = ({
   onChange,
-  className,
   asChild = false,
   cards = [],
+  sectionDisplaySize = defaultSectionDisplaySize,
+  sectionSizeInMinutes = defaultsSectionSizeInMinutes,
+  className,
   ...props
 }: TimelineProps) => {
   const Comp = asChild ? Slot : 'div';
@@ -20,33 +34,27 @@ export const Timeline = ({
   const cardsContainerRef = useRef<HTMLDivElement>(null);
   const [currentItem, setCurrentItem] = useState<HTMLElement>();
   const [currentItemId, setCurrentItemId] = useState<number>();
-  const [intersectionTime, setIntersecionTime] = useState('');
-  const divisions = 96;
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [intersectionTimeIndex, setIntersecionTimeIndex] = useState(0);
   const wasClickOnCard = useRef(false);
-  const [resizeYValueLh, setResizeYValueLh] = useState(0);
+  const [aimPosition, setAimPosition] = useState(0);
 
-  const getTimeByIndex = (idx: number) => {
-    const mm = `${String((idx * 15) % 60).padStart(2, '0')}`;
-    const hh = `${String(Math.floor(idx / 4)).padStart(2, '0')}`;
-    const time = `${hh}:${mm}`;
-    return time;
-  };
+  const validSectionSizeInMinutes = useMemo(
+    () => validateSectionSize(sectionSizeInMinutes),
+    [sectionSizeInMinutes],
+  );
+
+  const numberOfSections = useMemo(
+    () => getNumberOfSections(validSectionSizeInMinutes),
+    [validSectionSizeInMinutes],
+  );
 
   const timeList = useMemo(
-    () => Array.from({ length: divisions }, (_, idx) => getTimeByIndex(idx)),
-    [],
+    () => getTimeList(numberOfSections, validSectionSizeInMinutes),
+    [validSectionSizeInMinutes, numberOfSections],
   );
 
-  const getIndexByTime = useCallback(
-    (time: string) => timeList.indexOf(time),
-    [timeList],
-  );
-
-  const timeToLh = useCallback(
-    (time: string) => getIndexByTime(time) * 2.5,
-    [getIndexByTime],
-  );
+  const curriedConvertDateToUnits =
+    curry(convertDateToUnits)(numberOfSections)(sectionDisplaySize);
 
   const [{ posLh: currentPosLh, sizeLh: currentSizeLh }, setParamsCurrent] =
     useState<{ posLh: number; sizeLh: number; diffPosLh: number }>({
@@ -87,18 +95,21 @@ export const Timeline = ({
       <div
         className={cn(
           'pl-2 relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal overscroll-auto',
-          // currentItem && 'overscroll-none',
         )}
         ref={compRef}
         onScrollEnd={() => {
+          setAimPosition(intersectionTimeIndex * sectionDisplaySize);
+
           if (currentItem) {
-            const aimPositionLh = timeToLh(intersectionTime);
             console.log({ aimPositionLh, currentSizeLh });
 
             setParamsCurrent((prev) => ({
               ...prev,
               posLh: aimPositionLh < prev.posLh ? aimPositionLh : prev.posLh,
-              sizeLh: Math.max(aimPositionLh - currentPosLh, 2.5),
+              sizeLh: Math.max(
+                aimPositionLh - currentPosLh,
+                sectionDisplaySize,
+              ),
             }));
 
             // setParamsCurrent(({ posLh, sizeLh, diffPosLh }) => {
@@ -121,18 +132,20 @@ export const Timeline = ({
               {timeList.map((time) => (
                 <TimeLabel key={time} label={time} />
               ))}
-              <div className="h-[1.25lh]"></div>
+              <div className={`h-[${sectionDisplaySize}lh]`}></div>
             </>
           </div>
         </div>
 
         <div className="flex-1 flex gap-1">
-          <div className="[&>*:first-child]:h-[1.25lh] [&>*:first-child]:-translate-y-2/4">
-            {timeList.map((time) => (
+          <div
+            className={`[&>*:first-child]:h-[${sectionDisplaySize / 2}lh] [&>*:first-child]:-translate-y-2/4`}
+          >
+            {timeList.map((time, idx) => (
               <TimeLabel
                 key={time}
                 label={time}
-                isIntersecting={time === intersectionTime}
+                isIntersecting={idx === intersectionTimeIndex}
               />
             ))}
           </div>
@@ -147,7 +160,7 @@ export const Timeline = ({
                 intersectionOpts={opts}
                 callback={({ isIntersecting }) => {
                   if (isIntersecting) {
-                    setIntersecionTime(time);
+                    setIntersecionTimeIndex(idx);
                     // window.navigator.vibrate(1);
                   }
                 }}
@@ -168,8 +181,19 @@ export const Timeline = ({
               </IntersectionTarget>
             ))}
 
-            {cards.map((item, index) => (
-              <TimelineCard
+            <CardsContainer
+              cards={cards.map((card) => ({
+                ...card,
+                from: curriedConvertDateToUnits(card.from),
+                to: curriedConvertDateToUnits(card.to),
+              }))}
+              aimPosition={aimPosition}
+              onChange={console.log}
+              toDisplayUnits={(n) => `${n}lh`}
+            />
+
+            {/*cards.map((item, index) => (
+              <Card
                 key={item.id}
                 sign={item.sign}
                 topPositionLh={currentPosLh}
@@ -214,7 +238,7 @@ export const Timeline = ({
                   }
                 }}
               />
-            ))}
+            ))*/}
           </div>
 
           {/*<IntersectionObserverViewport

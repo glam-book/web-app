@@ -13,8 +13,8 @@ export function App() {
     {
       id: '1',
       sign: 'Record: 1',
-      from: new Date(),
-      to: addHours(new Date(), 2),
+      from: new Date('2000 1 1 12:00'),
+      to: new Date('2000 1 1 13:30'),
     },
     // {
     //   title: 'Record: 2',

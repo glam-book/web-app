@@ -6,9 +6,9 @@ type Card = {
   className?: string;
 };
 
-export type TimelineCardsContainerProps = {
+export type CardsContainerProps = {
   cards: Card[];
   aimPosition: number;
   onChange: (card: Card) => void;
-  toUnitsForDisplay: (n: number) => unknown;
+  toDisplayUnits: (n: number) => string;
 };

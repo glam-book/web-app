@@ -1,22 +1,25 @@
-import { TimelineCard } from '@/components/ui/timelineCard';
+import type { CardsContainerProps } from './types';
 
-import type { TimelineCardsContainerProps } from './types';
+import { Card } from '../card';
 
-export const TimelineCardsContainer = ({
+export const CardsContainer = ({
   aimPosition,
   cards = [],
   onChange,
-  toUnitsForDisplay,
-}: TimelineCardsContainerProps) => {
+  toDisplayUnits,
+}: CardsContainerProps) => {
+  console.log('cards container render');
   return cards.map(({ id, sign, from, to, className }) => (
-    <TimelineCard
+    <Card
       key={id}
-      sign={sign}
+      fields={{
+        size: to - from,
+        position: from,
+        sign,
+      }}
       aimPosition={aimPosition}
-      defaultPosition={from}
-      defaultSize={to - from}
       className={className}
-      toUnitsForDisplay={toUnitsForDisplay}
+      toDisplayUnits={toDisplayUnits}
       onChange={({ position, size }) =>
         onChange({
           id,
