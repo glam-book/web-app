@@ -1,4 +1,5 @@
 type Fields = {
+  id: string;
   sign: string;
   position: number;
   size: number;
@@ -6,7 +7,9 @@ type Fields = {
 
 export type CardProps = {
   toDisplayUnits: (n: number) => string;
-  onChange?: (fields: Fields) => void;
+  onChange: (fields: Fields) => void;
+  onSelectCard?: (fields: Fields) => void;
+  onBlurCard?: (fields: Fields) => void;
   aimPosition: number;
   fields: Fields;
   className?: string;

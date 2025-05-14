@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
@@ -6,78 +6,85 @@ import { useFreakyState } from '@/hooks';
 
 import type { CardProps } from './types';
 
-export const Card = ({
-  fields,
-  aimPosition,
-  className,
-  toDisplayUnits,
-  onChange,
-}: CardProps) => {
-  console.log('card render');
-  const [localFields, setLocalFields] = useFreakyState(fields);
-  const [isResizeMode, setResizeMode] = useState(false);
-  const [isSelected, setSelected] = useState(false);
-  const wasClickedOnTheCard = useRef(false);
+export const Card = memo(
+  ({
+    fields,
+    aimPosition,
+    className,
+    toDisplayUnits,
+    onChange,
+    onSelectCard,
+    onBlurCard,
+  }: CardProps) => {
+    console.log('card render');
+    const [localFields, setLocalFields] = useFreakyState(fields);
+    const [isResizeMode, setResizeMode] = useState(false);
+    const [isSelected, setSelected] = useState(false);
+    const wasClickedOnTheCard = useRef(false);
 
-  useEffect(() => {
-    const handler = () => {
-      if (!wasClickedOnTheCard.current) {
-        setSelected(false);
-        onChange?.(localFields);
+    useEffect(() => {
+      const handler = () => {
+        if (!wasClickedOnTheCard.current) {
+          setSelected(false);
+          onChange(localFields);
+          onBlurCard?.(localFields);
+        }
+
+        wasClickedOnTheCard.current = false;
+      };
+
+      document.addEventListener('click', handler);
+
+      return () => document.removeEventListener('click', handler);
+    }, []);
+
+    useEffect(() => {}, [isSelected]);
+
+    useEffect(() => {
+      if (isSelected) {
+        console.log(aimPosition);
       }
+    }, [aimPosition, isSelected]);
 
-      wasClickedOnTheCard.current = false;
+    const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      wasClickedOnTheCard.current = true;
+
+      e.currentTarget.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth',
+      });
+
+      setSelected(true);
+      onSelectCard?.(localFields);
     };
 
-    document.addEventListener('click', handler);
-
-    return () => document.removeEventListener('click', handler);
-  }, []);
-
-  useEffect(() => {}, [isSelected]);
-
-  useEffect(() => {
-    if (isSelected) {
-      console.log(aimPosition);
-    }
-  }, [aimPosition, isSelected]);
-
-  const onClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    wasClickedOnTheCard.current = true;
-
-    e.currentTarget.scrollIntoView({
-      block: 'center',
-      behavior: 'smooth',
-    });
-
-    setSelected(true);
-  };
-
-  return (
-    <button
-      type="button"
-      className={cn('absolute w-full bg-[tomato]', className)}
-      style={{ top: toDisplayUnits(localFields.position) }}
-      onClick={onClick}
-    >
-      <div className="absolute w-full flex -translate-y-full bg-lime-50">
-        {isSelected && (
-          <Switch checked={isResizeMode} onCheckedChange={setResizeMode} />
-        )}
-      </div>
+    return (
       <div
-        className={cn(
-          'bg-inherit w-full h-[2.5lh] text-2xs select-none overflow-y-visible transition-all rounded-2xl',
-          className,
-        )}
+        role="button"
+        className={cn('absolute w-full bg-[tomato]', className)}
+        style={{ top: toDisplayUnits(localFields.position) }}
+        onClick={onClick}
+        tabIndex={0}
       >
+        <div className="absolute w-full flex -translate-y-full bg-lime-50">
+          {isSelected && (
+            <Switch checked={isResizeMode} onCheckedChange={setResizeMode} />
+          )}
+        </div>
         <div
-          className="bg-inherit rounded-sm transition-foo"
-          style={{ height: toDisplayUnits(localFields.size) }}
+          className={cn(
+            'bg-inherit w-full h-[2.5lh] text-2xs select-none overflow-y-visible transition-all rounded-2xl',
+            className,
+          )}
         >
-          {localFields.sign}
+          <div
+            className="bg-inherit rounded-sm transition-foo"
+            style={{ height: toDisplayUnits(localFields.size) }}
+          >
+            {localFields.sign}
+          </div>
         </div>
       </div>
-    </button>
-  );
-};
+    );
+  },
+);

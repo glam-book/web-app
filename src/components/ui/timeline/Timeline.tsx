@@ -20,6 +20,8 @@ import {
   getNumberOfSections,
 } from './utils';
 
+const toDisplayUnits = (n: number) => `${n}lh`;
+
 export const Timeline = ({
   onChange,
   asChild = false,
@@ -53,8 +55,10 @@ export const Timeline = ({
     [validSectionSizeInMinutes, numberOfSections],
   );
 
-  const curriedConvertDateToUnits =
-    curry(convertDateToUnits)(numberOfSections)(sectionDisplaySize);
+  const curriedConvertDateToUnits = useMemo(
+    () => curry(convertDateToUnits)(numberOfSections)(sectionDisplaySize),
+    [numberOfSections, sectionDisplaySize],
+  );
 
   const [{ posLh: currentPosLh, sizeLh: currentSizeLh }, setParamsCurrent] =
     useState<{ posLh: number; sizeLh: number; diffPosLh: number }>({
@@ -62,6 +66,18 @@ export const Timeline = ({
       sizeLh: 15,
       diffPosLh: 0,
     });
+
+  const cardsForTheCardsContainer: React.ComponentProps<
+    typeof CardsContainer
+  >['cards'] = useMemo(
+    () =>
+      cards.map((card) => ({
+        ...card,
+        from: curriedConvertDateToUnits(card.from),
+        to: curriedConvertDateToUnits(card.to),
+      })),
+    [cards, curriedConvertDateToUnits],
+  );
 
   const [opts, setOpts] = useState({});
 
@@ -182,14 +198,10 @@ export const Timeline = ({
             ))}
 
             <CardsContainer
-              cards={cards.map((card) => ({
-                ...card,
-                from: curriedConvertDateToUnits(card.from),
-                to: curriedConvertDateToUnits(card.to),
-              }))}
+              cards={cardsForTheCardsContainer}
               aimPosition={aimPosition}
               onChange={console.log}
-              toDisplayUnits={(n) => `${n}lh`}
+              toDisplayUnits={toDisplayUnits}
             />
 
             {/*cards.map((item, index) => (
