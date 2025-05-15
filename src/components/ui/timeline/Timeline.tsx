@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import { curry } from '@/utils';
 
-import { Card } from './components/card';
 import { CardsContainer } from './components/cardsContainer';
 import { TimeLabel } from './components/timeLabel';
 import {
@@ -144,12 +143,10 @@ export const Timeline = ({
       >
         <div className="h-[50%] flex items-end gap-1 bg-sky-50 overflow-hidden">
           <div>
-            <>
-              {timeList.map((time) => (
-                <TimeLabel key={time} label={time} />
-              ))}
-              <div className={`h-[${sectionDisplaySize}lh]`}></div>
-            </>
+            {timeList.map((time) => (
+              <TimeLabel key={time} label={time} />
+            ))}
+            <div className={`h-[${sectionDisplaySize / 2}lh]`}></div>
           </div>
         </div>
 
