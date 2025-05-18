@@ -174,5 +174,5 @@
 
 /* timelinecard */
 @utility transition-foo {
-  transition: all .2s ease-in .22s;
+  transition: all .3s ease-out;
 }

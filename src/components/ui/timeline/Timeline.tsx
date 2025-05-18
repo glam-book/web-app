@@ -1,9 +1,18 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import {
+  add,
+  getHours,
+  getMinutes,
+  setHours,
+  setMinutes,
+  setSeconds,
+  format,
+} from 'date-fns';
 import { Slot } from '@radix-ui/react-slot';
+import { type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
-import { curry } from '@/utils';
 
 import { CardsContainer } from './components/cardsContainer';
 import { TimeLabel } from './components/timeLabel';
@@ -15,28 +24,32 @@ import type { TimelineProps } from './types';
 import {
   getTimeList,
   validateSectionSize,
-  convertDateToUnits,
+  convertUnitsToMinutes,
+  convertMinutesToUnits,
   getNumberOfSections,
 } from './utils';
+import { timeLine, dummy, timeLabel } from './style';
+
+type Card = React.ComponentProps<typeof CardsContainer>['cards'][0] & {
+  fromDate: Date;
+  toDate: Date;
+};
 
 const toDisplayUnits = (n: number) => `${n}lh`;
 
 export const Timeline = ({
-  onChange,
-  asChild = false,
+  onCardChange,
   cards = [],
   sectionDisplaySize = defaultSectionDisplaySize,
   sectionSizeInMinutes = defaultsSectionSizeInMinutes,
+  asChild = false,
   className,
+  size,
   ...props
-}: TimelineProps) => {
+}: TimelineProps & VariantProps<typeof timeLine>) => {
   const Comp = asChild ? Slot : 'div';
-  const compRef = useRef<HTMLDivElement>(null);
-  const cardsContainerRef = useRef<HTMLDivElement>(null);
-  const [currentItem, setCurrentItem] = useState<HTMLElement>();
-  const [currentItemId, setCurrentItemId] = useState<number>();
+  const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
   const [intersectionTimeIndex, setIntersecionTimeIndex] = useState(0);
-  const wasClickOnCard = useRef(false);
   const [aimPosition, setAimPosition] = useState(0);
 
   const validSectionSizeInMinutes = useMemo(
@@ -54,53 +67,85 @@ export const Timeline = ({
     [validSectionSizeInMinutes, numberOfSections],
   );
 
-  const curriedConvertDateToUnits = useMemo(
-    () => curry(convertDateToUnits)(numberOfSections)(sectionDisplaySize),
+  const convertDateToDisplayUnits = useCallback(
+    (date: Date) =>
+      convertMinutesToUnits(
+        numberOfSections,
+        sectionDisplaySize,
+        getHours(date) * 60 + getMinutes(date),
+      ),
     [numberOfSections, sectionDisplaySize],
   );
 
-  const [{ posLh: currentPosLh, sizeLh: currentSizeLh }, setParamsCurrent] =
-    useState<{ posLh: number; sizeLh: number; diffPosLh: number }>({
-      posLh: 10,
-      sizeLh: 15,
-      diffPosLh: 0,
-    });
+  const convertDisplayUnitsToDate = useCallback(
+    (units: number, sourceDate: Date) => {
+      const minutes = convertUnitsToMinutes(
+        numberOfSections,
+        sectionDisplaySize,
+        units,
+      );
 
-  const cardsForTheCardsContainer: React.ComponentProps<
-    typeof CardsContainer
-  >['cards'] = useMemo(
+      return add(setHours(setMinutes(setSeconds(sourceDate, 0), 0), 0), {
+        minutes,
+      });
+    },
+    [numberOfSections, sectionDisplaySize],
+  );
+
+  const cardsForTheCardsContainer: Card[] = useMemo(
     () =>
       cards.map((card) => ({
         ...card,
-        from: curriedConvertDateToUnits(card.from),
-        to: curriedConvertDateToUnits(card.to),
+        fromDate: card.from,
+        toDate: card.to,
+        from: convertDateToDisplayUnits(card.from),
+        to: convertDateToDisplayUnits(card.to),
       })),
-    [cards, curriedConvertDateToUnits],
+    [cards, convertDateToDisplayUnits],
   );
 
-  const [opts, setOpts] = useState({});
+  const handleCardChange = useCallback(
+    ({ from, to, fromDate, toDate, ...rest }: Card) => {
+      onCardChange({
+        ...rest,
+        from: convertDisplayUnitsToDate(from, fromDate),
+        to: convertDisplayUnitsToDate(to, toDate),
+      });
+    },
+    [onCardChange, convertDisplayUnitsToDate],
+  );
 
-  useEffect(() => {
-    setOpts({
-      root: compRef.current,
+  const handleSelectCard = useCallback(
+    ({ from }: Card) => {
+      const lhPx = parseFloat(getComputedStyle(scrollView!).lineHeight);
+      const top = lhPx * from;
+      scrollView?.scroll(0, top);
+    },
+    [scrollView],
+  );
+
+  const onToggleResizeMode = useCallback(
+    (isResizeMode: boolean, { from, to }: Card) => {
+      const lhPx = parseFloat(getComputedStyle(scrollView!).lineHeight);
+      const top = lhPx * (isResizeMode ? to : from);
+      scrollView?.scroll(0, top);
+    },
+    [scrollView],
+  );
+
+  const intersectionObserverOpts = useMemo(
+    () => ({
+      root: scrollView,
       rootMargin: '-50% 0px -50% 0px',
       threshold: [0, 1],
-    });
-  }, [compRef]);
+    }),
+    [scrollView],
+  );
 
   return (
     <Comp
       className={cn(className, 'overflow-y-hidden relative text-2xs isolate')}
       {...props}
-      onClick={(e) => {
-        if (!wasClickOnCard.current) {
-          setCurrentItem(undefined);
-          setCurrentItemId(undefined);
-          return;
-        }
-
-        wasClickOnCard.current = false;
-      }}
     >
       <div className="absolute inset-0 flex flex-col justify-center">
         <div className="flex-1 border-b border-black border-dashed" />
@@ -108,37 +153,37 @@ export const Timeline = ({
       </div>
 
       <div
+        ref={setScrollView}
         className={cn(
-          'pl-2 relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal overscroll-auto',
+          'pl-2 relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal overscroll-auto scroll-smooth',
         )}
-        ref={compRef}
         onScrollEnd={() => {
           setAimPosition(intersectionTimeIndex * sectionDisplaySize);
 
-          if (currentItem) {
-            console.log({ aimPositionLh, currentSizeLh });
+          // if (currentItem) {
+          //   console.log({ aimPositionLh, currentSizeLh });
 
-            setParamsCurrent((prev) => ({
-              ...prev,
-              posLh: aimPositionLh < prev.posLh ? aimPositionLh : prev.posLh,
-              sizeLh: Math.max(
-                aimPositionLh - currentPosLh,
-                sectionDisplaySize,
-              ),
-            }));
+          //   setParamsCurrent((prev) => ({
+          //     ...prev,
+          //     posLh: aimPositionLh < prev.posLh ? aimPositionLh : prev.posLh,
+          //     sizeLh: Math.max(
+          //       aimPositionLh - currentPosLh,
+          //       sectionDisplaySize,
+          //     ),
+          //   }));
 
-            // setParamsCurrent(({ posLh, sizeLh, diffPosLh }) => {
-            //   const newDiffPosLh = posLh - newPosLh;
-            //   const newSizeLh = Math.max(sizeLh + newDiffPosLh, 2.5);
-            //   console.log({ newDiffPosLh, diffPosLh, newSizeLh, sizeLh });
+          //   setParamsCurrent(({ posLh, sizeLh, diffPosLh }) => {
+          //     const newDiffPosLh = posLh - newPosLh;
+          //     const newSizeLh = Math.max(sizeLh + newDiffPosLh, 2.5);
+          //     console.log({ newDiffPosLh, diffPosLh, newSizeLh, sizeLh });
 
-            //   return {
-            //     posLh: newPosLh,
-            //     sizeLh: newSizeLh,
-            //     diffPosLh: newDiffPosLh,
-            //   };
-            // });
-          }
+          //     return {
+          //       posLh: newPosLh,
+          //       sizeLh: newSizeLh,
+          //       diffPosLh: newDiffPosLh,
+          //     };
+          //   });
+          // }
         }}
       >
         <div className="h-[50%] flex items-end gap-1 bg-sky-50 overflow-hidden">
@@ -146,13 +191,16 @@ export const Timeline = ({
             {timeList.map((time) => (
               <TimeLabel key={time} label={time} />
             ))}
-            <div className={`h-[${sectionDisplaySize / 2}lh]`}></div>
+            <div className={cn(dummy({ size }))}></div>
           </div>
         </div>
 
         <div className="flex-1 flex gap-1">
           <div
-            className={`[&>*:first-child]:h-[${sectionDisplaySize / 2}lh] [&>*:first-child]:-translate-y-2/4`}
+            className={cn(
+              timeLabel({ size }),
+              '[&>*:first-child]:-translate-y-2/4',
+            )}
           >
             {timeList.map((time, idx) => (
               <TimeLabel
@@ -163,14 +211,11 @@ export const Timeline = ({
             ))}
           </div>
 
-          <div
-            ref={cardsContainerRef}
-            className="relative flex-1 flex flex-col"
-          >
+          <div className="relative flex-1 flex flex-col">
             {timeList.map((time, idx) => (
               <IntersectionTarget
                 key={time}
-                intersectionOpts={opts}
+                intersectionOpts={intersectionObserverOpts}
                 callback={({ isIntersecting }) => {
                   if (isIntersecting) {
                     setIntersecionTimeIndex(idx);
@@ -197,8 +242,10 @@ export const Timeline = ({
             <CardsContainer
               cards={cardsForTheCardsContainer}
               aimPosition={aimPosition}
-              onChange={console.log}
+              onChange={handleCardChange}
               toDisplayUnits={toDisplayUnits}
+              onSelect={handleSelectCard}
+              onToggleResizeMode={onToggleResizeMode}
             />
 
             {/*cards.map((item, index) => (

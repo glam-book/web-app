@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { addHours } from 'date-fns';
+import { useState, useCallback } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -8,7 +7,6 @@ import { Switch } from '@/components/ui/switch';
 
 export function App() {
   const [date, setDate] = useState<Date>();
-  // const [is, setIs] = useState(false);
   const [cards, setCards] = useState([
     {
       id: '1',
@@ -21,6 +19,14 @@ export function App() {
     //   topPosition: 2.5 * 3 + 1.25,
     // },
   ]);
+
+  const foo = useCallback((card: (typeof cards)[0]) => {
+    setCards((prev) => {
+      const newCards = [...prev.filter(({ id }) => id !== card.id), card];
+      console.log(newCards);
+      return newCards;
+    });
+  }, []);
 
   return (
     <main className="content-grid max-h-dvh overflow-y-auto snap-mandatory snap-y">
@@ -90,7 +96,7 @@ export function App() {
         <Timeline
           className="flex-1 relative bg-card border"
           cards={cards}
-          onChange={console.log}
+          onCardChange={foo}
         />
       </section>
     </main>

@@ -1,4 +1,4 @@
-export { convertDateToUnits } from './convertDateToUnits';
+export { convertMinutesToUnits, convertUnitsToMinutes } from './converters';
 export { getNumberOfSections } from './getNumberOfSections';
 export { validateSectionSize } from './validateSectionSize';
 export { getTimeByIndex } from './getTimeByIndex';

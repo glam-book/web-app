@@ -10,7 +10,8 @@ export type CardProps = {
   onChange: (fields: Fields) => void;
   onSelectCard?: (fields: Fields) => void;
   onBlurCard?: (fields: Fields) => void;
+  onToggleResizeMode: (isResizeMode: boolean, fields: Fields) => void;
   aimPosition: number;
   fields: Fields;
-  className?: string;
+  minCardSize?: number;
 };
