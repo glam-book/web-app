@@ -1,15 +1,17 @@
-export type Card<T> = {
+export type Card = {
   id: string;
   from: number;
   to: number;
   sign: string;
-} & T;
+  dateFrom: Date;
+  dateTo: Date;
+};
 
-export type CardsContainerProps<T> = {
-  cards: Card<T>[];
+export type CardsContainerProps = {
+  cards: Card[];
   aimPosition: number;
-  onChange: (card: Card<T>) => void;
-  onSelect: (card: Card<T>) => void;
-  onToggleResizeMode: (isResizeMode: boolean, card: Card<T>) => void;
+  onChange: (card: Card) => void;
+  onSelect: (card: Card) => void;
+  onToggleResizeMode: (isResizeMode: boolean, card: Card) => void;
   toDisplayUnits: (n: number) => string;
 };

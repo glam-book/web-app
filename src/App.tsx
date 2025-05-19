@@ -3,16 +3,16 @@ import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Timeline } from '@/components/ui/timeline';
-import { Switch } from '@/components/ui/switch';
 
 export function App() {
   const [date, setDate] = useState<Date>();
+
   const [cards, setCards] = useState([
     {
       id: '1',
       sign: 'Record: 1',
-      from: new Date('2000 1 1 12:00'),
-      to: new Date('2000 1 1 13:30'),
+      from: new Date(2000, 1, 1, 12),
+      to: new Date(2000, 1, 1, 13, 30),
     },
     // {
     //   title: 'Record: 2',
@@ -35,11 +35,8 @@ export function App() {
           Glam book
         </h1>
 
-        <Button>hihe</Button>
-        <Switch></Switch>
-
         <Button
-          className="bg-avocado"
+          variant="secondary"
           onClick={() => {
             const tg = window.Telegram.WebApp;
             const user = tg.initData;

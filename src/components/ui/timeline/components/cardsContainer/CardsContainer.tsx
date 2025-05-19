@@ -6,20 +6,21 @@ import { Card } from '../card';
 
 type Fields = React.ComponentProps<typeof Card>['fields'];
 
-export const CardsContainer = <T,>({
+export const CardsContainer = ({
   aimPosition,
   cards = [],
   onChange: onChangeHandler,
   onSelect: onSelectHandler,
   onToggleResizeMode,
   toDisplayUnits,
-}: CardsContainerProps<T>) => {
+}: CardsContainerProps) => {
   const [selectedCardId, setSelectedCardId] = useState('');
 
   const onBlurCard = useCallback(() => setSelectedCardId(''), []);
 
   const convertToFields = useCallback(
-    ({ from, to, id, sign }: ContainerCardType<T>): Fields => ({
+    ({ from, to, id, sign, ...rest }: ContainerCardType): Fields => ({
+      ...rest,
       id,
       sign,
       size: to - from,
@@ -30,7 +31,7 @@ export const CardsContainer = <T,>({
 
   const cardsAndFieldsMap: Map<
     string,
-    { card: ContainerCardType<T>; fields: Fields }
+    { card: ContainerCardType; fields: Fields }
   > = useMemo(
     () =>
       new Map(
@@ -39,33 +40,36 @@ export const CardsContainer = <T,>({
     [cards, convertToFields],
   );
 
+  const convertToCard = useCallback(
+    ({ id, position, size, ...rest }: Fields): ContainerCardType => ({
+      ...cardsAndFieldsMap.get(id)!.card,
+      ...rest,
+      id,
+      from: position,
+      to: position + size,
+    }),
+    [cardsAndFieldsMap],
+  );
+
   const onSelectCard = useCallback(
     (fields: Fields) => {
       setSelectedCardId(fields.id);
-      onSelectHandler(cardsAndFieldsMap.get(fields.id)!.card);
+      onSelectHandler(convertToCard(fields));
     },
-    [cardsAndFieldsMap, onSelectHandler],
+    [onSelectHandler, convertToCard],
   );
 
   const onChange = useCallback(
-    ({ id, position, size, ...rest }: Fields) =>
-      onChangeHandler({
-        ...cardsAndFieldsMap.get(id)!.card,
-        ...rest,
-        id,
-        from: position,
-        to: position + size,
-      }),
-    [onChangeHandler, cardsAndFieldsMap],
+    (fields: Fields) => onChangeHandler(convertToCard(fields)),
+    [onChangeHandler, convertToCard],
   );
 
-  const toggleResizeModeHandler = (isResizeMode: boolean, fields: Fields) => {
-    onToggleResizeMode(isResizeMode, {
-      ...cardsAndFieldsMap.get(fields.id)!.card,
-      from: fields.position,
-      to: fields.position + fields.size,
-    });
-  };
+  const toggleResizeModeHandler = useCallback(
+    (isResizeMode: boolean, fields: Fields) => {
+      onToggleResizeMode(isResizeMode, convertToCard(fields));
+    },
+    [convertToCard, onToggleResizeMode],
+  );
 
   return cards.map(({ id }) => (
     <Card

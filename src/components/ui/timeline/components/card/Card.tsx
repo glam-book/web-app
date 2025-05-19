@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, memo } from 'react';
 
 import { Switch } from '@/components/ui/switch';
 import { useFreakyState } from '@/hooks';
+import { cn } from '@/lib/utils';
 
 import type { CardProps } from './types';
 
@@ -25,19 +26,10 @@ export const Card = memo<CardProps>(
     onToggleResizeMode,
   }) => {
     const [localFields, setLocalFields] = useFreakyState(fields);
+    console.log({localFields, aimPosition})
     const [isResizeMode, setResizeMode] = useState(false);
     const wasClickedOnTheCard = useRef(false);
     const [isSelected, setSelected] = useState(false);
-
-    useEffect(() => {
-      console.log({ aimPosition });
-    }, [aimPosition]);
-    useEffect(() => {
-      console.log({ localFields });
-    }, [localFields]);
-    useEffect(() => {
-      console.log({ fields });
-    }, [fields]);
 
     useEffect(() => {
       const handler = () => {
@@ -70,15 +62,20 @@ export const Card = memo<CardProps>(
 
     useEffect(() => {
       if (!isSelected && checkIsCardChanged(fields, localFields)) {
+        console.log('on hcnage call?');
         onChange(localFields);
         onBlurCard?.(localFields);
+        setResizeMode(false);
       }
     }, [isSelected, onBlurCard, onChange, localFields, fields]);
 
     const onClick = () => {
       wasClickedOnTheCard.current = true;
       setSelected(true);
-      onSelectCard?.(localFields);
+
+      if (!isSelected) {
+        onSelectCard?.(localFields);
+      }
     };
 
     return (
@@ -92,19 +89,26 @@ export const Card = memo<CardProps>(
           height: toDisplayUnits(localFields.size),
         }}
       >
-        <div className="absolute w-full flex -translate-y-full bg-lime-50">
-          {isSelected && (
-            <Switch
-              checked={isResizeMode}
-              onCheckedChange={(checked) => {
-                setResizeMode(checked);
-                onToggleResizeMode(checked, localFields);
-              }}
-            />
+        <div
+          className={cn(
+            'sticky top-0 w-full min-h-[2.5lh] text-2xs select-none overflow-y-visible',
+            isSelected && 'top-[1lh]',
           )}
-        </div>
-
-        <div className="sticky top-0 w-full min-h-[2.5lh] text-2xs select-none overflow-y-visible">
+        >
+          <div className="absolute w-full flex items-center -translate-y-full bg-lime-50">
+            {isSelected && (
+              <>
+                toggle resize mode:::
+                <Switch
+                  checked={isResizeMode}
+                  onCheckedChange={(checked) => {
+                    setResizeMode(checked);
+                    onToggleResizeMode(checked, localFields);
+                  }}
+                />
+              </>
+            )}
+          </div>
           {localFields.sign}
         </div>
       </div>

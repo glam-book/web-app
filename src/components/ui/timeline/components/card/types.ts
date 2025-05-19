@@ -3,6 +3,8 @@ type Fields = {
   sign: string;
   position: number;
   size: number;
+  dateFrom: Date;
+  dateTo: Date;
 };
 
 export type CardProps = {
