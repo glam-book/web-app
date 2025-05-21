@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo, useMemo } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
 import { flow } from 'effect';
 
 import { Switch } from '@/components/ui/switch';
@@ -27,33 +27,45 @@ export const Card = memo(
     const [isResizeMode, setResizeMode] = useState(false);
     const wasClickedOnTheCard = useRef(false);
     const [isSelected, setSelected] = useState(false);
+    const [localFields, setLocalFields] = useState(fields);
 
     const dateToDisplayUnits = useMemo(
       () => flow(getMinutesFromDate, minutesToDisplayUnits),
       [minutesToDisplayUnits],
     );
 
-    const [localFields, setLocalFields] = useState<
-      typeof fields & { size: number; top: number }
-    >({
-      ...fields,
-      top: dateToDisplayUnits(fields.from),
-      size: flow(
-        () => [fields.from, fields.to].map(dateToDisplayUnits),
-        ([from, to]) => to - from,
-      )(),
-    });
-
-    useEffect(() => {
-      setLocalFields({
-        ...fields,
+    const getInitialDisplayFields = useCallback(
+      () => ({
         top: dateToDisplayUnits(fields.from),
         size: flow(
           () => [fields.from, fields.to].map(dateToDisplayUnits),
           ([from, to]) => to - from,
         )(),
-      });
-    }, [fields, dateToDisplayUnits]);
+      }),
+      [fields, dateToDisplayUnits],
+    );
+
+    const [displayFields, setDisplayFields] = useState(getInitialDisplayFields);
+
+    useEffect(() => {
+      setDisplayFields(getInitialDisplayFields);
+    }, [fields, getInitialDisplayFields]);
+
+    useEffect(() => {
+      setLocalFields((prev) => ({
+        ...prev,
+
+        from: flow(
+          displayUnitsToMinutes,
+          setMinutesToDate(prev.from),
+        )(displayFields.top),
+
+        to: flow(
+          displayUnitsToMinutes,
+          setMinutesToDate(prev.to),
+        )(displayFields.top + displayFields.size),
+      }));
+    }, [displayFields]);
 
     useEffect(() => {
       const handler = () => {
@@ -71,65 +83,19 @@ export const Card = memo(
 
     useEffect(() => {
       if (isSelected) {
-        setLocalFields((prev) => {
-          const top = isResizeMode
-            ? Math.min(aimPosition, prev.top)
-            : aimPosition;
-
-          const size = isResizeMode
+        setDisplayFields((prev) => ({
+          top: isResizeMode ? Math.min(aimPosition, prev.top) : aimPosition,
+          size: isResizeMode
             ? Math.max(aimPosition - prev.top, minCardSize)
-            : prev.size;
-
-          const from = flow(
-            displayUnitsToMinutes,
-            setMinutesToDate(prev.from),
-          )(top);
-
-          const to = flow(
-            displayUnitsToMinutes,
-            setMinutesToDate(prev.to),
-          )(top + size);
-
-          return {
-            ...prev,
-            top,
-            size,
-            from,
-            to,
-          };
-        });
+            : prev.size,
+        }));
       }
-    }, [
-      isSelected,
-      aimPosition,
-      minCardSize,
-      isResizeMode,
-      dateToDisplayUnits,
-      displayUnitsToMinutes,
-      setLocalFields,
-    ]);
-
-    useEffect(() => {
-      console.log({ localFields });
-    }, [localFields]);
+    }, [isSelected, aimPosition, minCardSize, isResizeMode]);
 
     useEffect(() => {
       if (!isSelected && checkIsCardChanged(fields, localFields)) {
         console.log('on hcnage call?');
-        onChange({
-          id: localFields.id,
-          sign: localFields.sign,
-
-          from: flow(
-            displayUnitsToMinutes,
-            setMinutesToDate(localFields.from),
-          )(localFields.top),
-
-          to: flow(
-            displayUnitsToMinutes,
-            setMinutesToDate(localFields.to),
-          )(localFields.top + localFields.size),
-        });
+        onChange(localFields);
         onBlurCard?.(localFields);
         setResizeMode(false);
       }
@@ -152,8 +118,8 @@ export const Card = memo(
         onClick={onClick}
         tabIndex={0}
         style={{
-          top: convertToSpecificDisplayUnits(localFields.top),
-          height: convertToSpecificDisplayUnits(localFields.size),
+          top: convertToSpecificDisplayUnits(displayFields.top),
+          height: convertToSpecificDisplayUnits(displayFields.size),
         }}
       >
         <div
