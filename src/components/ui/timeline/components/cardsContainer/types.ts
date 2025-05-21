@@ -1,17 +1,9 @@
-export type Card = {
-  id: string;
-  from: number;
-  to: number;
-  sign: string;
-  dateFrom: Date;
-  dateTo: Date;
-};
+import type { Card } from '../card';
 
-export type CardsContainerProps = {
-  cards: Card[];
-  aimPosition: number;
-  onChange: (card: Card) => void;
-  onSelect: (card: Card) => void;
-  onToggleResizeMode: (isResizeMode: boolean, card: Card) => void;
-  toDisplayUnits: (n: number) => string;
+type CardProps = React.ComponentProps<typeof Card>;
+
+export type Fields = CardProps['fields'];
+
+export type CardsContainerProps = Omit<CardProps, 'fields' | 'onBlurCard'> & {
+  fields: Map<Fields['id'], Fields>;
 };

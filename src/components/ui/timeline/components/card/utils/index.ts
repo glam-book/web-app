@@ -1,0 +1,1 @@
+export { checkIsCardChanged } from './checkIsCardChanged';

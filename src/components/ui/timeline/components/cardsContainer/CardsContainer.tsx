@@ -1,86 +1,35 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import type { CardsContainerProps, Card as ContainerCardType } from './types';
+import type { CardsContainerProps, Fields } from './types';
 
 import { Card } from '../card';
 
-type Fields = React.ComponentProps<typeof Card>['fields'];
-
 export const CardsContainer = ({
   aimPosition,
-  cards = [],
-  onChange: onChangeHandler,
-  onSelect: onSelectHandler,
-  onToggleResizeMode,
-  toDisplayUnits,
+  fields = new Map(),
+  onSelectCard,
+  ...rest
 }: CardsContainerProps) => {
-  const [selectedCardId, setSelectedCardId] = useState('');
+  const [selectedCardId, setSelectedCardId] = useState<string | number>();
 
-  const onBlurCard = useCallback(() => setSelectedCardId(''), []);
+  const blurCardHandler = useCallback(() => setSelectedCardId(''), []);
 
-  const convertToFields = useCallback(
-    ({ from, to, id, sign, ...rest }: ContainerCardType): Fields => ({
-      ...rest,
-      id,
-      sign,
-      size: to - from,
-      position: from,
-    }),
-    [],
-  );
-
-  const cardsAndFieldsMap: Map<
-    string,
-    { card: ContainerCardType; fields: Fields }
-  > = useMemo(
-    () =>
-      new Map(
-        cards.map((card) => [card.id, { card, fields: convertToFields(card) }]),
-      ),
-    [cards, convertToFields],
-  );
-
-  const convertToCard = useCallback(
-    ({ id, position, size, ...rest }: Fields): ContainerCardType => ({
-      ...cardsAndFieldsMap.get(id)!.card,
-      ...rest,
-      id,
-      from: position,
-      to: position + size,
-    }),
-    [cardsAndFieldsMap],
-  );
-
-  const onSelectCard = useCallback(
+  const selectCardHandler = useCallback(
     (fields: Fields) => {
       setSelectedCardId(fields.id);
-      onSelectHandler(convertToCard(fields));
+      onSelectCard?.(fields);
     },
-    [onSelectHandler, convertToCard],
+    [onSelectCard],
   );
 
-  const onChange = useCallback(
-    (fields: Fields) => onChangeHandler(convertToCard(fields)),
-    [onChangeHandler, convertToCard],
-  );
-
-  const toggleResizeModeHandler = useCallback(
-    (isResizeMode: boolean, fields: Fields) => {
-      onToggleResizeMode(isResizeMode, convertToCard(fields));
-    },
-    [convertToCard, onToggleResizeMode],
-  );
-
-  return cards.map(({ id }) => (
+  return Array.from(fields, ([id, cardFields]) => (
     <Card
       key={id}
-      fields={cardsAndFieldsMap.get(id)!.fields}
+      fields={cardFields}
       aimPosition={Number(selectedCardId === id && aimPosition)}
-      toDisplayUnits={toDisplayUnits}
-      onChange={onChange}
-      onSelectCard={onSelectCard}
-      onBlurCard={onBlurCard}
-      onToggleResizeMode={toggleResizeModeHandler}
+      onSelectCard={selectCardHandler}
+      onBlurCard={blurCardHandler}
+      {...rest}
     />
   ));
 };

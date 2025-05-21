@@ -1,14 +1,14 @@
 type Fields = {
-  id: string;
+  id: string | number;
   sign: string;
-  position: number;
-  size: number;
-  dateFrom: Date;
-  dateTo: Date;
-};
+  from: Date;
+  to: Date;
+}
 
 export type CardProps = {
-  toDisplayUnits: (n: number) => string;
+  convertToSpecificDisplayUnits: (n: number) => string;
+  minutesToDisplayUnits: (minutes: number) => number;
+  displayUnitsToMinutes: (units: number) => number;
   onChange: (fields: Fields) => void;
   onSelectCard?: (fields: Fields) => void;
   onBlurCard?: (fields: Fields) => void;

@@ -1,32 +1,14 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Timeline } from '@/components/ui/timeline';
+import { recordsStore } from '@/store/recordStore';
 
 export function App() {
   const [date, setDate] = useState<Date>();
 
-  const [cards, setCards] = useState([
-    {
-      id: '1',
-      sign: 'Record: 1',
-      from: new Date(2000, 1, 1, 12),
-      to: new Date(2000, 1, 1, 13, 30),
-    },
-    // {
-    //   title: 'Record: 2',
-    //   topPosition: 2.5 * 3 + 1.25,
-    // },
-  ]);
-
-  const foo = useCallback((card: (typeof cards)[0]) => {
-    setCards((prev) => {
-      const newCards = [...prev.filter(({ id }) => id !== card.id), card];
-      console.log(newCards);
-      return newCards;
-    });
-  }, []);
+  const { records, addRecord, addRandom: _ } = recordsStore();
 
   return (
     <main className="content-grid max-h-dvh overflow-y-auto snap-mandatory snap-y">
@@ -92,8 +74,8 @@ export function App() {
       <section className="pb-1 h-[99svh] flex flex-col snap-start">
         <Timeline
           className="flex-1 relative bg-card border"
-          cards={cards}
-          onCardChange={foo}
+          cards={records}
+          onCardChange={addRecord}
         />
       </section>
     </main>

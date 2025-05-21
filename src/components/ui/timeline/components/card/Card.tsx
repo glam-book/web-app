@@ -1,35 +1,59 @@
-import { useState, useEffect, useRef, memo } from 'react';
+import { useState, useEffect, useRef, memo, useMemo } from 'react';
+import { flow } from 'effect';
 
 import { Switch } from '@/components/ui/switch';
-import { useFreakyState } from '@/hooks';
 import { cn } from '@/lib/utils';
+import {
+  getMinutesFromDate,
+  setMinutesToDate,
+} from '@/components/ui/timeline/utils';
 
 import type { CardProps } from './types';
+import { checkIsCardChanged } from './utils';
 
-const checkIsCardChanged = (
-  fields: CardProps['fields'],
-  comparingFields: CardProps['fields'],
-) =>
-  fields.position !== comparingFields.position ||
-  fields.size !== comparingFields.size ||
-  fields.sign !== comparingFields.sign;
-
-export const Card = memo<CardProps>(
+export const Card = memo(
   ({
     fields,
     aimPosition,
     minCardSize = 2.5,
-    toDisplayUnits,
+    convertToSpecificDisplayUnits,
+    minutesToDisplayUnits,
+    displayUnitsToMinutes,
     onChange,
     onSelectCard,
     onBlurCard,
     onToggleResizeMode,
-  }) => {
-    const [localFields, setLocalFields] = useFreakyState(fields);
-    console.log({localFields, aimPosition})
+  }: CardProps) => {
     const [isResizeMode, setResizeMode] = useState(false);
     const wasClickedOnTheCard = useRef(false);
     const [isSelected, setSelected] = useState(false);
+
+    const dateToDisplayUnits = useMemo(
+      () => flow(getMinutesFromDate, minutesToDisplayUnits),
+      [minutesToDisplayUnits],
+    );
+
+    const [localFields, setLocalFields] = useState<
+      typeof fields & { size: number; top: number }
+    >({
+      ...fields,
+      top: dateToDisplayUnits(fields.from),
+      size: flow(
+        () => [fields.from, fields.to].map(dateToDisplayUnits),
+        ([from, to]) => to - from,
+      )(),
+    });
+
+    useEffect(() => {
+      setLocalFields({
+        ...fields,
+        top: dateToDisplayUnits(fields.from),
+        size: flow(
+          () => [fields.from, fields.to].map(dateToDisplayUnits),
+          ([from, to]) => to - from,
+        )(),
+      });
+    }, [fields, dateToDisplayUnits]);
 
     useEffect(() => {
       const handler = () => {
@@ -47,23 +71,65 @@ export const Card = memo<CardProps>(
 
     useEffect(() => {
       if (isSelected) {
-        setLocalFields((prev) => ({
-          ...prev,
-          position:
-            isResizeMode && aimPosition > prev.position
-              ? prev.position
-              : aimPosition,
-          size: isResizeMode
-            ? Math.max(aimPosition - prev.position, minCardSize)
-            : prev.size,
-        }));
+        setLocalFields((prev) => {
+          const top = isResizeMode
+            ? Math.min(aimPosition, prev.top)
+            : aimPosition;
+
+          const size = isResizeMode
+            ? Math.max(aimPosition - prev.top, minCardSize)
+            : prev.size;
+
+          const from = flow(
+            displayUnitsToMinutes,
+            setMinutesToDate(prev.from),
+          )(top);
+
+          const to = flow(
+            displayUnitsToMinutes,
+            setMinutesToDate(prev.to),
+          )(top + size);
+
+          return {
+            ...prev,
+            top,
+            size,
+            from,
+            to,
+          };
+        });
       }
-    }, [isSelected, aimPosition, setLocalFields, minCardSize, isResizeMode]);
+    }, [
+      isSelected,
+      aimPosition,
+      minCardSize,
+      isResizeMode,
+      dateToDisplayUnits,
+      displayUnitsToMinutes,
+      setLocalFields,
+    ]);
+
+    useEffect(() => {
+      console.log({ localFields });
+    }, [localFields]);
 
     useEffect(() => {
       if (!isSelected && checkIsCardChanged(fields, localFields)) {
         console.log('on hcnage call?');
-        onChange(localFields);
+        onChange({
+          id: localFields.id,
+          sign: localFields.sign,
+
+          from: flow(
+            displayUnitsToMinutes,
+            setMinutesToDate(localFields.from),
+          )(localFields.top),
+
+          to: flow(
+            displayUnitsToMinutes,
+            setMinutesToDate(localFields.to),
+          )(localFields.top + localFields.size),
+        });
         onBlurCard?.(localFields);
         setResizeMode(false);
       }
@@ -75,6 +141,7 @@ export const Card = memo<CardProps>(
 
       if (!isSelected) {
         onSelectCard?.(localFields);
+        setResizeMode(false);
       }
     };
 
@@ -85,8 +152,8 @@ export const Card = memo<CardProps>(
         onClick={onClick}
         tabIndex={0}
         style={{
-          top: toDisplayUnits(localFields.position),
-          height: toDisplayUnits(localFields.size),
+          top: convertToSpecificDisplayUnits(localFields.top),
+          height: convertToSpecificDisplayUnits(localFields.size),
         }}
       >
         <div

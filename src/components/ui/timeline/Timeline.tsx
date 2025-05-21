@@ -1,18 +1,12 @@
+import { useState, useMemo, useCallback } from 'react';
+import { flow } from 'effect';
 import debounce from 'debounce';
-import { useState, useMemo, useCallback, useEffect } from 'react';
-import {
-  add,
-  getHours,
-  getMinutes,
-  setHours,
-  setMinutes,
-  setSeconds,
-} from 'date-fns';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
+import type { MapValueType } from '@/types';
 
 import { CardsContainer } from './components/cardsContainer';
 import { TimeLabel } from './components/timeLabel';
@@ -24,19 +18,22 @@ import type { TimelineProps } from './types';
 import {
   getTimeList,
   validateSectionSize,
-  convertUnitsToMinutes,
   convertMinutesToUnits,
+  convertUnitsToMinutes,
   getNumberOfSections,
+  getMinutesFromDate,
 } from './utils';
 import { timeLine, dummy, timeLabel } from './style';
 
-type Card = React.ComponentProps<typeof CardsContainer>['cards'][0];
+type CardFields = MapValueType<
+  React.ComponentProps<typeof CardsContainer>['fields']
+>;
 
 const toDisplayUnits = (n: number) => `${n}lh`;
 
 export const Timeline = ({
   onCardChange,
-  cards = [],
+  cards = new Map(),
   sectionDisplaySize = defaultSectionDisplaySize,
   sectionSizeInMinutes = defaultsSectionSizeInMinutes,
   asChild = false,
@@ -64,82 +61,46 @@ export const Timeline = ({
     [validSectionSizeInMinutes, numberOfSections],
   );
 
-  const convertDateToDisplayUnits = useCallback(
-    (date: Date) =>
-      convertMinutesToUnits(
-        numberOfSections,
-        sectionDisplaySize,
-        getHours(date) * 60 + getMinutes(date),
-      ),
+  const minutesToDisplayUnits = useCallback(
+    (minutes: number) =>
+      convertMinutesToUnits(numberOfSections, sectionDisplaySize, minutes),
     [numberOfSections, sectionDisplaySize],
   );
 
-  const convertDisplayUnitsToDate = useCallback(
-    (units: number, sourceDate: Date) => {
-      const minutes = convertUnitsToMinutes(
-        numberOfSections,
-        sectionDisplaySize,
-        units,
-      );
-
-      return add(setHours(setMinutes(setSeconds(sourceDate, 0), 0), 0), {
-        minutes,
-      });
-    },
+  const displayUnitsToMinutes = useCallback(
+    (units: number) =>
+      convertUnitsToMinutes(numberOfSections, sectionDisplaySize, units),
     [numberOfSections, sectionDisplaySize],
   );
 
-  const cardsForTheCardsContainer: Card[] = useMemo(
-    () =>
-      cards.map((card) => ({
-        ...card,
-        dateFrom: card.from,
-        dateTo: card.to,
-        from: convertDateToDisplayUnits(card.from),
-        to: convertDateToDisplayUnits(card.to),
-      })),
-    [cards, convertDateToDisplayUnits],
-  );
-
-  useEffect(() => {
-    console.dir({ cardsForTheCardsContainer });
-  }, [cardsForTheCardsContainer]);
-
-  const handleCardChange = useCallback(
-    ({ from, to, dateTo, dateFrom, ...rest }: Card) => {
-      onCardChange({
-        ...rest,
-        from: convertDisplayUnitsToDate(from, dateFrom),
-        to: convertDisplayUnitsToDate(to, dateTo),
-      });
-    },
-    [onCardChange, convertDisplayUnitsToDate],
-  );
-
-  const scrollTo = useCallback(
+  const scrollToCard = useCallback(
     (position: number) => {
       const lhPx = parseFloat(getComputedStyle(scrollView!).lineHeight);
       const y = lhPx * position;
-      console.log({ y });
       scrollView?.scroll(0, y);
     },
     [scrollView],
   );
 
   const handleSelectCard = useCallback(
-    ({ from }: Card) => {
-      console.log('select card handler');
-      scrollTo(from);
-    },
-    [scrollTo],
+    flow(
+      ({ from }: CardFields) => from,
+      getMinutesFromDate,
+      minutesToDisplayUnits,
+      scrollToCard,
+    ),
+    [minutesToDisplayUnits, scrollToCard],
   );
 
   const onToggleResizeMode = useCallback(
-    (isResizeMode: boolean, { from, to }: Card) => {
-      console.info('toggle resize mode:::', from, to);
-      scrollTo(isResizeMode ? to : from);
-    },
-    [scrollTo],
+    flow(
+      (isResizeMode: boolean, { from, to }: CardFields) =>
+        isResizeMode ? to : from,
+      getMinutesFromDate,
+      minutesToDisplayUnits,
+      scrollToCard,
+    ),
+    [minutesToDisplayUnits, scrollToCard],
   );
 
   const intersectionObserverOpts = useMemo(
@@ -151,8 +112,8 @@ export const Timeline = ({
     [scrollView],
   );
 
-  const debouncedSetAimPosition = useMemo(
-    () => debounce(setAimPosition, 133),
+  const debouncedSetAimPosition = useCallback(
+    debounce(setAimPosition, 133),
     [],
   );
 
@@ -171,10 +132,6 @@ export const Timeline = ({
         className={cn(
           'pl-2 relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal overscroll-auto scroll-smooth',
         )}
-        onScrollEnd={() => {
-          // console.log({ intersectionTimeIndex });
-          // setAimPosition(intersectionTimeIndex * sectionDisplaySize);
-        }}
         onScroll={() => {
           debouncedSetAimPosition(intersectionTimeIndex * sectionDisplaySize);
         }}
@@ -232,11 +189,13 @@ export const Timeline = ({
             ))}
 
             <CardsContainer
-              cards={cardsForTheCardsContainer}
+              fields={cards}
               aimPosition={aimPosition}
-              onChange={handleCardChange}
-              toDisplayUnits={toDisplayUnits}
-              onSelect={handleSelectCard}
+              onChange={onCardChange}
+              convertToSpecificDisplayUnits={toDisplayUnits}
+              minutesToDisplayUnits={minutesToDisplayUnits}
+              displayUnitsToMinutes={displayUnitsToMinutes}
+              onSelectCard={handleSelectCard}
               onToggleResizeMode={onToggleResizeMode}
             />
           </div>
