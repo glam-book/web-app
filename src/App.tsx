@@ -1,14 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Timeline } from '@/components/ui/timeline';
-import { recordsStore } from '@/store/recordStore';
+import { recordsStore } from '@/store/record';
+import { getRecordsWay } from '@/store/record/recordStore';
 
 export function App() {
-  const [date, setDate] = useState<Date>();
+  const [date, setDate] = useState<Date>(new Date());
 
-  const { records, addRecord, addRandom: _ } = recordsStore();
+  useEffect(() => {
+    console.log({ date });
+  }, [date]);
+
+  const { records, addRecord, setRecords } = recordsStore();
+
+  useEffect(() => {
+    getRecordsWay().then(setRecords);
+  }, [date]);
+
+  // useEffect(() => {
+  //   getRecords().then((rawRecords: Record<string, unknown>[]) => {
+  //     setRecords(
+  //       new Map(
+  //         rawRecords.map((rawRecord) => {
+  //           const res = recordMapper(rawRecord);
+  //           return [res.id, res];
+  //         }),
+  //       ),
+  //     );
+  //     console.log(rawRecords);
+  //   });
+  // }, []);
+
+  // useEffect(() => {
+  //   console.log({ records });
+  // }, [records]);
 
   return (
     <main className="content-grid max-h-dvh overflow-y-auto snap-mandatory snap-y">
@@ -78,6 +105,23 @@ export function App() {
           onCardChange={addRecord}
         />
       </section>
+
+      <button
+        onClick={() => {
+          fetch('http://localhost:8095/api/v1/record/creat_or_update_record', {
+            method: 'POST',
+            body: JSON.stringify({
+              id: 2,
+              ts_from: '2025-06-03T10-30-00',
+              ts_to: '2025-06-03T11-30-00',
+              service_info_id: 1,
+            }),
+          });
+        }}
+        className="fixed bottom-10 right-10 z-10 h-[2lh] aspect-square bg-amber-50 rounded-2xl border-solid border"
+      >
+        +
+      </button>
     </main>
   );
 }

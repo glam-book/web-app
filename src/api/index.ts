@@ -1,0 +1,1 @@
+export { getRecords } from './getRecords';

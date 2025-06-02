@@ -73,7 +73,7 @@ export const Timeline = ({
     [numberOfSections, sectionDisplaySize],
   );
 
-  const scrollToCard = useCallback(
+  const scrollTo = useCallback(
     (position: number) => {
       const lhPx = parseFloat(getComputedStyle(scrollView!).lineHeight);
       const y = lhPx * position;
@@ -82,25 +82,15 @@ export const Timeline = ({
     [scrollView],
   );
 
-  const handleSelectCard = useCallback(
+  const scrollToCard = useCallback(
     flow(
-      ({ from }: CardFields) => from,
-      getMinutesFromDate,
-      minutesToDisplayUnits,
-      scrollToCard,
-    ),
-    [minutesToDisplayUnits, scrollToCard],
-  );
-
-  const onToggleResizeMode = useCallback(
-    flow(
-      (isResizeMode: boolean, { from, to }: CardFields) =>
+      ({ from, to }: CardFields, isResizeMode?: boolean) =>
         isResizeMode ? to : from,
       getMinutesFromDate,
       minutesToDisplayUnits,
-      scrollToCard,
+      scrollTo,
     ),
-    [minutesToDisplayUnits, scrollToCard],
+    [minutesToDisplayUnits, scrollTo],
   );
 
   const intersectionObserverOpts = useMemo(
@@ -195,8 +185,8 @@ export const Timeline = ({
               convertToSpecificDisplayUnits={toDisplayUnits}
               minutesToDisplayUnits={minutesToDisplayUnits}
               displayUnitsToMinutes={displayUnitsToMinutes}
-              onSelectCard={handleSelectCard}
-              onToggleResizeMode={onToggleResizeMode}
+              onSelectCard={scrollToCard}
+              onToggleResizeMode={scrollToCard}
             />
           </div>
         </div>

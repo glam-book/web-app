@@ -1,1 +1,1 @@
-export type MapValueType<T> = T extends Map<any, infer V> ? V : never;
+export type MapValueType<T> = T extends Map<unknown, infer V> ? V : never;

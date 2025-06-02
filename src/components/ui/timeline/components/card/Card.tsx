@@ -34,7 +34,7 @@ export const Card = memo(
       [minutesToDisplayUnits],
     );
 
-    const getInitialDisplayFields = useCallback(
+    const calcDisplayFields = useCallback(
       () => ({
         top: dateToDisplayUnits(fields.from),
         size: flow(
@@ -45,15 +45,17 @@ export const Card = memo(
       [fields, dateToDisplayUnits],
     );
 
-    const [displayFields, setDisplayFields] = useState(getInitialDisplayFields);
+    const [displayFields, setDisplayFields] = useState(calcDisplayFields);
 
     useEffect(() => {
-      setDisplayFields(getInitialDisplayFields);
-    }, [fields, getInitialDisplayFields]);
+      setDisplayFields(calcDisplayFields);
+    }, [calcDisplayFields]);
 
     useEffect(() => {
       setLocalFields((prev) => ({
         ...prev,
+
+        sign: fields.sign,
 
         from: flow(
           displayUnitsToMinutes,
@@ -65,12 +67,26 @@ export const Card = memo(
           setMinutesToDate(prev.to),
         )(displayFields.top + displayFields.size),
       }));
-    }, [displayFields]);
+    }, [displayFields, fields, displayUnitsToMinutes]);
+
+    const handleResetCardSelect = useCallback(() => {
+      const isCardChanged = checkIsCardChanged(fields, localFields);
+
+      console.log('on hcnage call?', { isCardChanged });
+
+      if (isCardChanged) {
+        onChange(localFields);
+      }
+
+      onBlurCard?.(localFields);
+      setResizeMode(false);
+    }, [localFields, fields, onBlurCard, onChange]);
 
     useEffect(() => {
       const handler = () => {
         if (!wasClickedOnTheCard.current) {
           setSelected(false);
+          handleResetCardSelect();
         }
 
         wasClickedOnTheCard.current = false;
@@ -79,7 +95,7 @@ export const Card = memo(
       document.addEventListener('click', handler);
 
       return () => document.removeEventListener('click', handler);
-    }, []);
+    }, [handleResetCardSelect]);
 
     useEffect(() => {
       if (isSelected) {
@@ -91,15 +107,6 @@ export const Card = memo(
         }));
       }
     }, [isSelected, aimPosition, minCardSize, isResizeMode]);
-
-    useEffect(() => {
-      if (!isSelected && checkIsCardChanged(fields, localFields)) {
-        console.log('on hcnage call?');
-        onChange(localFields);
-        onBlurCard?.(localFields);
-        setResizeMode(false);
-      }
-    }, [isSelected, onBlurCard, onChange, localFields, fields]);
 
     const onClick = () => {
       wasClickedOnTheCard.current = true;
@@ -136,7 +143,7 @@ export const Card = memo(
                   checked={isResizeMode}
                   onCheckedChange={(checked) => {
                     setResizeMode(checked);
-                    onToggleResizeMode(checked, localFields);
+                    onToggleResizeMode(localFields, checked);
                   }}
                 />
               </>
