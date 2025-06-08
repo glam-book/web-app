@@ -1,10 +1,10 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { flow } from 'effect';
-import debounce from 'debounce';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
+import { tap } from '@/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import type { MapValueType } from '@/types';
 
@@ -45,6 +45,13 @@ export const Timeline = ({
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
   const [intersectionTimeIndex, setIntersecionTimeIndex] = useState(0);
   const [aimPosition, setAimPosition] = useState(0);
+  const [isProgramScroll, setProgramScroll] = useState(false);
+  const [aimPositionForCards, setAimPositionForCards] = useState(aimPosition);
+  const [isCardSelected, setIsCardSelected] = useState(false);
+
+  useEffect(() => {
+    setAimPositionForCards((prev) => (isProgramScroll ? prev : aimPosition));
+  }, [aimPosition, isProgramScroll]);
 
   const validSectionSizeInMinutes = useMemo(
     () => validateSectionSize(sectionSizeInMinutes),
@@ -61,9 +68,22 @@ export const Timeline = ({
     [validSectionSizeInMinutes, numberOfSections],
   );
 
-  const minutesToDisplayUnits = useCallback(
-    (minutes: number) =>
-      convertMinutesToUnits(numberOfSections, sectionDisplaySize, minutes),
+  // const minutesToDisplayUnits = useCallback(
+  //   (minutes: number) =>
+  //     convertMinutesToUnits(numberOfSections, sectionDisplaySize, minutes),
+  //   [numberOfSections, sectionDisplaySize],
+  // );
+
+  const dateToDisplayUnits = useCallback(
+    (date: Date) => {
+      const minutes = getMinutesFromDate(date);
+
+      return convertMinutesToUnits(
+        numberOfSections,
+        sectionDisplaySize,
+        minutes,
+      );
+    },
     [numberOfSections, sectionDisplaySize],
   );
 
@@ -73,24 +93,31 @@ export const Timeline = ({
     [numberOfSections, sectionDisplaySize],
   );
 
-  const scrollTo = useCallback(
-    (position: number) => {
+  const scrollToDate = useCallback(
+    (date: Date) => {
+      const position = dateToDisplayUnits(date);
       const lhPx = parseFloat(getComputedStyle(scrollView!).lineHeight);
       const y = lhPx * position;
       scrollView?.scroll(0, y);
+      setProgramScroll(true);
     },
-    [scrollView],
+    [scrollView, dateToDisplayUnits],
   );
 
   const scrollToCard = useCallback(
     flow(
       ({ from, to }: CardFields, isResizeMode?: boolean) =>
         isResizeMode ? to : from,
-      getMinutesFromDate,
-      minutesToDisplayUnits,
-      scrollTo,
+      tap(scrollToDate),
     ),
-    [minutesToDisplayUnits, scrollTo],
+    [scrollToDate],
+  );
+
+  const onSelectCard = useCallback(
+    flow(scrollToCard, dateToDisplayUnits, setAimPositionForCards, () =>
+      setIsCardSelected(true),
+    ),
+    [scrollToCard],
   );
 
   const intersectionObserverOpts = useMemo(
@@ -100,11 +127,6 @@ export const Timeline = ({
       threshold: [0, 1],
     }),
     [scrollView],
-  );
-
-  const debouncedSetAimPosition = useCallback(
-    debounce(setAimPosition, 133),
-    [],
   );
 
   return (
@@ -122,8 +144,14 @@ export const Timeline = ({
         className={cn(
           'pl-2 relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal overscroll-auto scroll-smooth',
         )}
-        onScroll={() => {
-          debouncedSetAimPosition(intersectionTimeIndex * sectionDisplaySize);
+        onScrollEnd={() => {
+          console.log('scroll end::::::::');
+          // console.log({ isProgramScroll });
+          console.log({ isCardSelected });
+          const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
+          setAimPosition(newAimPosition);
+          setIsCardSelected(false);
+          setProgramScroll(false);
         }}
       >
         <div className="h-[50%] flex items-end gap-1 bg-sky-50 overflow-hidden">
@@ -180,13 +208,15 @@ export const Timeline = ({
 
             <CardsContainer
               fields={cards}
-              aimPosition={aimPosition}
+              aimPosition={aimPositionForCards}
               onChange={onCardChange}
               convertToSpecificDisplayUnits={toDisplayUnits}
-              minutesToDisplayUnits={minutesToDisplayUnits}
+              dateToDisplayUnits={dateToDisplayUnits}
               displayUnitsToMinutes={displayUnitsToMinutes}
-              onSelectCard={scrollToCard}
-              onToggleResizeMode={scrollToCard}
+              onSelectCard={onSelectCard}
+              onBlurCard={() => setIsCardSelected(false)}
+              onToggleResizeMode={onSelectCard}
+              isSelected={false}
             />
           </div>
         </div>

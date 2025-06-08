@@ -1,11 +1,7 @@
-import { Effect, Console, Schema } from 'effect';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 import type { State, Actions } from './types';
-
-import { getRecords } from '@/api';
-import { RecordList } from '@/schemas';
 
 export const recordsStore = create<State & Actions>()(
   immer((set) => ({
@@ -36,15 +32,3 @@ export const recordsStore = create<State & Actions>()(
     },
   })),
 );
-
-export const getRecordsWay = (_date?: Date) =>
-  Effect.runPromise(
-    Effect.tryPromise(() => getRecords()).pipe(
-      Effect.map(
-        Schema.decodeUnknownSync(RecordList, { onExcessProperty: 'preserve' }),
-      ),
-      Effect.tap(Console.debug),
-      Effect.catchAll(() => Effect.succeed(new Map())),
-    ),
-  );
-

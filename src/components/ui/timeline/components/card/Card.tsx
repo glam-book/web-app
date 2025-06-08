@@ -3,10 +3,7 @@ import { flow } from 'effect';
 
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-import {
-  getMinutesFromDate,
-  setMinutesToDate,
-} from '@/components/ui/timeline/utils';
+import { setMinutesToDate } from '@/components/ui/timeline/utils';
 
 import type { CardProps } from './types';
 import { checkIsCardChanged } from './utils';
@@ -15,9 +12,10 @@ export const Card = memo(
   ({
     fields,
     aimPosition,
+    isSelected: _,
     minCardSize = 2.5,
     convertToSpecificDisplayUnits,
-    minutesToDisplayUnits,
+    dateToDisplayUnits,
     displayUnitsToMinutes,
     onChange,
     onSelectCard,
@@ -28,11 +26,6 @@ export const Card = memo(
     const wasClickedOnTheCard = useRef(false);
     const [isSelected, setSelected] = useState(false);
     const [localFields, setLocalFields] = useState(fields);
-
-    const dateToDisplayUnits = useMemo(
-      () => flow(getMinutesFromDate, minutesToDisplayUnits),
-      [minutesToDisplayUnits],
-    );
 
     const calcDisplayFields = useCallback(
       () => ({
@@ -101,6 +94,7 @@ export const Card = memo(
       if (isSelected) {
         setDisplayFields((prev) => ({
           top: isResizeMode ? Math.min(aimPosition, prev.top) : aimPosition,
+
           size: isResizeMode
             ? Math.max(aimPosition - prev.top, minCardSize)
             : prev.size,
@@ -110,6 +104,7 @@ export const Card = memo(
 
     const onClick = () => {
       wasClickedOnTheCard.current = true;
+
       setSelected(true);
 
       if (!isSelected) {

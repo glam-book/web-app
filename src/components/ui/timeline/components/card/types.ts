@@ -7,13 +7,14 @@ type Fields = {
 
 export type CardProps = {
   convertToSpecificDisplayUnits: (n: number) => string;
-  minutesToDisplayUnits: (minutes: number) => number;
+  dateToDisplayUnits: (date: Date) => number;
   displayUnitsToMinutes: (units: number) => number;
-  onChange: (fields: Fields) => void;
-  onSelectCard?: (fields: Fields) => void;
-  onBlurCard?: (fields: Fields) => void;
-  onToggleResizeMode: (fields: Fields, isResizeMode: boolean) => void;
+  onChange: (fields: Fields) => unknown;
+  onSelectCard?: (fields: Fields) => unknown;
+  onBlurCard?: (fields: Fields) => unknown;
+  onToggleResizeMode: (fields: Fields, isResizeMode: boolean) => unknown;
   aimPosition: number;
   fields: Fields;
+  isSelected: boolean;
   minCardSize?: number;
 };

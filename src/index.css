@@ -137,7 +137,7 @@
 
 /* timelinecard */
 @utility transition-foo {
-  transition: all 0.3s ease-out;
+  transition: all .22s ease-in;
 }
 
 :root {

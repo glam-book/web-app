@@ -1,41 +1,39 @@
+import { Effect } from 'effect';
 import { useEffect, useState } from 'react';
 
+import { getRecords } from '@/api';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Timeline } from '@/components/ui/timeline';
 import { recordsStore } from '@/store/record';
-import { getRecordsWay } from '@/store/record/recordStore';
 
 export function App() {
   const [date, setDate] = useState<Date>(new Date());
 
-  useEffect(() => {
-    console.log({ date });
-  }, [date]);
-
   const { records, addRecord, setRecords } = recordsStore();
 
   useEffect(() => {
-    getRecordsWay().then(setRecords);
+    Effect.runPromise(
+      getRecords().pipe(
+        Effect.catchAll((error) => {
+          console.warn(error);
+          return Effect.succeed(
+            new Map([
+              [
+                1,
+                {
+                  id: 1,
+                  from: new Date('2024-12-26T11:20:00.000Z'),
+                  to: new Date('2024-12-26T12:25:00.000Z'),
+                  sign: 'test_resnichkee',
+                },
+              ],
+            ]),
+          );
+        }),
+      ),
+    ).then(setRecords);
   }, [date]);
-
-  // useEffect(() => {
-  //   getRecords().then((rawRecords: Record<string, unknown>[]) => {
-  //     setRecords(
-  //       new Map(
-  //         rawRecords.map((rawRecord) => {
-  //           const res = recordMapper(rawRecord);
-  //           return [res.id, res];
-  //         }),
-  //       ),
-  //     );
-  //     console.log(rawRecords);
-  //   });
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log({ records });
-  // }, [records]);
 
   return (
     <main className="content-grid max-h-dvh overflow-y-auto snap-mandatory snap-y">
@@ -107,6 +105,7 @@ export function App() {
       </section>
 
       <button
+        type="button"
         onClick={() => {
           fetch('http://localhost:8095/api/v1/record/creat_or_update_record', {
             method: 'POST',
@@ -118,7 +117,7 @@ export function App() {
             }),
           });
         }}
-        className="fixed bottom-10 right-10 z-10 h-[2lh] aspect-square bg-amber-50 rounded-2xl border-solid border"
+        className="fixed bottom-0 right-1/2 translate-x-2/1 -translate-y-1/2 h-[3em] aspect-square bg-amber-400 rounded-2xl border-solid border"
       >
         +
       </button>
