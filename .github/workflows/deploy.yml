@@ -6,10 +6,11 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    outputs:
-      dist-path: ${{ steps.upload.outputs.artifact-path }}
+
+    env:
+      PUBLIC_URL: ${{ secrets.PUBLIC_URL }}
 
     steps:
       - name: Checkout code
@@ -24,40 +25,10 @@ jobs:
             ${{ runner.os }}-npm-
 
       - name: Install dependencies
-        run: npm install --force
+        run: npm install
 
       - name: Build React app
         run: npm run build
-
-      - name: Upload dist as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: react-dist
-          path: |
-            dist
-            nginx.conf.template
-
-  docker-and-deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    env:
-      PUBLIC_URL: ${{ secrets.PUBLIC_URL }}
-
-    steps:
-      - name: Checkout code (for Dockerfile)
-        uses: actions/checkout@v4
-
-      - name: Download dist
-        uses: actions/download-artifact@v4
-        with:
-          name: react-dist
-          path: ./dist-artifact
-
-      - name: Copy dist to build context
-        run: |
-          cp -r ./dist-artifact/dist ./dist
-          cp ./dist-artifact/nginx.conf.template ./nginx.conf.template
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
