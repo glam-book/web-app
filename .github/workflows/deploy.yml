@@ -43,7 +43,7 @@ jobs:
             -t tl-web-app .
 
       - name: Save Docker image to tar.gz
-        run: docker save react-app | gzip > react-app.tar.gz
+        run: docker save tl-web-app | gzip > tl-web-app.tar.gz
 
       - name: Copy image to server
         uses: appleboy/scp-action@v0.1.7
@@ -51,7 +51,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: 'react-app.tar.gz'
+          source: 'tl-web-app.tar.gz'
           target: '/home/${{ secrets.SSH_USER }}'
 
       - name: Deploy container on server
@@ -61,11 +61,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker load < ~/react-app.tar.gz
-            docker stop react-app || true
-            docker rm react-app || true
+            docker load < ~/tl-web-app.tar.gz
+            docker stop tl-web-app || true
+            docker rm tl-web-app || true
             docker run -d \
-              --name react-app \
+              --name tl-web-app \
               -e PUBLIC_URL=${{ secrets.PUBLIC_URL }} \
               -p 3015:80 \
-              react-app
+              tl-web-app
