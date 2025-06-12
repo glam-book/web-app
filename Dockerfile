@@ -1,25 +1,11 @@
-# Stage 1 - Build React app
-FROM node:23-alpine as build
-
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-RUN npm install
-
-COPY . .
-
-ARG PUBLIC_URL
-ENV PUBLIC_URL=$PUBLIC_URL
-
-RUN npm run build
-
-# Stage 2 - Nginx serve
+# Stage 1 — копируем уже собранную папку dist
 FROM nginx:alpine
 
 ARG PUBLIC_URL
 ENV PUBLIC_URL=$PUBLIC_URL
 
-COPY --from=build /app/dist /usr/share/nginx/html/${PUBLIC_URL}
+# Копируем только нужный артефакт
+COPY dist /usr/share/nginx/html/${PUBLIC_URL}
 
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
