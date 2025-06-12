@@ -5,7 +5,7 @@ ARG PUBLIC_URL
 ENV PUBLIC_URL=$PUBLIC_URL
 
 # Копируем только нужный артефакт
-COPY dist /usr/share/nginx/html/${PUBLIC_URL}
+COPY ./dist /usr/share/nginx/html/${PUBLIC_URL}
 
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 

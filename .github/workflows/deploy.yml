@@ -40,7 +40,7 @@ jobs:
         run: |
           docker build \
             --build-arg PUBLIC_URL=$PUBLIC_URL \
-            -t react-app .
+            -t tl-web-app .
 
       - name: Save Docker image to tar.gz
         run: docker save react-app | gzip > react-app.tar.gz
