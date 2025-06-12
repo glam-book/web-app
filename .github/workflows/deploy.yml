@@ -1,29 +1,46 @@
-name: Deploy React App
+name: Build and Deploy React App
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  deploy:
-    name: Build and Deploy
+  build-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      PUBLIC_URL: ${{ secrets.PUBLIC_URL }}
+
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build React app
+        run: npm run build
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image with PUBLIC_URL
+      - name: Build Docker image
         run: |
-          docker build --build-arg PUBLIC_URL=${{ secrets.PUBLIC_URL }} -t react-app .
+          docker build \
+            --build-arg PUBLIC_URL=$PUBLIC_URL \
+            -t react-app .
 
-      - name: Save Docker image to tar
-        run: |
-          docker save react-app | gzip > react-app.tar.gz
+      - name: Save Docker image to tar.gz
+        run: docker save react-app | gzip > react-app.tar.gz
 
       - name: Copy image to server
         uses: appleboy/scp-action@v0.1.7
@@ -34,7 +51,7 @@ jobs:
           source: 'react-app.tar.gz'
           target: '/home/${{ secrets.SSH_USER }}'
 
-      - name: Run docker container on server with PUBLIC_URL
+      - name: Deploy container on server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
