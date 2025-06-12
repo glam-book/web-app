@@ -13,6 +13,13 @@ jobs:
       PUBLIC_URL: ${{ secrets.PUBLIC_URL }}
 
     steps:
+      - name: Test SSH connection
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH OK'"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
