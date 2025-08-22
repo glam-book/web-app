@@ -139,7 +139,8 @@ export const Card = memo(
             isSelected && 'top-[1lh]',
           )}
         >
-          <div className="absolute w-full flex items-center -translate-y-full bg-lime-50">
+          {/*
+ <div className="absolute w-full flex items-center -translate-y-full bg-lime-50">
             {isSelected && (
               <>
                 toggle resize mode:::
@@ -153,6 +154,7 @@ export const Card = memo(
               </>
             )}
           </div>
+*/}
           {localFields.sign}
         </div>
       </div>
