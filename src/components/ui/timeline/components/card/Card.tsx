@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import { flow } from 'effect';
 
 import { Switch } from '@/components/ui/switch';
@@ -12,7 +12,7 @@ export const Card = memo(
   ({
     fields,
     aimPosition,
-    isSelected: _,
+    isSelected,
     minCardSize = 2.5,
     convertToSpecificDisplayUnits,
     dateToDisplayUnits,
@@ -24,7 +24,7 @@ export const Card = memo(
   }: CardProps) => {
     const [isResizeMode, setResizeMode] = useState(false);
     const wasClickedOnTheCard = useRef(false);
-    const [isSelected, setSelected] = useState(false);
+    // const [isSelected, setSelected] = useState(false);
     const [localFields, setLocalFields] = useState(fields);
 
     const calcDisplayFields = useCallback(
@@ -48,7 +48,7 @@ export const Card = memo(
       setLocalFields((prev) => ({
         ...prev,
 
-        sign: fields.sign,
+        // sign: fields.sign,
 
         from: flow(
           displayUnitsToMinutes,
@@ -62,33 +62,41 @@ export const Card = memo(
       }));
     }, [displayFields, fields, displayUnitsToMinutes]);
 
+    useEffect(() => {
+      console.log(aimPosition, 'from the card:::', displayFields, isSelected);
+    }, [aimPosition]);
+
     const handleResetCardSelect = useCallback(() => {
       const isCardChanged = checkIsCardChanged(fields, localFields);
 
       console.log('on hcnage call?', { isCardChanged });
 
-      if (isCardChanged) {
-        onChange(localFields);
-      }
-
-      onBlurCard?.(localFields);
+      if (isCardChanged) onChange(localFields);
+      // onBlurCard?.(localFields);
       setResizeMode(false);
     }, [localFields, fields, onBlurCard, onChange]);
 
     useEffect(() => {
-      const handler = () => {
-        if (!wasClickedOnTheCard.current) {
-          setSelected(false);
-          handleResetCardSelect();
-        }
+      if (!isSelected) {
+        console.log('call on change:::', { isSelected });
+        handleResetCardSelect();
+      }
+    }, [isSelected, handleResetCardSelect]);
 
-        wasClickedOnTheCard.current = false;
-      };
+    // useEffect(() => {
+    //   const handler = () => {
+    //     if (!wasClickedOnTheCard.current) {
+    //       // setSelected(false);
+    //       handleResetCardSelect();
+    //     }
 
-      document.addEventListener('click', handler);
+    //     wasClickedOnTheCard.current = false;
+    //   };
 
-      return () => document.removeEventListener('click', handler);
-    }, [handleResetCardSelect]);
+    //   // document.addEventListener('click', handler);
+
+    //   return () => document.removeEventListener('click', handler);
+    // }, [handleResetCardSelect]);
 
     useEffect(() => {
       if (isSelected) {
@@ -105,7 +113,7 @@ export const Card = memo(
     const onClick = () => {
       wasClickedOnTheCard.current = true;
 
-      setSelected(true);
+      // setSelected(true);
 
       if (!isSelected) {
         onSelectCard?.(localFields);
@@ -117,8 +125,9 @@ export const Card = memo(
       <div
         role="button"
         className="absolute w-full bg-[tomato] transition-foo"
-        onClick={onClick}
+        // onClick={onClick}
         tabIndex={0}
+        data-hate-react-id={fields.id}
         style={{
           top: convertToSpecificDisplayUnits(displayFields.top),
           height: convertToSpecificDisplayUnits(displayFields.size),

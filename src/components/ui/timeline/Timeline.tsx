@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { flow } from 'effect';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
@@ -22,6 +22,7 @@ import {
   convertUnitsToMinutes,
   getNumberOfSections,
   getMinutesFromDate,
+  setMinutesToDate,
 } from './utils';
 import { timeLine, dummy, timeLabel } from './style';
 
@@ -45,13 +46,12 @@ export const Timeline = ({
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
   const [intersectionTimeIndex, setIntersecionTimeIndex] = useState(0);
   const [aimPosition, setAimPosition] = useState(0);
-  const [isProgramScroll, setProgramScroll] = useState(false);
-  const [aimPositionForCards, setAimPositionForCards] = useState(aimPosition);
-  const [isCardSelected, setIsCardSelected] = useState(false);
+  // const [isCardSelected, setIsCardSelected] = useState(false);
 
-  useEffect(() => {
-    setAimPositionForCards((prev) => (isProgramScroll ? prev : aimPosition));
-  }, [aimPosition, isProgramScroll]);
+  // const aimPosition = useMemo(
+  //   () => intersectionTimeIndex * sectionDisplaySize,
+  //   [intersectionTimeIndex],
+  // );
 
   const validSectionSizeInMinutes = useMemo(
     () => validateSectionSize(sectionSizeInMinutes),
@@ -99,7 +99,6 @@ export const Timeline = ({
       const lhPx = parseFloat(getComputedStyle(scrollView!).lineHeight);
       const y = lhPx * position;
       scrollView?.scroll(0, y);
-      setProgramScroll(true);
     },
     [scrollView, dateToDisplayUnits],
   );
@@ -113,12 +112,48 @@ export const Timeline = ({
     [scrollToDate],
   );
 
-  const onSelectCard = useCallback(
-    flow(scrollToCard, dateToDisplayUnits, setAimPositionForCards, () =>
-      setIsCardSelected(true),
-    ),
-    [scrollToCard],
-  );
+  const [selectedCardId, setSelectedCardId] = useState<number>();
+  const [isFreezed, setFreezed] = useState(true);
+  const [isResizeMode, setResizeMode] = useState(false);
+  const [tmpFields, setTmpFields] = useState<CardFields>();
+
+  const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const maybeCardElement = (e.target as HTMLElement).closest<HTMLElement>(
+      '[data-hate-react-id]',
+    );
+
+    const cardId = Number(maybeCardElement?.dataset.hateReactId) || undefined;
+    console.log({ cardId });
+
+    setSelectedCardId(cardId);
+    // setFreezed(true);
+
+    if (!maybeCardElement && !selectedCardId) {
+      console.debug('click outside card');
+      setTmpFields({
+        id: 52,
+        from: setMinutesToDate(new Date())(displayUnitsToMinutes(aimPosition)),
+        to: setMinutesToDate(new Date())(
+          displayUnitsToMinutes(aimPosition + sectionDisplaySize),
+        ),
+        sign: 'new +',
+      });
+      setSelectedCardId(52);
+      setFreezed(false);
+    }
+
+    if (maybeCardElement) {
+      const card = cards.get(cardId!);
+      scrollToCard(card!);
+      console.log({ card });
+      // flow(scrollToCard, dateToDisplayUnits, setAimPositionForCards, () =>
+
+      //   setSelectedCardId(
+      //     Number(maybeCardElement?.dataset.hateReactId) || undefined,
+      //   ),
+      // );
+    }
+  };
 
   const intersectionObserverOpts = useMemo(
     () => ({
@@ -132,10 +167,12 @@ export const Timeline = ({
   return (
     <Comp
       className={cn(className, 'overflow-y-hidden relative text-2xs isolate')}
+      onClick={onClick}
       {...props}
     >
       <div className="absolute inset-0 flex flex-col justify-center">
-        <div className="flex-1 border-b border-black border-dashed" />
+        <div className="aim flex-1 border-b" />
+        <div className="flex h-[2px] bg-[tomato]"></div>
         <div className="flex-1" />
       </div>
 
@@ -144,14 +181,11 @@ export const Timeline = ({
         className={cn(
           'pl-2 relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal overscroll-auto scroll-smooth',
         )}
-        onScrollEnd={() => {
-          console.log('scroll end::::::::');
-          // console.log({ isProgramScroll });
-          console.log({ isCardSelected });
+        onScrollEnd={(_e) => {
           const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
           setAimPosition(newAimPosition);
-          setIsCardSelected(false);
-          setProgramScroll(false);
+          setFreezed(selectedCardId === undefined);
+          console.log('end of scroll');
         }}
       >
         <div className="h-[50%] flex items-end gap-1 bg-sky-50 overflow-hidden">
@@ -208,15 +242,17 @@ export const Timeline = ({
 
             <CardsContainer
               fields={cards}
-              aimPosition={aimPositionForCards}
+              aimPosition={aimPosition}
               onChange={onCardChange}
               convertToSpecificDisplayUnits={toDisplayUnits}
               dateToDisplayUnits={dateToDisplayUnits}
               displayUnitsToMinutes={displayUnitsToMinutes}
-              onSelectCard={onSelectCard}
-              onBlurCard={() => setIsCardSelected(false)}
-              onToggleResizeMode={onSelectCard}
-              isSelected={false}
+              // onSelectCard={onSelectCard}
+              // onBlurCard={() => setIsCardSelected(false)}
+              // onToggleResizeMode={onSelectCard}
+              selectedId={selectedCardId}
+              isFreezed={isFreezed}
+              tmpFields={tmpFields}
             />
           </div>
         </div>

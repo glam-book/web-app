@@ -5,12 +5,12 @@ import { getRecords } from '@/api';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Timeline } from '@/components/ui/timeline';
-import { recordsStore } from '@/store/record';
+import { store } from '@/store';
 
 export function App() {
   const [date, setDate] = useState<Date>(new Date());
 
-  const { records, addRecord, setRecords } = recordsStore();
+  const { records, addRecord, setRecords } = store.records();
 
   useEffect(() => {
     Effect.runPromise(
@@ -76,6 +76,7 @@ export function App() {
             onSelect={setDate}
             initialFocus
           />
+
           <Button type="submit">Submit</Button>
         </form>
 

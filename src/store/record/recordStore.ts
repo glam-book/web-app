@@ -3,7 +3,7 @@ import { immer } from 'zustand/middleware/immer';
 
 import type { State, Actions } from './types';
 
-export const recordsStore = create<State & Actions>()(
+export const records = create<State & Actions>()(
   immer((set) => ({
     records: new Map(),
 

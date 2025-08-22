@@ -83,15 +83,6 @@
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
-@layer base {
-  * {
-    @apply outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground text-base min-h-dvh;
-  }
-}
-
 @utility stripes-gradient {
   background: repeating-linear-gradient(
     to bottom,
@@ -137,8 +128,15 @@
 
 /* timelinecard */
 @utility transition-foo {
-  transition: all .22s ease-in;
+  transition: all 0.22s ease-in;
 }
+
+/* @layer components {
+  .aim {
+    anchor-name: --aim;
+    color: lime;
+  }
+} */
 
 :root {
   --radius: 0.625rem;
