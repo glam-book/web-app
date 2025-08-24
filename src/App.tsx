@@ -1,39 +1,62 @@
 import { Effect } from 'effect';
 import { useEffect, useState } from 'react';
 
-import { getRecords } from '@/api';
+import { getRecords, createOrUpdateRecord, getMe } from '@/api';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Timeline } from '@/components/ui/timeline';
-import { store } from '@/store';
+import * as store from '@/store';
+import type { WithoutReadonly, Prettify } from '@/types';
 
 export function App() {
-  const [date, setDate] = useState<Date>(new Date());
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    const user = tg?.initData;
+    store.externalData.setState({ data: user ?? '' });
+    console.log({ user });
+  }, []);
 
-  const { records, addRecord, setRecords } = store.records();
+  const { id: meId } = store.me();
 
   useEffect(() => {
     Effect.runPromise(
-      getRecords().pipe(
+      getMe().pipe(
         Effect.catchAll((error) => {
           console.warn(error);
-          return Effect.succeed(
-            new Map([
-              [
-                1,
-                {
-                  id: 1,
-                  from: new Date('2024-12-26T11:20:00.000Z'),
-                  to: new Date('2024-12-26T12:25:00.000Z'),
-                  sign: 'test_resnichkee',
-                },
-              ],
-            ]),
-          );
+          return Effect.succeed({ id: Date.now() });
         }),
       ),
-    ).then(setRecords);
-  }, [date]);
+    ).then((res) => store.me.setState({ id: res.id }));
+  }, []);
+
+  const [date, setDate] = useState<Date | undefined>(new Date());
+
+  const { records, addRecord, setRecords, removeRecord } = store.records();
+
+  useEffect(() => {
+    if (meId) {
+      Effect.runPromise(
+        getRecords(meId, date).pipe(
+          Effect.catchAll((error) => {
+            console.warn(error);
+            return Effect.succeed(
+              new Map([
+                [
+                  1,
+                  {
+                    id: 1,
+                    from: new Date('2024-12-26T11:20:00.000Z'),
+                    to: new Date('2024-12-26T12:25:00.000Z'),
+                    sign: 'test_resnichkee',
+                  },
+                ],
+              ]),
+            );
+          }),
+        ),
+      ).then(setRecords);
+    }
+  }, [date, meId]);
 
   return (
     <main className="content-grid max-h-dvh overflow-y-auto snap-mandatory snap-y">
@@ -41,26 +64,6 @@ export function App() {
         <h1 className="my-4 highlighter text-center font-serif text-4xl">
           Glam book
         </h1>
-
-        <Button
-          variant="secondary"
-          onClick={() => {
-            const tg = window.Telegram.WebApp;
-            const user = tg.initData;
-            console.log({ user });
-
-            fetch('https://tantal.owpk.ru/api', {
-              method: 'GET',
-              headers: {
-                'X-tg-data': user,
-              },
-            })
-              .then(console.log)
-              .catch(console.error);
-          }}
-        >
-          Telegram test button
-        </Button>
 
         <form
           className="pb-4 flex flex-col flex-1 space-y-4"
@@ -101,27 +104,35 @@ export function App() {
         <Timeline
           className="flex-1 relative bg-card border"
           cards={records}
-          onCardChange={addRecord}
+          onCardChange={(fields) => {
+            const rec: Prettify<
+              WithoutReadonly<Parameters<typeof createOrUpdateRecord>[0]>
+            > = {
+              ...fields,
+            };
+
+            const id = rec.id || Date.now();
+            addRecord({ ...rec, id });
+
+            Effect.runPromise(
+              createOrUpdateRecord({ ...rec, id: rec.id || undefined }).pipe(
+                Effect.catchAll((error) => {
+                  console.warn(error);
+                  return Effect.succeed({
+                    id,
+                    from: rec.from,
+                    to: rec.to,
+                    sign: 'test_resnichkee',
+                  });
+                }),
+              ),
+            ).then((res) => {
+              removeRecord(id);
+              addRecord(res);
+            });
+          }}
         />
       </section>
-
-      <button
-        type="button"
-        onClick={() => {
-          fetch('http://localhost:8095/api/v1/record/creat_or_update_record', {
-            method: 'POST',
-            body: JSON.stringify({
-              id: 2,
-              ts_from: '2025-06-03T10-30-00',
-              ts_to: '2025-06-03T11-30-00',
-              service_info_id: 1,
-            }),
-          });
-        }}
-        className="fixed bottom-0 right-1/2 translate-x-2/1 -translate-y-1/2 h-[3em] aspect-square bg-amber-400 rounded-2xl border-solid border"
-      >
-        +
-      </button>
     </main>
   );
 }

@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, memo, useCallback } from 'react';
+import { useState, useEffect, memo, useCallback } from 'react';
 import { flow } from 'effect';
 
-import { Switch } from '@/components/ui/switch';
+// import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { setMinutesToDate } from '@/components/ui/timeline/utils';
+import { editableRightNowCard } from '@/components/ui/timeline/store';
 
 import type { CardProps } from './types';
 import { checkIsCardChanged } from './utils';
@@ -12,20 +13,26 @@ export const Card = memo(
   ({
     fields,
     aimPosition,
-    isSelected,
+    // isSelected,
+    isResizeMode,
     minCardSize = 2.5,
     convertToSpecificDisplayUnits,
     dateToDisplayUnits,
     displayUnitsToMinutes,
     onChange,
-    onSelectCard,
-    onBlurCard,
-    onToggleResizeMode,
+    // onSelectCard,
+    // onBlurCard,
+    // onToggleResizeMode,
   }: CardProps) => {
-    const [isResizeMode, setResizeMode] = useState(false);
-    const wasClickedOnTheCard = useRef(false);
+    // const [isResizeMode, setResizeMode] = useState(false);
+    // const wasClickedOnTheCard = useRef(false);
     // const [isSelected, setSelected] = useState(false);
-    const [localFields, setLocalFields] = useState(fields);
+    // const [localFields, setLocalFields] = useState(fields);
+    const selectedCardState = editableRightNowCard();
+
+    const isSelected =
+      selectedCardState.fields?.id === fields.id &&
+      selectedCardState.isUnfreezed;
 
     const calcDisplayFields = useCallback(
       () => ({
@@ -40,48 +47,24 @@ export const Card = memo(
 
     const [displayFields, setDisplayFields] = useState(calcDisplayFields);
 
-    useEffect(() => {
-      setDisplayFields(calcDisplayFields);
-    }, [calcDisplayFields]);
+    useEffect(() => setDisplayFields(calcDisplayFields), [calcDisplayFields]);
 
-    useEffect(() => {
-      setLocalFields((prev) => ({
-        ...prev,
+    // const handleResetCardSelect = useCallback(() => {
+    //   const isCardChanged = checkIsCardChanged(fields, localFields);
 
-        // sign: fields.sign,
+    //   console.log('on hcnage call?', { isCardChanged });
 
-        from: flow(
-          displayUnitsToMinutes,
-          setMinutesToDate(prev.from),
-        )(displayFields.top),
+    //   if (isCardChanged) onChange(localFields);
+    //   // onBlurCard?.(localFields);
+    //   // setResizeMode(false);
+    // }, [localFields, fields, onBlurCard, onChange]);
 
-        to: flow(
-          displayUnitsToMinutes,
-          setMinutesToDate(prev.to),
-        )(displayFields.top + displayFields.size),
-      }));
-    }, [displayFields, fields, displayUnitsToMinutes]);
-
-    useEffect(() => {
-      console.log(aimPosition, 'from the card:::', displayFields, isSelected);
-    }, [aimPosition]);
-
-    const handleResetCardSelect = useCallback(() => {
-      const isCardChanged = checkIsCardChanged(fields, localFields);
-
-      console.log('on hcnage call?', { isCardChanged });
-
-      if (isCardChanged) onChange(localFields);
-      // onBlurCard?.(localFields);
-      setResizeMode(false);
-    }, [localFields, fields, onBlurCard, onChange]);
-
-    useEffect(() => {
-      if (!isSelected) {
-        console.log('call on change:::', { isSelected });
-        handleResetCardSelect();
-      }
-    }, [isSelected, handleResetCardSelect]);
+    // useEffect(() => {
+    //   if (!isSelected) {
+    //     console.log('call on change:::', { isSelected });
+    //     handleResetCardSelect();
+    //   }
+    // }, [isSelected, handleResetCardSelect]);
 
     // useEffect(() => {
     //   const handler = () => {
@@ -101,33 +84,52 @@ export const Card = memo(
     useEffect(() => {
       if (isSelected) {
         setDisplayFields((prev) => ({
-          top: isResizeMode ? Math.min(aimPosition, prev.top) : aimPosition,
+          top: editableRightNowCard.getState().isResizeMode
+            ? Math.min(aimPosition, prev.top)
+            : aimPosition,
 
-          size: isResizeMode
+          size: editableRightNowCard.getState().isResizeMode
             ? Math.max(aimPosition - prev.top, minCardSize)
             : prev.size,
         }));
       }
-    }, [isSelected, aimPosition, minCardSize, isResizeMode]);
+    }, [isSelected, aimPosition, minCardSize]);
+
+    useEffect(() => {
+      if (isSelected) {
+        selectedCardState.setFields({
+          ...fields,
+
+          from: flow(
+            displayUnitsToMinutes,
+            setMinutesToDate(
+              editableRightNowCard.getState().fields?.from as Date,
+            ),
+          )(displayFields.top),
+
+          to: flow(
+            displayUnitsToMinutes,
+            setMinutesToDate(
+              editableRightNowCard.getState().fields?.to as Date,
+            ),
+          )(displayFields.top + displayFields.size),
+        });
+      }
+    }, [displayFields, fields, displayUnitsToMinutes, isSelected]);
 
     const onClick = () => {
-      wasClickedOnTheCard.current = true;
-
-      // setSelected(true);
-
-      if (!isSelected) {
-        onSelectCard?.(localFields);
-        setResizeMode(false);
-      }
+      void (isSelected
+        ? selectedCardState.toggle('isResizeMode')
+        : selectedCardState.setFields(fields));
     };
 
     return (
       <div
         role="button"
         className="absolute w-full bg-[tomato] transition-foo"
-        // onClick={onClick}
+        onClick={onClick}
         tabIndex={0}
-        data-hate-react-id={fields.id}
+        // data-hate-react-id={fields.id}
         style={{
           top: convertToSpecificDisplayUnits(displayFields.top),
           height: convertToSpecificDisplayUnits(displayFields.size),
@@ -136,7 +138,7 @@ export const Card = memo(
         <div
           className={cn(
             'sticky top-0 w-full min-h-[2.5lh] text-2xs select-none overflow-y-visible',
-            isSelected && 'top-[1lh]',
+            // isSelected && 'top-[1lh]',
           )}
         >
           {/*
@@ -155,7 +157,7 @@ export const Card = memo(
             )}
           </div>
 */}
-          {localFields.sign}
+          {fields.sign}
         </div>
       </div>
     );

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { flow } from 'effect';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
@@ -25,6 +25,7 @@ import {
   setMinutesToDate,
 } from './utils';
 import { timeLine, dummy, timeLabel } from './style';
+import { editableRightNowCard } from './store';
 
 type CardFields = MapValueType<
   React.ComponentProps<typeof CardsContainer>['fields']
@@ -46,6 +47,9 @@ export const Timeline = ({
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
   const [intersectionTimeIndex, setIntersecionTimeIndex] = useState(0);
   const [aimPosition, setAimPosition] = useState(0);
+  const selectedCardState = editableRightNowCard();
+  const isCardSelected = Boolean(selectedCardState.fields);
+
   // const [isCardSelected, setIsCardSelected] = useState(false);
 
   // const aimPosition = useMemo(
@@ -112,48 +116,96 @@ export const Timeline = ({
     [scrollToDate],
   );
 
-  const [selectedCardId, setSelectedCardId] = useState<number>();
-  const [isFreezed, setFreezed] = useState(true);
-  const [isResizeMode, setResizeMode] = useState(false);
+  useEffect(() => {
+    selectedCardState.toggle('isUnfreezed', false);
+  }, [isCardSelected, selectedCardState.isResizeMode]);
+
+  useEffect(() => {
+    const fields = editableRightNowCard.getState().fields;
+
+    if (isCardSelected && fields) {
+      scrollToCard(fields, Boolean(selectedCardState.isResizeMode));
+    }
+  }, [isCardSelected, selectedCardState.isResizeMode, scrollToCard]);
+
   const [tmpFields, setTmpFields] = useState<CardFields>();
-
+  //
   const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const maybeCardElement = (e.target as HTMLElement).closest<HTMLElement>(
-      '[data-hate-react-id]',
-    );
+    if ((e.target as HTMLElement).closest('[role="button"]')) return;
 
-    const cardId = Number(maybeCardElement?.dataset.hateReactId) || undefined;
-    console.log({ cardId });
-
-    setSelectedCardId(cardId);
-    // setFreezed(true);
-
-    if (!maybeCardElement && !selectedCardId) {
-      console.debug('click outside card');
-      setTmpFields({
-        id: 52,
-        from: setMinutesToDate(new Date())(displayUnitsToMinutes(aimPosition)),
-        to: setMinutesToDate(new Date())(
-          displayUnitsToMinutes(aimPosition + sectionDisplaySize),
-        ),
-        sign: 'new +',
-      });
-      setSelectedCardId(52);
-      setFreezed(false);
+    if (selectedCardState.fields) {
+      onCardChange(selectedCardState.fields);
+      selectedCardState.reset();
+      setTmpFields(undefined);
+      return;
     }
 
-    if (maybeCardElement) {
-      const card = cards.get(cardId!);
-      scrollToCard(card!);
-      console.log({ card });
-      // flow(scrollToCard, dateToDisplayUnits, setAimPositionForCards, () =>
+    console.log('add new card');
+    const fields: CardFields = {
+      id: 0,
+      sign: 'new +',
+      from: setMinutesToDate(new Date())(displayUnitsToMinutes(aimPosition)),
+      to: setMinutesToDate(new Date())(
+        displayUnitsToMinutes(aimPosition + sectionDisplaySize),
+      ),
+    };
 
-      //   setSelectedCardId(
-      //     Number(maybeCardElement?.dataset.hateReactId) || undefined,
-      //   ),
-      // );
-    }
+    setTmpFields(fields);
+    selectedCardState.setFields(fields);
   };
+
+  // const [selectedCardId, setSelectedCardId] = useState<number>();
+  // const [isFreezed, setFreezed] = useState(true);
+  // const [isResizeMode, setResizeMode] = useState(false);
+  // const [tmpFields, setTmpFields] = useState<CardFields>();
+
+  // const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  //   const maybeCardElement = (e.target as HTMLElement).closest<HTMLElement>(
+  //     '[data-hate-react-id]',
+  //   );
+
+  //   const cardId = Number(maybeCardElement?.dataset.hateReactId) || undefined;
+  //   console.log({ cardId });
+
+  //   setSelectedCardId(cardId);
+  //   // setFreezed(true);
+
+  //   if (!maybeCardElement && !selectedCardId) {
+  //     console.debug('click outside card');
+  //     setTmpFields({
+  //       id: 52,
+  //       from: setMinutesToDate(new Date())(displayUnitsToMinutes(aimPosition)),
+  //       to: setMinutesToDate(new Date())(
+  //         displayUnitsToMinutes(aimPosition + sectionDisplaySize),
+  //       ),
+  //       sign: 'new +',
+  //     });
+  //     setSelectedCardId(52);
+  //     setFreezed(false);
+  //   }
+
+  //   if (maybeCardElement && !selectedCardId) {
+  //     const card = cards.get(cardId!);
+  //     scrollToCard(card!);
+  //     console.log({ card });
+  //     // flow(scrollToCard, dateToDisplayUnits, setAimPositionForCards, () =>
+
+  //     //   setSelectedCardId(
+  //     //     Number(maybeCardElement?.dataset.hateReactId) || undefined,
+  //     //   ),
+  //     // );
+  //   }
+
+  //   if (maybeCardElement && selectedCardId) {
+  //     console.log('is resize select');
+  //     setFreezed(true);
+  //     setResizeMode((prev) => {
+  //       const card = cards.get(cardId!);
+  //       scrollToCard(card!, !prev);
+  //       return !prev;
+  //     });
+  //   }
+  // };
 
   const intersectionObserverOpts = useMemo(
     () => ({
@@ -184,8 +236,11 @@ export const Timeline = ({
         onScrollEnd={(_e) => {
           const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
           setAimPosition(newAimPosition);
-          setFreezed(selectedCardId === undefined);
-          console.log('end of scroll');
+          // setFreezed(selectedCardId === undefined);
+          if (isCardSelected) {
+            selectedCardState.toggle('isUnfreezed', true);
+          }
+          // console.log('end of scroll');
         }}
       >
         <div className="h-[50%] flex items-end gap-1 bg-sky-50 overflow-hidden">
@@ -250,9 +305,10 @@ export const Timeline = ({
               // onSelectCard={onSelectCard}
               // onBlurCard={() => setIsCardSelected(false)}
               // onToggleResizeMode={onSelectCard}
-              selectedId={selectedCardId}
-              isFreezed={isFreezed}
+              // selectedId={selectedCardId}
+              // isFreezed={isFreezed}
               tmpFields={tmpFields}
+              // isResizeMode={isResizeMode}
             />
           </div>
         </div>

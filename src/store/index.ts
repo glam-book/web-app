@@ -1,1 +1,3 @@
-export * as store from './record';
+export * from './record';
+export * from './me';
+export * from './externalData';

@@ -128,7 +128,7 @@
 
 /* timelinecard */
 @utility transition-foo {
-  transition: all 0.22s ease-in;
+  transition: all 0.12s ease-in;
 }
 
 /* @layer components {

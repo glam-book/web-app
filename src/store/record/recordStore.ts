@@ -14,20 +14,12 @@ export const records = create<State & Actions>()(
 
     addRecord: (record) =>
       set((state) => {
-        const id = Number(record.id);
-        state.records.set(id, { ...record, id });
+        state.records.set(record.id, record);
       }),
 
-    addRandom: () => {
+    removeRecord: (id) => {
       set((state) => {
-        const randomId = Math.floor(Math.random() * 10_000);
-
-        state.records.set(randomId, {
-          id: randomId,
-          sign: `Random card: ${randomId}`,
-          from: new Date(2025, 5, 19, 10),
-          to: new Date(2025, 5, 19, 10, 30),
-        });
+        state.records.delete(id);
       });
     },
   })),

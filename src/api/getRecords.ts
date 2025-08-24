@@ -2,12 +2,18 @@ import { format } from 'date-fns';
 import { Effect, Schema, Console, pipe } from 'effect';
 
 import { RecordList } from '@/schemas';
+import { externalData } from '@/store';
 
-export const getRecords = (date = new Date('2024-12-26')) =>
+export const getRecords = (userId: number, date = new Date('2024-12-26')) =>
   pipe(
     Effect.tryPromise(() =>
       fetch(
-        `${import.meta.env.BASE_URL}api/v1/record?date=${format(date, 'yyyy-MM-dd')}`,
+        `api/v1/record/list/${userId ?? ''}?date=${format(date, 'yyyy-MM-dd')}`,
+        {
+          headers: {
+            'X-tg-data': String(externalData.getState().data),
+          },
+        },
       ).then((res) => res.json()),
     ),
 
