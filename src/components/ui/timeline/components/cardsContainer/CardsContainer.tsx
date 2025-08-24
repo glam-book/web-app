@@ -11,6 +11,7 @@ export const CardsContainer = ({
   onBlurCard,
   dateToDisplayUnits,
   selectedId,
+  isResizeMode,
   isFreezed,
   tmpFields,
   ...rest
@@ -28,7 +29,8 @@ export const CardsContainer = ({
       // onSelectCard={selectCardHandler}
       // onBlurCard={blurCardHandler}
       dateToDisplayUnits={dateToDisplayUnits}
-      isSelected={!isFreezed && selectedId === cardFields.id}
+      // isSelected={!isFreezed && selectedId === cardFields.id}
+      // isResizeMode={selectedId === cardFields.id && isResizeMode}
       {...rest}
     />
   ));

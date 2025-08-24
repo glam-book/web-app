@@ -9,5 +9,5 @@ export type State = {
 export type Actions = {
   setRecords: (records: State['records']) => void;
   addRecord: (record: Rec) => void;
-  addRandom: () => void;
+  removeRecord: (id: number) => void;
 };
