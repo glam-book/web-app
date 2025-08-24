@@ -1,6 +1,6 @@
-import { Effect, Schema, Console, pipe } from 'effect';
+import { Console, Effect, pipe, Schema } from 'effect';
 
-import { RecordWithOptionalId, Record } from '@/schemas';
+import { Record, RecordWithOptionalId } from '@/schemas';
 import { externalData } from '@/store';
 
 export const createOrUpdateRecord = (
@@ -12,6 +12,7 @@ export const createOrUpdateRecord = (
         method: 'POST',
         headers: {
           'X-tg-data': String(externalData.getState().data),
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(
           Schema.encodeSync(RecordWithOptionalId, undefined)(record),
