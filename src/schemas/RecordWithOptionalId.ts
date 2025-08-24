@@ -4,7 +4,7 @@ import { StringFromService } from '@/transformers';
 
 export const RecordWithOptionalId = Schema.Struct({
   id: Schema.optional(Schema.Number),
-  ts_from: Schema.DateFromString,
-  ts_to: Schema.DateFromString,
-  service_info: StringFromService,
-}).pipe(Schema.rename({ ts_from: 'from', ts_to: 'to', service_info: 'sign' }));
+  tsFrom: Schema.DateFromString,
+  tsTo: Schema.DateFromString,
+  serviceInfo: StringFromService,
+}).pipe(Schema.rename({ tsFrom: 'from', tsTo: 'to', serviceInfo: 'sign' }));
