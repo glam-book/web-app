@@ -10,9 +10,7 @@ export const getRecords = (userId: number, date = new Date('2024-12-26')) =>
       fetch(
         `api/v1/record/list/${userId ?? ''}?date=${format(date, 'yyyy-MM-dd')}`,
         {
-          headers: {
-            'X-tg-data': String(externalData.getState().data),
-          },
+          headers: { 'X-tg-data': String(externalData.getState().user) },
         },
       ).then((res) => res.json()),
     ),

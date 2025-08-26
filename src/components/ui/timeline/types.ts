@@ -6,6 +6,7 @@ export type Cards = React.ComponentProps<typeof CardsContainer>['fields'];
 
 export type TimelineProps = React.HTMLAttributes<HTMLDivElement> & {
   onCardChange: (card: MapValueType<Cards>) => void;
+  currentDate?: Date;
   asChild?: boolean;
   cards?: Cards;
   sectionDisplaySize?: number;

@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 
 type State = {
-  data?: unknown;
+  user: string;
 };
 
 export const externalData = create<State>()(() => ({
-  data: undefined,
+  user: String(window.Telegram?.WebApp?.initData),
 }));

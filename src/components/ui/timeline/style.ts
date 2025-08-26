@@ -25,7 +25,8 @@ export const dummy: typeof timeLine = cva('', {
 export const timeLabel: typeof timeLine = cva('', {
   variants: {
     size: {
-      default: '[&>*:first-child]:h-[1.25lh]',
+      default: 'h-[2.5lh]',
+      half: 'h-[1.25lh]'
     },
   },
   defaultVariants: {

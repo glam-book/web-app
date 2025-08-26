@@ -7,9 +7,7 @@ export const getMe = () =>
   pipe(
     Effect.tryPromise(() =>
       fetch('api/v1/info/me', {
-        headers: {
-          'X-tg-data': String(externalData.getState().data),
-        },
+        headers: { 'X-tg-data': String(externalData.getState().user) },
       }).then((res) => res.json()),
     ),
 

@@ -10,9 +10,7 @@ export const createOrUpdateRecord = (
     Effect.tryPromise(() =>
       fetch('api/v1/record', {
         method: 'POST',
-        headers: {
-          'X-tg-data': String(externalData.getState().data),
-        },
+        headers: { 'X-tg-data': String(externalData.getState().user) },
         body: JSON.stringify(
           Schema.encodeSync(RecordWithOptionalId, undefined)(record),
         ),
