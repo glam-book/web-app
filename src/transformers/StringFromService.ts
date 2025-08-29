@@ -5,5 +5,5 @@ import { Service } from '@/schemas';
 export const StringFromService = Schema.transform(Service, Schema.String, {
   strict: true,
   decode: ({ title }) => title,
-  encode: (sign) => ({ id: 1, title: sign }),
+  encode: (sign) => ({ title: sign }),
 });

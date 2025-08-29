@@ -1,10 +1,10 @@
 import { Schema } from 'effect';
 
-import { StringFromService } from '@/transformers';
+import { StringFromService, DateFromStringCustom } from '@/transformers';
 
 export const RecordWithOptionalId = Schema.Struct({
   id: Schema.optional(Schema.Number),
-  tsFrom: Schema.DateFromString,
-  tsTo: Schema.DateFromString,
-  serviceInfo: StringFromService,
-}).pipe(Schema.rename({ tsFrom: 'from', tsTo: 'to', serviceInfo: 'sign' }));
+  ts_from: DateFromStringCustom,
+  ts_to: DateFromStringCustom,
+  service_info: StringFromService,
+}).pipe(Schema.rename({ ts_from: 'from', ts_to: 'to', service_info: 'sign' }));

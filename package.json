@@ -10,23 +10,24 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@radix-ui/react-slot": "^1.2.2",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.4",
     "@tailwindcss/vite": "latest",
     "@telegram-apps/sdk-react": "^3.3.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "debounce": "^2.2.0",
     "effect": "^3.15.2",
     "immer": "^10.1.1",
     "lucide-react": "^0.511.0",
     "react": "^19.1.0",
-    "react-day-picker": "^8.10.1",
+    "react-day-picker": "^9.9.0",
     "react-dom": "^19.1.0",
     "scrollyfills": "^1.0.3",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "latest",
+    "vaul": "^1.1.2",
     "zustand": "^5.0.4"
   },
   "devDependencies": {

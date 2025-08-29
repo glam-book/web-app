@@ -1,10 +1,10 @@
 import { type Record } from '@/schemas';
-import type { WithoutReadonly, Prettify } from '@/types';
+import type { Writable, Prettify } from '@/types';
 
 export type State = {
   isUnfreezed: boolean;
   isResizeMode: boolean;
-  fields?: Prettify<WithoutReadonly<typeof Record.Type>>;
+  fields?: Prettify<Writable<typeof Record.Type>>;
 };
 
 export type Actions = {

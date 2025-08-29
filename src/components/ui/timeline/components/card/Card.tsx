@@ -1,33 +1,23 @@
+import { format } from 'date-fns';
 import { useState, useEffect, memo, useCallback } from 'react';
 import { flow } from 'effect';
 
-// import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import { Sdometer } from '@/components/ui/sdometer';
 import { setMinutesToDate } from '@/components/ui/timeline/utils';
 import { editableRightNowCard } from '@/components/ui/timeline/store';
 
 import type { CardProps } from './types';
-import { checkIsCardChanged } from './utils';
 
 export const Card = memo(
   ({
     fields,
     aimPosition,
-    // isSelected,
-    isResizeMode,
     minCardSize = 2.5,
     convertToSpecificDisplayUnits,
     dateToDisplayUnits,
     displayUnitsToMinutes,
-    onChange,
-    // onSelectCard,
-    // onBlurCard,
-    // onToggleResizeMode,
   }: CardProps) => {
-    // const [isResizeMode, setResizeMode] = useState(false);
-    // const wasClickedOnTheCard = useRef(false);
-    // const [isSelected, setSelected] = useState(false);
-    // const [localFields, setLocalFields] = useState(fields);
     const selectedCardState = editableRightNowCard();
 
     const isSelected =
@@ -48,38 +38,6 @@ export const Card = memo(
     const [displayFields, setDisplayFields] = useState(calcDisplayFields);
 
     useEffect(() => setDisplayFields(calcDisplayFields), [calcDisplayFields]);
-
-    // const handleResetCardSelect = useCallback(() => {
-    //   const isCardChanged = checkIsCardChanged(fields, localFields);
-
-    //   console.log('on hcnage call?', { isCardChanged });
-
-    //   if (isCardChanged) onChange(localFields);
-    //   // onBlurCard?.(localFields);
-    //   // setResizeMode(false);
-    // }, [localFields, fields, onBlurCard, onChange]);
-
-    // useEffect(() => {
-    //   if (!isSelected) {
-    //     console.log('call on change:::', { isSelected });
-    //     handleResetCardSelect();
-    //   }
-    // }, [isSelected, handleResetCardSelect]);
-
-    // useEffect(() => {
-    //   const handler = () => {
-    //     if (!wasClickedOnTheCard.current) {
-    //       // setSelected(false);
-    //       handleResetCardSelect();
-    //     }
-
-    //     wasClickedOnTheCard.current = false;
-    //   };
-
-    //   // document.addEventListener('click', handler);
-
-    //   return () => document.removeEventListener('click', handler);
-    // }, [handleResetCardSelect]);
 
     useEffect(() => {
       if (isSelected) {
@@ -118,18 +76,26 @@ export const Card = memo(
     }, [displayFields, fields, displayUnitsToMinutes, isSelected]);
 
     const onClick = () => {
-      void (isSelected
-        ? selectedCardState.toggle('isResizeMode')
-        : selectedCardState.setFields(fields));
+      const aimEqFrom = dateToDisplayUnits(fields.from) === aimPosition;
+
+      if (isSelected) {
+        selectedCardState.toggle('isResizeMode');
+        return;
+      }
+
+      selectedCardState.setFields(fields);
+      selectedCardState.toggle('isUnfreezed', aimEqFrom);
     };
 
     return (
       <div
         role="button"
-        className="absolute w-full bg-[tomato] transition-foo"
+        className={cn(
+          'absolute w-full bg-card transition-foo',
+          isSelected && 'translate-y-0 translate-x-5 shadow-2xl bg-[tomato] z-1',
+        )}
         onClick={onClick}
         tabIndex={0}
-        // data-hate-react-id={fields.id}
         style={{
           top: convertToSpecificDisplayUnits(displayFields.top),
           height: convertToSpecificDisplayUnits(displayFields.size),
@@ -137,27 +103,49 @@ export const Card = memo(
       >
         <div
           className={cn(
-            'sticky top-0 w-full min-h-[2.5lh] text-2xs select-none overflow-y-visible',
-            // isSelected && 'top-[1lh]',
+            'sticky top-0 flex flex-col w-full min-h-[2.5lh] text-2xs select-none overflow-y-visible',
           )}
         >
-          {/*
- <div className="absolute w-full flex items-center -translate-y-full bg-lime-50">
-            {isSelected && (
-              <>
-                toggle resize mode:::
-                <Switch
-                  checked={isResizeMode}
-                  onCheckedChange={(checked) => {
-                    setResizeMode(checked);
-                    onToggleResizeMode(localFields, checked);
-                  }}
+          {isSelected && (
+            <p className="absolute inset-0 flex w-full h-full justify-center items-center text-muted-foreground">
+              {selectedCardState.isResizeMode ? 'TAPP' : 'TAP'}
+            </p>
+          )}
+          {isSelected && (
+            <div className="flex font-mono">
+              <time
+                className={cn(
+                  !selectedCardState.isResizeMode && 'text-stands-out',
+                  'inline-flex'
+                )}
+                dateTime={format(
+                  String(selectedCardState.fields?.from),
+                  'MM-dd',
+                )}
+              >
+                <Sdometer
+                  value={format(
+                    String(selectedCardState.fields?.from),
+                    'HH:mm',
+                  )}
                 />
-              </>
-            )}
-          </div>
-*/}
-          {fields.sign}
+              </time>
+              {'-'}
+              <time
+                className={cn(
+                  selectedCardState.isResizeMode && 'text-stands-out',
+                  'inline-flex'
+                )}
+                dateTime={format(String(selectedCardState.fields?.to), 'MM-dd')}
+              >
+                <Sdometer
+                  value={format(String(selectedCardState.fields?.to), 'HH:mm')}
+                />
+              </time>
+            </div>
+          )}
+
+          {!isSelected && <p>{fields.sign}</p>}
         </div>
       </div>
     );
