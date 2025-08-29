@@ -1,5 +1,6 @@
 import { Effect } from 'effect';
 import { useEffect, useState } from 'react';
+import {add, setHours, setMinutes} from 'date-fns';
 
 import { getRecords, createOrUpdateRecord, getMe } from '@/api';
 import { Calendar } from '@/components/ui/calendar';
@@ -7,7 +8,7 @@ import { Timeline } from '@/components/ui/timeline';
 import { Drawer } from '@/components/ui/drawer';
 import * as Carousel from '@/components/ui/carousel';
 import * as store from '@/store';
-import type { WithoutReadonly, Prettify } from '@/types';
+import type { Writable, Prettify } from '@/types';
 
 export function App() {
   const { id: meId } = store.me();
@@ -39,8 +40,8 @@ export function App() {
                   1,
                   {
                     id: 1,
-                    from: new Date('2024-12-26T11:30:00.000Z'),
-                    to: new Date('2024-12-26T12:25:00.000Z'),
+                    from: setMinutes(setHours(date!, 12), 0),
+                    to: setMinutes(setHours(date!, 13), 30),
                     sign: 'test_resnichkee',
                   },
                 ],
@@ -79,7 +80,7 @@ export function App() {
               cards={records}
               onCardChange={(fields) => {
                 const rec: Prettify<
-                  WithoutReadonly<Parameters<typeof createOrUpdateRecord>[0]>
+                  Writable<Parameters<typeof createOrUpdateRecord>[0]>
                 > = {
                   ...fields,
                 };

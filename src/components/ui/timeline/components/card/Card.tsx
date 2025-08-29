@@ -92,7 +92,7 @@ export const Card = memo(
         role="button"
         className={cn(
           'absolute w-full bg-card transition-foo',
-          isSelected && 'translate-y-0 translate-x-5 shadow-2xl bg-[tomato]',
+          isSelected && 'translate-y-0 translate-x-5 shadow-2xl bg-[tomato] z-1',
         )}
         onClick={onClick}
         tabIndex={0}
