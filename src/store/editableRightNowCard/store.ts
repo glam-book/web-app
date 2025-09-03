@@ -15,7 +15,6 @@ export const editableRightNowCard = create<State & Actions>()(
 
     toggle: (key, value) =>
       set((state) => {
-        console.log({key, value});
         state[key] = value ?? !state[key];
       }),
 

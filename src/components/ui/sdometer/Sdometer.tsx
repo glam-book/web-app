@@ -10,7 +10,6 @@ type SdometerProps = React.HTMLAttributes<HTMLDivElement> & {
 
 export const Sdometer = ({ value, asChild, className }: SdometerProps) => {
   const Comp = asChild ? Slot : 'div';
-  console.log({ value });
 
   return (
     <Comp className={cn(className, 'inline-flex overflow-hidden h-[1lh]')}>

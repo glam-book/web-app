@@ -5,7 +5,7 @@ import { flow } from 'effect';
 import { cn } from '@/lib/utils';
 import { Sdometer } from '@/components/ui/sdometer';
 import { setMinutesToDate } from '@/components/ui/timeline/utils';
-import { editableRightNowCard } from '@/components/ui/timeline/store';
+import { editableRightNowCard } from '@/store/editableRightNowCard';
 
 import type { CardProps } from './types';
 
@@ -92,7 +92,8 @@ export const Card = memo(
         role="button"
         className={cn(
           'absolute w-full bg-card transition-foo',
-          isSelected && 'translate-y-0 translate-x-5 shadow-2xl bg-[tomato] z-1',
+          isSelected &&
+            'translate-y-0 translate-x-5 shadow-2xl bg-[tomato] z-1',
         )}
         onClick={onClick}
         tabIndex={0}
@@ -116,7 +117,7 @@ export const Card = memo(
               <time
                 className={cn(
                   !selectedCardState.isResizeMode && 'text-stands-out',
-                  'inline-flex'
+                  'inline-flex',
                 )}
                 dateTime={format(
                   String(selectedCardState.fields?.from),
@@ -134,7 +135,7 @@ export const Card = memo(
               <time
                 className={cn(
                   selectedCardState.isResizeMode && 'text-stands-out',
-                  'inline-flex'
+                  'inline-flex',
                 )}
                 dateTime={format(String(selectedCardState.fields?.to), 'MM-dd')}
               >
