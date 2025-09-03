@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/drawer';
 import * as Carousel from '@/components/ui/carousel';
 import * as store from '@/store';
-import type { Writable, Prettify } from '@/types';
 
 export function App() {
   const { id: meId } = store.me();
@@ -96,20 +95,14 @@ export function App() {
                 className="flex-1 relative bg-card border h-svh"
                 currentDate={date}
                 cards={records}
-                onCardChange={(fields) => {
-                  const rec: Prettify<
-                    Writable<Parameters<typeof createOrUpdateRecord>[0]>
-                  > = {
-                    ...fields,
-                  };
-
-                  const id = rec.id || Date.now();
-                  addRecord({ ...rec, id });
+                onCardChange={({ id, ...rec }) => {
+                  const idToOptimisticalSave = id || Date.now();
+                  addRecord({ ...rec, id: idToOptimisticalSave });
 
                   Effect.runPromise(
                     createOrUpdateRecord({
                       ...rec,
-                      id: rec.id || undefined,
+                      id: id || undefined,
                     }).pipe(
                       Effect.catchAll((error) => {
                         console.warn(error);
@@ -122,7 +115,7 @@ export function App() {
                       }),
                     ),
                   ).then((res) => {
-                    removeRecord(id);
+                    removeRecord(idToOptimisticalSave);
                     addRecord(res);
                   });
                 }}

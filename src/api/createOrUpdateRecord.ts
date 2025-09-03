@@ -12,11 +12,9 @@ export const createOrUpdateRecord = (
         method: 'POST',
         headers: {
           'X-tg-data': String(externalData.getState().user),
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(
-          Schema.encodeSync(RecordWithOptionalId, undefined)(record),
-        ),
+        body: JSON.stringify(Schema.encodeSync(RecordWithOptionalId)(record)),
       }).then((res) => res.json()),
     ),
 
