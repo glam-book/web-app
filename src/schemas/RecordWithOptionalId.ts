@@ -1,10 +1,8 @@
 import { Schema } from 'effect';
 
-import { StringFromService, DateFromStringCustom } from '@/transformers';
+import { Record } from '@/schemas';
 
-export const RecordWithOptionalId = Schema.Struct({
-  id: Schema.optional(Schema.Number),
-  ts_from: DateFromStringCustom,
-  ts_to: DateFromStringCustom,
-  service_info: StringFromService,
-}).pipe(Schema.rename({ ts_from: 'from', ts_to: 'to', service_info: 'sign' }));
+export const RecordWithOptionalId = Schema.extend(
+  Record.pipe(Schema.omit('id')),
+  Schema.Struct({ id: Schema.optional(Schema.Number) }),
+);
