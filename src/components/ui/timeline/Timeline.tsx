@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { tap } from '@/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import type { MapValueType } from '@/types';
+import { editableRightNowCard } from '@/store/editableRightNowCard';
 
 import { CardsContainer } from './components/cardsContainer';
 import { TimeLabel } from './components/timeLabel';
@@ -25,7 +26,6 @@ import {
   setMinutesToDate,
 } from './utils';
 import { timeLine, dummy } from './style';
-import { editableRightNowCard } from './store';
 
 type CardFields = MapValueType<
   React.ComponentProps<typeof CardsContainer>['fields']

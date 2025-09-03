@@ -1,11 +1,17 @@
 import { Effect } from 'effect';
 import { useEffect, useState } from 'react';
-import {add, setHours, setMinutes} from 'date-fns';
+import { setHours, setMinutes } from 'date-fns';
 
 import { getRecords, createOrUpdateRecord, getMe } from '@/api';
 import { Calendar } from '@/components/ui/calendar';
 import { Timeline } from '@/components/ui/timeline';
-import { Drawer } from '@/components/ui/drawer';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/ui/drawer';
 import * as Carousel from '@/components/ui/carousel';
 import * as store from '@/store';
 import type { Writable, Prettify } from '@/types';
@@ -53,65 +59,92 @@ export function App() {
     }
   }, [date, meId]);
 
+  const { fields } = store.editableRightNowCard();
+  const isCardSelected = Boolean(fields);
+
+  useEffect(() => {
+    if (isCardSelected) {
+      requestAnimationFrame(() => {
+        document.body.style.pointerEvents = '';
+      });
+    }
+  }, [isCardSelected]);
+
   return (
-    <main className="max-h-dvh">
-      <Carousel.Host>
-        <Carousel.Item className="min-w-full">
-          <article className="content-grid">
-            <h1 className="my-4 highlighter text-center font-serif text-4xl">
-              Glam book
-            </h1>
+    <>
+      <main className="max-h-dvh">
+        <Carousel.Host>
+          <Carousel.Item className="min-w-full" aria-hidden="false">
+            <article className="content-grid">
+              <h1 className="my-4 highlighter text-center font-serif text-4xl">
+                Glam book
+              </h1>
 
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              initialFocus
-              className="w-min justify-self-center"
-            />
-          </article>
-        </Carousel.Item>
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                initialFocus
+                className="w-min justify-self-center"
+              />
+            </article>
+          </Carousel.Item>
 
-        <Carousel.Item className="min-w-full">
-          <section className="max-h-svh overflow-hidden">
-            <Timeline
-              className="flex-1 relative bg-card border h-svh"
-              currentDate={date}
-              cards={records}
-              onCardChange={(fields) => {
-                const rec: Prettify<
-                  Writable<Parameters<typeof createOrUpdateRecord>[0]>
-                > = {
-                  ...fields,
-                };
+          <Carousel.Item className="min-w-full" aria-hidden="false">
+            <section className="max-h-svh overflow-hidden">
+              <Timeline
+                className="flex-1 relative bg-card border h-svh"
+                currentDate={date}
+                cards={records}
+                onCardChange={(fields) => {
+                  const rec: Prettify<
+                    Writable<Parameters<typeof createOrUpdateRecord>[0]>
+                  > = {
+                    ...fields,
+                  };
 
-                const id = rec.id || Date.now();
-                addRecord({ ...rec, id });
+                  const id = rec.id || Date.now();
+                  addRecord({ ...rec, id });
 
-                Effect.runPromise(
-                  createOrUpdateRecord({
-                    ...rec,
-                    id: rec.id || undefined,
-                  }).pipe(
-                    Effect.catchAll((error) => {
-                      console.warn(error);
-                      return Effect.succeed({
-                        id,
-                        from: rec.from,
-                        to: rec.to,
-                        sign: 'test_resnichkee',
-                      });
-                    }),
-                  ),
-                ).then((res) => {
-                  removeRecord(id);
-                  addRecord(res);
-                });
-              }}
-            />
-          </section>
-        </Carousel.Item>
-      </Carousel.Host>
-    </main>
+                  Effect.runPromise(
+                    createOrUpdateRecord({
+                      ...rec,
+                      id: rec.id || undefined,
+                    }).pipe(
+                      Effect.catchAll((error) => {
+                        console.warn(error);
+                        return Effect.succeed({
+                          id,
+                          from: rec.from,
+                          to: rec.to,
+                          sign: 'test_resnichkee',
+                        });
+                      }),
+                    ),
+                  ).then((res) => {
+                    removeRecord(id);
+                    addRecord(res);
+                  });
+                }}
+              />
+            </section>
+
+            <Drawer
+              open={isCardSelected}
+              modal={false}
+              noBodyStyles={true}
+              // dismissible={false}
+            >
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>HELLOW</DrawerTitle>
+                  <DrawerDescription>(privet)</DrawerDescription>
+                </DrawerHeader>
+              </DrawerContent>
+            </Drawer>
+          </Carousel.Item>
+        </Carousel.Host>
+      </main>
+    </>
   );
 }

@@ -11,7 +11,7 @@ export const createOrUpdateRecord = (
       fetch('api/v1/record', {
         method: 'POST',
         headers: {
-          'X-tg-data': String(externalData.getState().data),
+          'X-tg-data': String(externalData.getState().user),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(
