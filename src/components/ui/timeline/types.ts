@@ -1,11 +1,8 @@
-import type { MapValueType } from '@/types';
+import type { Container } from './components/container';
 
-import type { CardsContainer } from './components/cardsContainer';
-
-export type Cards = React.ComponentProps<typeof CardsContainer>['fields'];
+export type Cards = React.ComponentProps<typeof Container>['fields'];
 
 export type TimelineProps = React.HTMLAttributes<HTMLDivElement> & {
-  onCardChange: (card: MapValueType<Cards>) => void;
   currentDate?: Date;
   asChild?: boolean;
   cards?: Cards;

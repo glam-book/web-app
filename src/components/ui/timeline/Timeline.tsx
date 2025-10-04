@@ -1,15 +1,14 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { flow } from 'effect';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { pipe, flow } from 'effect';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
-import { tap } from '@/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import type { MapValueType } from '@/types';
-import { editableRightNowCard } from '@/store/editableRightNowCard';
+import { recordCards } from '@/shrekServices';
 
-import { CardsContainer } from './components/cardsContainer';
+import { Container } from './components/container';
 import { TimeLabel } from './components/timeLabel';
 import {
   defaultSectionDisplaySize,
@@ -28,13 +27,12 @@ import {
 import { timeLine, dummy } from './style';
 
 type CardFields = MapValueType<
-  React.ComponentProps<typeof CardsContainer>['fields']
+  React.ComponentProps<typeof Container>['fields']
 >;
 
 const toDisplayUnits = (n: number) => `${n}lh`;
 
 export const Timeline = ({
-  onCardChange,
   currentDate = new Date(),
   cards = new Map(),
   sectionDisplaySize = defaultSectionDisplaySize,
@@ -48,8 +46,10 @@ export const Timeline = ({
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
   const [intersectionTimeIndex, setIntersecionTimeIndex] = useState(0);
   const [aimPosition, setAimPosition] = useState(0);
-  const selectedCardState = editableRightNowCard();
+  const selectedCardState = recordCards.store.editableRightNow();
   const isCardSelected = Boolean(selectedCardState.fields);
+  const scrollRightNow = useRef(false);
+  const selectCardAfterScrollHandler = useRef<() => void>(undefined);
 
   const validSectionSizeInMinutes = useMemo(
     () => validateSectionSize(sectionSizeInMinutes),
@@ -99,57 +99,74 @@ export const Timeline = ({
     flow(
       ({ from, to }: CardFields, isResizeMode?: boolean) =>
         isResizeMode ? to : from,
-      tap(scrollToDate),
+      scrollToDate,
     ),
     [scrollToDate],
   );
 
   useEffect(() => {
-    const fields = editableRightNowCard.getState().fields;
+    const fields = recordCards.store.editableRightNow.getState().fields;
 
-    if (isCardSelected && fields) {
-      scrollToCard(fields, Boolean(selectedCardState.isResizeMode));
+    if (isCardSelected) {
+      scrollToCard(fields!, Boolean(selectedCardState.isResizeMode));
     }
-  }, [isCardSelected, selectedCardState.isResizeMode, scrollToCard]);
+  }, [
+    isCardSelected,
+    selectedCardState.isResizeMode,
+    selectedCardState.fields?.id,
+    scrollToCard,
+  ]);
 
-  const [tmpFields, setTmpFields] = useState<CardFields>();
-
-  const saveAndResetCard = () => {
-    onCardChange(selectedCardState.fields!);
-    selectedCardState.reset();
-    setTmpFields(undefined);
-  };
-
-  const createTmpCard = () => {
-    const fields: CardFields = {
-      id: 0,
+  const createNewCard = () => {
+    recordCards.startEdit({
       sign: 'new +',
-      from: setMinutesToDate(currentDate)(displayUnitsToMinutes(aimPosition)),
-      to: setMinutesToDate(currentDate)(
-        displayUnitsToMinutes(aimPosition + sectionDisplaySize),
-      ),
-    };
 
-    setTmpFields(fields);
-    selectedCardState.setFields(fields);
+      from: pipe(
+        aimPosition,
+        displayUnitsToMinutes,
+        setMinutesToDate(currentDate),
+      ),
+
+      to: pipe(
+        aimPosition + sectionDisplaySize,
+        displayUnitsToMinutes,
+        setMinutesToDate(currentDate),
+      ),
+    });
+
     selectedCardState.toggle('isResizeMode', true);
     selectedCardState.toggle('isUnfreezed', true);
   };
 
   const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if ((e.target as HTMLElement).closest('[role="button"]')) return;
+    const targetIsACard = (e.target as HTMLElement).closest('[role="button"]');
 
-    if (isCardSelected) {
-      saveAndResetCard();
+    if (targetIsACard) {
       return;
     }
 
-    createTmpCard();
+    if (isCardSelected) {
+      recordCards.finishEdit();
+      return;
+    }
+
+    createNewCard();
   };
 
-  useEffect(() => {
-    console.debug({ selectedCardState });
-  }, [selectedCardState]);
+  const onTheCardClick = (fields: CardFields) => {
+    const isThatCardSelected = fields.id === selectedCardState.fields?.id;
+
+    if (isThatCardSelected) {
+      selectedCardState.toggle('isResizeMode');
+      return;
+    }
+
+    recordCards.finishEdit();
+    recordCards.startEdit(fields);
+
+    const aimEqFrom = dateToDisplayUnits(fields.from) === aimPosition;
+    selectedCardState.toggle('isUnfreezed', aimEqFrom);
+  };
 
   const intersectionObserverOpts = useMemo(
     () => ({
@@ -180,7 +197,11 @@ export const Timeline = ({
         className={cn(
           'relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal overscroll-auto scroll-smooth',
         )}
-        onScrollEnd={(_e) => {
+        onScroll={() => {
+          scrollRightNow.current = true;
+        }}
+        onScrollEnd={_e => {
+          scrollRightNow.current = false;
           const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
           setAimPosition(newAimPosition);
           console.log({ newAimPosition });
@@ -191,7 +212,7 @@ export const Timeline = ({
       >
         <div className="h-[50%] flex items-end bg-sky-50 overflow-hidden">
           <div>
-            {timeList.map((time) => (
+            {timeList.map(time => (
               <TimeLabel key={time} label={time} />
             ))}
             <div className={cn(dummy({ size }))} />
@@ -235,19 +256,19 @@ export const Timeline = ({
             </div>
           ))}
 
-          <CardsContainer
+          <Container
             fields={cards}
             aimPosition={aimPosition}
             convertToSpecificDisplayUnits={toDisplayUnits}
             dateToDisplayUnits={dateToDisplayUnits}
             displayUnitsToMinutes={displayUnitsToMinutes}
-            tmpFields={tmpFields}
+            clickHandler={onTheCardClick}
           />
         </div>
 
         <div className="h-[50%] flex bg-sky-50 overflow-hidden">
           <div>
-            {timeList.map((time) => (
+            {timeList.map(time => (
               <TimeLabel key={time} label={time} />
             ))}
           </div>

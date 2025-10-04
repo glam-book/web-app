@@ -11,7 +11,7 @@ export const Host = ({ children, asChild, className, ...props }: HostProps) => {
 
   return (
     <Comp
-      className={cn(className, 'overflow-x-auto flex snap-mandatory snap-x')}
+      className={cn('overflow-x-auto flex snap-mandatory snap-x', className)}
       {...props}
     >
       {children}

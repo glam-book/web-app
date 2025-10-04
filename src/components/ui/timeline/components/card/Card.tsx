@@ -1,11 +1,19 @@
 import { format } from 'date-fns';
 import { useState, useEffect, memo, useCallback } from 'react';
-import { flow } from 'effect';
+import { flow, pipe } from 'effect';
+import { TrashIcon } from '@radix-ui/react-icons';
 
 import { cn } from '@/lib/utils';
 import { Sdometer } from '@/components/ui/sdometer';
 import { setMinutesToDate } from '@/components/ui/timeline/utils';
-import { editableRightNowCard } from '@/store/editableRightNowCard';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuPortal,
+} from '@/components/ui/context-menu';
+import { recordCards } from '@/shrekServices';
 
 import type { CardProps } from './types';
 
@@ -13,18 +21,14 @@ export const Card = memo(
   ({
     fields,
     aimPosition,
+    isSelected,
     minCardSize = 2.5,
     convertToSpecificDisplayUnits,
     dateToDisplayUnits,
     displayUnitsToMinutes,
+    clickHandler,
   }: CardProps) => {
-    const selectedCardState = editableRightNowCard();
-
-    const isSelected =
-      selectedCardState.fields?.id === fields.id &&
-      selectedCardState.isUnfreezed;
-
-    const calcDisplayFields = useCallback(
+    const calcDisplayedFields = useCallback(
       () => ({
         top: dateToDisplayUnits(fields.from),
         size: flow(
@@ -35,18 +39,16 @@ export const Card = memo(
       [fields, dateToDisplayUnits],
     );
 
-    const [displayFields, setDisplayFields] = useState(calcDisplayFields);
-
-    useEffect(() => setDisplayFields(calcDisplayFields), [calcDisplayFields]);
+    const [displayedFields, setDisplayedFields] = useState(calcDisplayedFields);
 
     useEffect(() => {
       if (isSelected) {
-        setDisplayFields((prev) => ({
-          top: editableRightNowCard.getState().isResizeMode
+        setDisplayedFields(prev => ({
+          top: recordCards.store.editableRightNow.getState().isResizeMode
             ? Math.min(aimPosition, prev.top)
             : aimPosition,
 
-          size: editableRightNowCard.getState().isResizeMode
+          size: recordCards.store.editableRightNow.getState().isResizeMode
             ? Math.max(aimPosition - prev.top, minCardSize)
             : prev.size,
         }));
@@ -54,101 +56,232 @@ export const Card = memo(
     }, [isSelected, aimPosition, minCardSize]);
 
     useEffect(() => {
-      if (isSelected) {
-        selectedCardState.setFields({
+      const { fields: editableFields } =
+        recordCards.store.editableRightNow.getState();
+
+      if (isSelected && editableFields) {
+        recordCards.setEditableFields({
           ...fields,
 
-          from: flow(
+          from: pipe(
+            displayedFields.top,
             displayUnitsToMinutes,
-            setMinutesToDate(
-              editableRightNowCard.getState().fields?.from as Date,
-            ),
-          )(displayFields.top),
+            setMinutesToDate(editableFields.from),
+          ),
 
-          to: flow(
+          to: pipe(
+            displayedFields.top + displayedFields.size,
             displayUnitsToMinutes,
-            setMinutesToDate(
-              editableRightNowCard.getState().fields?.to as Date,
-            ),
-          )(displayFields.top + displayFields.size),
+            setMinutesToDate(editableFields.to),
+          ),
         });
       }
-    }, [displayFields, fields, displayUnitsToMinutes, isSelected]);
+    }, [displayedFields, displayUnitsToMinutes, isSelected]);
 
     const onClick = () => {
-      const aimEqFrom = dateToDisplayUnits(fields.from) === aimPosition;
-
-      if (isSelected) {
-        selectedCardState.toggle('isResizeMode');
-        return;
-      }
-
-      selectedCardState.setFields(fields);
-      selectedCardState.toggle('isUnfreezed', aimEqFrom);
+      clickHandler(fields);
     };
 
-    return (
-      <div
-        role="button"
-        className={cn(
-          'absolute w-full bg-card transition-foo',
-          isSelected &&
-            'translate-y-0 translate-x-5 shadow-2xl bg-[tomato] z-1',
-        )}
-        onClick={onClick}
-        tabIndex={0}
-        style={{
-          top: convertToSpecificDisplayUnits(displayFields.top),
-          height: convertToSpecificDisplayUnits(displayFields.size),
-        }}
-      >
-        <div
-          className={cn(
-            'sticky top-0 flex flex-col w-full min-h-[2.5lh] text-2xs select-none overflow-y-visible',
-          )}
-        >
-          {isSelected && (
-            <p className="absolute inset-0 flex w-full h-full justify-center items-center text-muted-foreground">
-              {selectedCardState.isResizeMode ? 'TAPP' : 'TAP'}
-            </p>
-          )}
-          {isSelected && (
-            <div className="flex font-mono">
-              <time
-                className={cn(
-                  !selectedCardState.isResizeMode && 'text-stands-out',
-                  'inline-flex',
-                )}
-                dateTime={format(
-                  String(selectedCardState.fields?.from),
-                  'MM-dd',
-                )}
-              >
-                <Sdometer
-                  value={format(
-                    String(selectedCardState.fields?.from),
-                    'HH:mm',
-                  )}
-                />
-              </time>
-              {'-'}
-              <time
-                className={cn(
-                  selectedCardState.isResizeMode && 'text-stands-out',
-                  'inline-flex',
-                )}
-                dateTime={format(String(selectedCardState.fields?.to), 'MM-dd')}
-              >
-                <Sdometer
-                  value={format(String(selectedCardState.fields?.to), 'HH:mm')}
-                />
-              </time>
-            </div>
-          )}
+    // const root = useRef<HTMLDivElement>(null);
+    // const [startTouches, setStartTouches] = useState<
+    //   [number, number] | undefined
+    // >(undefined);
+    // const touchXCoordRightAfterStart = useRef<number | undefined>(undefined);
+    // const [isSwipeForActionAllowed, setSwipeForActionAllowed] = useState(false);
+    // const [left, setLeft] = useState(0);
+    // const [fuck, setFuck] = useState(false);
 
-          {!isSelected && <p>{fields.sign}</p>}
-        </div>
-      </div>
+    // useEffect(() => {
+    //   window.addEventListener(
+    //     'scrollend',
+    //     () => {
+    //       console.log('scroll END from window');
+    //       setFuck(false);
+    //     },
+    //     true,
+    //   );
+
+    //   window.addEventListener(
+    //     'scroll',
+    //     () => {
+    //       console.log('scroll from window');
+    //       setFuck(true);
+    //     },
+    //     true,
+    //   );
+    // }, []);
+
+    return (
+      <ContextMenu>
+        <ContextMenuTrigger onKeyDown={e => e.preventDefault()}>
+          <div
+            // ref={root}
+            role="button"
+            tabIndex={0}
+            // onTouchStart={(e) => {
+            //   if (isSwipeForActionAllowed || left !== 0) {
+            //     e.preventDefault();
+            //   }
+            //   setStartTouches([e.touches[0].clientX, e.touches[0].clientY]);
+            // }}
+            // onTouchMove={(e) => {
+            //   if (fuck) return;
+
+            //   const [startTouchX, startTouchY] = startTouches ?? [];
+
+            //   if (touchXCoordRightAfterStart.current === undefined) {
+            //     touchXCoordRightAfterStart.current = e.touches[0].clientX;
+
+            //     if (
+            //       Math.abs(startTouchX!) >
+            //         Math.abs(touchXCoordRightAfterStart.current) &&
+            //       Math.abs(startTouchY! - e.touches[0].clientY) <= 10
+            //     ) {
+            //       console.log(e.touches[0].clientY, startTouches?.[1]);
+            //       setSwipeForActionAllowed(true);
+            //       onSwipeStart();
+            //       onSwipe(true);
+            //       document.body.style.overscrollBehaviorX = 'none';
+            //       console.log('hihe');
+            //     }
+            //   }
+
+            //   if (isSwipeForActionAllowed) {
+            //     pipe(
+            //       root.current,
+            //       parseNonNullable,
+            //       Option.map((nonNullableRoot) => {
+            //         const nextLeft = Math.min(
+            //           e.touches[0].clientX - startTouches?.[0] ?? 0,
+            //           0,
+            //         );
+
+            //         setLeft(nextLeft);
+            //         console.log({ nextLeft });
+            //         // nonNullableRoot.style.left = `${Math.min(nextLeft, 0)}px`;
+            //       }),
+            //     );
+            //   }
+            // }}
+            // onTouchEnd={(e) => {
+            //   pipe(
+            //     root.current,
+            //     parseNonNullable,
+            //     Option.map((nonNullableRoot) => {
+            //       setLeft(0);
+            //       // nonNullableRoot.style.left = '0';
+            //     }),
+            //   );
+
+            //   requestAnimationFrame(() => {
+            //     console.log('end of swipe');
+            //     touchXCoordRightAfterStart.current = undefined;
+            //     setStartTouches(undefined);
+            //     onSwipe(false);
+            //     document.body.style.overscrollBehaviorX = '';
+            //     onSwipeEnd();
+            //     setSwipeForActionAllowed(false);
+            //   });
+            // }}
+            onClick={onClick}
+            className={cn(
+              'flex absolute w-full',
+              isSelected && 'shadow-2xl z-1 translate-y-0 translate-x-5',
+              'transition-foo',
+            )}
+            style={{
+              top: convertToSpecificDisplayUnits(displayedFields.top),
+              height: convertToSpecificDisplayUnits(displayedFields.size),
+              // left: fuck ? 0 : `${left}px`,
+            }}
+          >
+            <div
+              className={cn(
+                'min-w-full min-h-[2.5lh] text-2xs select-none transition-foo bg-card',
+                isSelected && 'bg-[tomato]',
+              )}
+            >
+              {/*<p className="absolute top-0 flex w-full h-full justify-center items-center text-muted-foreground">
+            {fields.id}
+          </p>*/}
+
+              <div className="sticky top-0">
+                {isSelected && (
+                  <div className="flex font-mono">
+                    <time
+                      className={cn(
+                        recordCards.store.editableRightNow.getState()
+                          .isResizeMode || 'text-stands-out',
+                        'inline-flex',
+                      )}
+                      dateTime={format(
+                        String(
+                          recordCards.store.editableRightNow.getState().fields
+                            ?.from,
+                        ),
+                        'MM-dd',
+                      )}
+                    >
+                      <Sdometer
+                        value={format(
+                          String(
+                            recordCards.store.editableRightNow.getState().fields
+                              ?.from,
+                          ),
+                          'HH:mm',
+                        )}
+                      />
+                    </time>
+                    {'-'}
+                    <time
+                      className={cn(
+                        recordCards.store.editableRightNow.getState()
+                          .isResizeMode && 'text-stands-out',
+                        'inline-flex',
+                      )}
+                      dateTime={format(
+                        String(
+                          recordCards.store.editableRightNow.getState().fields
+                            ?.to,
+                        ),
+                        'MM-dd',
+                      )}
+                    >
+                      <Sdometer
+                        value={format(
+                          String(
+                            recordCards.store.editableRightNow.getState().fields
+                              ?.to,
+                          ),
+                          'HH:mm',
+                        )}
+                      />
+                    </time>
+                  </div>
+                )}
+
+                {!isSelected && <p className="text-left">{fields.sign}</p>}
+              </div>
+            </div>
+          </div>
+        </ContextMenuTrigger>
+
+        <ContextMenuPortal>
+          <ContextMenuContent>
+            <ContextMenuItem
+              variant="destructive"
+              onClick={e => {
+                console.log('hihs');
+                e.stopPropagation();
+                recordCards.deleteOne(fields.id);
+              }}
+            >
+              <TrashIcon />
+              Удалить
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenuPortal>
+      </ContextMenu>
     );
   },
 );
