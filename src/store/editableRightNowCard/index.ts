@@ -1,1 +1,0 @@
-export { editableRightNowCard } from './store';

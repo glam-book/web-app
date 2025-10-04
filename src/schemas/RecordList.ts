@@ -1,4 +1,4 @@
-import { MapFromArrayWithIds } from '@/transformers';
+import { MapFromArrayWithIdsOrUndefined } from '@/transformers';
 import { Record } from '@/schemas';
 
-export const RecordList = MapFromArrayWithIds(Record);
+export const RecordList = MapFromArrayWithIdsOrUndefined(Record);
