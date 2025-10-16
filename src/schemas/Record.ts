@@ -1,7 +1,7 @@
 import { Schema, pipe } from 'effect';
 
-import { DateFromStringCustom } from '@/transformers';
 import { Service } from '@/schemas';
+import { DateFromStringCustom } from '@/transformers/DateFromStringCustom';
 
 export const Record = Schema.Struct({
   id: Schema.Number,
@@ -27,8 +27,8 @@ export const Record = Schema.Struct({
         Schema.Array(Service.pipe(Schema.pick('id'))),
         Schema.SetFromSelf(Schema.Number),
         {
-          decode: (items) => new Set(items.map(({ id }) => id)),
-          encode: (set) => Array.from(set, (id) => ({ id })),
+          decode: items => new Set(items.map(({ id }) => id)),
+          encode: set => Array.from(set, id => ({ id })),
         },
       ),
       {

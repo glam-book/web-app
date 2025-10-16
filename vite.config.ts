@@ -8,6 +8,9 @@ import generouted from '@generouted/react-router/plugin';
 export default defineConfig(({ _mode }) => {
   return {
     plugins: [react(), tailwindcss(), generouted()],
+    define: {
+      __API_PATH__: JSON.stringify('/api/v1/'),
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

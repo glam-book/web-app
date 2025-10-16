@@ -1,9 +1,9 @@
 import { Schema } from 'effect';
 
 export const MapFromArrayWithIdsOrUndefined = <
-  A extends Record<string, unknown> & { id: number },
-  I,
-  R,
+  A extends { id: number },
+  I = never,
+  R = never,
 >(
   value: Schema.Schema<A, I, R>,
 ) =>
@@ -17,7 +17,7 @@ export const MapFromArrayWithIdsOrUndefined = <
 
     {
       strict: true,
-      decode: (items = []) => new Map(items.map((i) => [i.id, i])),
-      encode: (map) => Array.from(map, ([, item]) => item),
+      decode: (items = []) => new Map(items.map(i => [i.id, i])),
+      encode: map => Array.from(map, ([, item]) => item),
     },
   );

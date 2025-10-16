@@ -1,5 +1,4 @@
 import type { Record, RecordWithOptionalId } from '@/schemas';
-import type { Prettify } from '@/types';
 
 export type State = {
   isResizeMode: boolean;

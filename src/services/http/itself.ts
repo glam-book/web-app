@@ -16,9 +16,6 @@ export const client = Effect.fn(function* (
     fetch(input, {
       ...init,
       headers: { ...defaultHeaders, ...headers },
-    }).then(res => {
-        console.time('a');
-        return res.json();
-      }),
+    }).then(res => res.json()),
   );
 });
