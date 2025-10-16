@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Effect, Option, pipe } from 'effect';
 
 import { useParams } from '@/router';
-import * as services from '@/shrekServices';
+import { services, records } from '@/shrekServices';
 import { Calendar } from '@/components/ui/calendar';
 import { Timeline } from '@/components/ui/timeline';
 import {
@@ -13,33 +12,19 @@ import {
   DrawerDescription,
 } from '@/components/ui/drawer';
 import * as Carousel from '@/components/ui/carousel';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { RecordWitoutId } from '@/schemas';
 
 // я хз как вычислять первое значение
-const snapPoints = ['30svh', 1];
+const snapPoints = ['230px', 1];
 
 export default function Id() {
   const params = useParams('/calendar/:id');
   const [date, setDate] = useState<Date | undefined>(new Date());
 
-  const { data: records } = services.recordCards.useGet(params.id, date);
+  const { data: recordList } = records.useGet(params.id, date);
 
-  useEffect(() => {
-    console.log(
-      Effect.runSync(
-        pipe(
-          Option.some(1),
-          Effect.map(_ => 42),
-        ),
-      ),
-    );
-    if (records?.get(1)) {
-      console.log(RecordWitoutId.make(records.get(1)!), 'dhsiadhsa');
-    }
-  }, [records]);
-
-  const { fields } = services.recordCards.store.editableRightNow();
+  const { fields } = records.store.editableRightNow();
   const isCardSelected = Boolean(fields);
 
   useEffect(() => {
@@ -51,6 +36,7 @@ export default function Id() {
   }, [isCardSelected]);
 
   const [snap, setSnaps] = useState<number | null | string>(snapPoints[0]);
+  const [editServiceModalIsOpen, setEditServiceModalOpen] = useState(false);
 
   return (
     <>
@@ -73,7 +59,6 @@ export default function Id() {
                 mode="single"
                 selected={date}
                 onSelect={setDate}
-                initialFocus
                 className="w-min justify-self-center"
               />
             </article>
@@ -84,20 +69,20 @@ export default function Id() {
               <Timeline
                 className="flex-1 relative bg-card border h-svh"
                 currentDate={date}
-                cards={records}
+                cards={recordList}
               />
             </section>
 
             <Drawer
               open={isCardSelected}
-              onClose={services.recordCards.finishEdit}
+              onClose={records.finishEdit}
               noBodyStyles
               modal={false}
-              // snapPoints={snapPoints}
-              // activeSnapPoint={snap}
-              // setActiveSnapPoint={setSnaps}
+              snapPoints={snapPoints}
+              activeSnapPoint={snap}
+              setActiveSnapPoint={setSnaps}
             >
-              <DrawerContent>
+              <DrawerContent className="h-[80svh]">
                 <DrawerHeader>
                   <DrawerTitle>HELLOW</DrawerTitle>
                   <DrawerDescription>(privet)</DrawerDescription>
@@ -111,23 +96,28 @@ export default function Id() {
                     )}
                   >
                     <form action="" id="edit-record-card">
+                      <label>
+                        <span>services:</span>
+
+                        <Button
+                          onClick={() => setEditServiceModalOpen(prev => !prev)}
+                          type="button"
+                        >
+                          ADD +
+                        </Button>
+                      </label>
+
                       <textarea
                         id=""
                         name=""
                         defaultValue={fields?.sign}
                         onBlur={e => {
-                          pipe(
-                            Option.fromNullable(
-                              services.recordCards.store.editableRightNow.getState()
-                                .fields,
-                            ),
-                            Option.map(editableFields => {
-                              services.recordCards.setEditableFields({
-                                ...editableFields,
-                                sign: e.currentTarget.value,
-                              });
-                            }),
-                          );
+                          records.store.editableRightNow.setState({
+                            fields: {
+                              ...fields!,
+                              sign: e.currentTarget.value,
+                            },
+                          });
                         }}
                       ></textarea>
                     </form>
@@ -135,6 +125,11 @@ export default function Id() {
                 </div>
               </DrawerContent>
             </Drawer>
+
+            <services.components.EditService
+              open={editServiceModalIsOpen}
+              onClose={() => setEditServiceModalOpen(false)}
+            />
           </Carousel.Item>
         </Carousel.Host>
       </main>

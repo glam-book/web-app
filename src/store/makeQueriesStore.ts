@@ -5,16 +5,10 @@ type State = {
 };
 
 type Actions = {
-  getIt: () => unknown[];
-  setIt: (queries: unknown[]) => void;
+  // setIt: (queries: unknown[]) => void;
 };
 
 export const makeQueriesStore = () =>
-  create<State & Actions>()((set, get) => ({
+  create<State & Actions>()(() => ({
     queries: [],
-    getIt: () => get().queries,
-    setIt: queries =>
-      set({
-        queries,
-      }),
   }));

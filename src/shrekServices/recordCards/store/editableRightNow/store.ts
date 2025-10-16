@@ -20,7 +20,6 @@ export const editableRightNow = create<State & Actions>()(
       }),
 
     reset: () => {
-      console.log('reset');
       set(editableRightNow.getInitialState());
     },
 

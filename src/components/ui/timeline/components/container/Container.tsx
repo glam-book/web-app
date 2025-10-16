@@ -1,13 +1,15 @@
 import { useEffect, useMemo } from 'react';
 
-import { recordCards } from '@/shrekServices';
+import { records } from '@/shrekServices';
+import { activeCard } from '@/components/ui/timeline/store';
 
 import type { ContainerProps, Fields } from './types';
 
 import { Card } from '../card';
 
 export const Container = ({ fields = new Map(), ...rest }: ContainerProps) => {
-  const selectedCardState = recordCards.store.editableRightNow();
+  const selectedCardState = records.store.editableRightNow();
+  const activeCardState = activeCard();
 
   const fieldList = useMemo(
     () =>
@@ -22,17 +24,13 @@ export const Container = ({ fields = new Map(), ...rest }: ContainerProps) => {
     ],
   ) as Fields[];
 
-  useEffect(() => {
-    console.log('container:::', { fieldList, size: fieldList.length });
-  }, [fieldList]);
-
   return fieldList.map(cardFields => (
     <Card
       key={cardFields.id}
       fields={cardFields}
       isSelected={
         cardFields.id === selectedCardState.fields?.id &&
-        selectedCardState.isUnfreezed
+        activeCardState.isUnfreezed
       }
       {...rest}
     />

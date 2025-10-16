@@ -5,7 +5,7 @@ import { recordCards } from '@/shrekServices';
 import { mutateAreself } from '@/shrekServices/recordCards/store';
 import { createOrUpdate } from '@/shrekServices/recordCards/actions/createOrUpdate';
 import { store } from '@/shrekServices/recordCards';
-import { tap, dictionariesEquals } from '@/utils';
+import { tap, deepEqual } from '@/utils';
 import { RecordWitoutId, RecordWithOptionalId } from '@/schemas';
 
 type EditableRightNowState = ReturnType<
@@ -28,7 +28,7 @@ export const finishEdit = flow(
     Option.liftPredicate(snapshot => {
       const a = snapshot.fields;
       const b = store.getIt()?.get(a.id);
-      return snapshot.isNew || !b || !dictionariesEquals(a, b);
+      return snapshot.isNew || !b || !deepEqual(a, b);
     }),
   ),
 

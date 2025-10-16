@@ -13,7 +13,8 @@ import {
   ContextMenuTrigger,
   ContextMenuPortal,
 } from '@/components/ui/context-menu';
-import { recordCards } from '@/shrekServices';
+import { records } from '@/shrekServices';
+import { activeCard } from '@/components/ui/timeline/store';
 
 import type { CardProps } from './types';
 
@@ -44,11 +45,11 @@ export const Card = memo(
     useEffect(() => {
       if (isSelected) {
         setDisplayedFields(prev => ({
-          top: recordCards.store.editableRightNow.getState().isResizeMode
+          top: activeCard.getState().isResizeMode
             ? Math.min(aimPosition, prev.top)
             : aimPosition,
 
-          size: recordCards.store.editableRightNow.getState().isResizeMode
+          size: activeCard.getState().isResizeMode
             ? Math.max(aimPosition - prev.top, minCardSize)
             : prev.size,
         }));
@@ -57,23 +58,25 @@ export const Card = memo(
 
     useEffect(() => {
       const { fields: editableFields } =
-        recordCards.store.editableRightNow.getState();
+        records.store.editableRightNow.getState();
 
       if (isSelected && editableFields) {
-        recordCards.setEditableFields({
-          ...fields,
+        records.store.editableRightNow.setState({
+          fields: {
+            ...editableFields,
 
-          from: pipe(
-            displayedFields.top,
-            displayUnitsToMinutes,
-            setMinutesToDate(editableFields.from),
-          ),
+            from: pipe(
+              displayedFields.top,
+              displayUnitsToMinutes,
+              setMinutesToDate(editableFields.from),
+            ),
 
-          to: pipe(
-            displayedFields.top + displayedFields.size,
-            displayUnitsToMinutes,
-            setMinutesToDate(editableFields.to),
-          ),
+            to: pipe(
+              displayedFields.top + displayedFields.size,
+              displayUnitsToMinutes,
+              setMinutesToDate(editableFields.to),
+            ),
+          },
         });
       }
     }, [displayedFields, displayUnitsToMinutes, isSelected]);
@@ -210,13 +213,12 @@ export const Card = memo(
                   <div className="flex font-mono">
                     <time
                       className={cn(
-                        recordCards.store.editableRightNow.getState()
-                          .isResizeMode || 'text-stands-out',
+                        activeCard.getState().isResizeMode || 'text-stands-out',
                         'inline-flex',
                       )}
                       dateTime={format(
                         String(
-                          recordCards.store.editableRightNow.getState().fields
+                          records.store.editableRightNow.getState().fields
                             ?.from,
                         ),
                         'MM-dd',
@@ -225,7 +227,7 @@ export const Card = memo(
                       <Sdometer
                         value={format(
                           String(
-                            recordCards.store.editableRightNow.getState().fields
+                            records.store.editableRightNow.getState().fields
                               ?.from,
                           ),
                           'HH:mm',
@@ -235,14 +237,12 @@ export const Card = memo(
                     {'-'}
                     <time
                       className={cn(
-                        recordCards.store.editableRightNow.getState()
-                          .isResizeMode && 'text-stands-out',
+                        activeCard.getState().isResizeMode && 'text-stands-out',
                         'inline-flex',
                       )}
                       dateTime={format(
                         String(
-                          recordCards.store.editableRightNow.getState().fields
-                            ?.to,
+                          records.store.editableRightNow.getState().fields?.to,
                         ),
                         'MM-dd',
                       )}
@@ -250,7 +250,7 @@ export const Card = memo(
                       <Sdometer
                         value={format(
                           String(
-                            recordCards.store.editableRightNow.getState().fields
+                            records.store.editableRightNow.getState().fields
                               ?.to,
                           ),
                           'HH:mm',
@@ -273,7 +273,7 @@ export const Card = memo(
               onClick={e => {
                 console.log('hihs');
                 e.stopPropagation();
-                recordCards.deleteOne(fields.id);
+                records.deleteOne(fields.id);
               }}
             >
               <TrashIcon />

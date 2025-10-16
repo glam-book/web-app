@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { pipe, flow } from 'effect';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
@@ -6,7 +6,8 @@ import { type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import type { MapValueType } from '@/types';
-import { recordCards } from '@/shrekServices';
+import { records } from '@/shrekServices';
+import { activeCard } from '@/components/ui/timeline/store';
 
 import { Container } from './components/container';
 import { TimeLabel } from './components/timeLabel';
@@ -46,10 +47,9 @@ export const Timeline = ({
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
   const [intersectionTimeIndex, setIntersecionTimeIndex] = useState(0);
   const [aimPosition, setAimPosition] = useState(0);
-  const selectedCardState = recordCards.store.editableRightNow();
+  const selectedCardState = records.store.editableRightNow();
+  const activeCardState = activeCard();
   const isCardSelected = Boolean(selectedCardState.fields);
-  const scrollRightNow = useRef(false);
-  const selectCardAfterScrollHandler = useRef<() => void>(undefined);
 
   const validSectionSizeInMinutes = useMemo(
     () => validateSectionSize(sectionSizeInMinutes),
@@ -105,20 +105,20 @@ export const Timeline = ({
   );
 
   useEffect(() => {
-    const fields = recordCards.store.editableRightNow.getState().fields;
+    const fields = records.store.editableRightNow.getState().fields;
 
     if (isCardSelected) {
-      scrollToCard(fields!, Boolean(selectedCardState.isResizeMode));
+      scrollToCard(fields!, Boolean(activeCardState.isResizeMode));
     }
   }, [
     isCardSelected,
-    selectedCardState.isResizeMode,
+    activeCardState.isResizeMode,
     selectedCardState.fields?.id,
     scrollToCard,
   ]);
 
   const createNewCard = () => {
-    recordCards.startEdit({
+    records.startEdit({
       sign: 'new +',
 
       from: pipe(
@@ -134,8 +134,8 @@ export const Timeline = ({
       ),
     });
 
-    selectedCardState.toggle('isResizeMode', true);
-    selectedCardState.toggle('isUnfreezed', true);
+    activeCardState.toggle('isResizeMode', true);
+    activeCardState.toggle('isUnfreezed', true);
   };
 
   const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -146,7 +146,7 @@ export const Timeline = ({
     }
 
     if (isCardSelected) {
-      recordCards.finishEdit();
+      records.finishEdit();
       return;
     }
 
@@ -157,15 +157,15 @@ export const Timeline = ({
     const isThatCardSelected = fields.id === selectedCardState.fields?.id;
 
     if (isThatCardSelected) {
-      selectedCardState.toggle('isResizeMode');
+      activeCardState.toggle('isResizeMode');
       return;
     }
 
-    recordCards.finishEdit();
-    recordCards.startEdit(fields);
+    records.finishEdit();
+    records.startEdit(fields);
 
     const aimEqFrom = dateToDisplayUnits(fields.from) === aimPosition;
-    selectedCardState.toggle('isUnfreezed', aimEqFrom);
+    activeCardState.toggle('isUnfreezed', aimEqFrom);
   };
 
   const intersectionObserverOpts = useMemo(
@@ -197,16 +197,12 @@ export const Timeline = ({
         className={cn(
           'relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal overscroll-auto scroll-smooth',
         )}
-        onScroll={() => {
-          scrollRightNow.current = true;
-        }}
         onScrollEnd={_e => {
-          scrollRightNow.current = false;
           const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
           setAimPosition(newAimPosition);
           console.log({ newAimPosition });
           if (isCardSelected) {
-            selectedCardState.toggle('isUnfreezed', true);
+            activeCardState.toggle('isUnfreezed', true);
           }
         }}
       >
