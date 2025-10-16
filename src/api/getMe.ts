@@ -1,3 +1,3 @@
-import { http } from '@/services';
+import { rest } from '@/services';
 
-export const getMe = http.liveClient('info/me');
+export const getMe = rest.client('info/me');
