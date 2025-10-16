@@ -1,10 +1,9 @@
 import { Schema, flow } from 'effect';
-import { format } from 'date-fns';
 
 import { queryClient } from '@/services';
-import { Record as Itself } from '@/schemas/Record';
+import { Itself } from '@/shrekServices/services/schemas';
 
-const resource = 'record';
+const resource = 'service';
 
 export const {
   startEdit: _startEdit,
@@ -15,8 +14,7 @@ export const {
 } = queryClient.makeResourceListActionsTemplate({
   resource,
   Itself,
-  adapter: (userId: number | string, date: Date) =>
-    `${userId}?date=${format(date, 'yyyy-MM-dd')}`,
+  adapter: (userId: number | string) => String(userId),
 });
 
 export const startEdit = flow(

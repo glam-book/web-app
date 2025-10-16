@@ -8,12 +8,11 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer';
-import * as services from '@/shrekServices/services';
+import { services } from '@/shrekServices';
 
 export function EditService(props: React.ComponentProps<typeof Drawer>) {
   const location = useLocation();
   const params = useParams('/calendar/:id');
-  // const modals = useModals();
   const { data = new Map() } = services.useGet(params.id);
 
   return (
