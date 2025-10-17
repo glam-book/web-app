@@ -10,12 +10,10 @@ import { setQueryData, getQueryData } from '@/lib/tanstackQuery';
 export const makeResourceListActionsTemplate = <
   T extends { id: number },
   T0 extends { id: number },
-  W extends Omit<T, 'id'>,
-  O extends W & { id?: number },
   A extends unknown[],
 >(
   options: Omit<
-    Parameters<typeof rest.makeResourceListActions<T, T0, W, O, A>>[number],
+    Parameters<typeof rest.makeResourceListActions<T, T0, A>>[number],
     'resourceStoreActions'
   >,
 ) => {
@@ -26,7 +24,7 @@ export const makeResourceListActionsTemplate = <
   const queriesStore = makeQueriesStore();
 
   const queryActions: Parameters<
-    typeof rest.makeResourceListActions<T, T0, W, O, A>
+    typeof rest.makeResourceListActions<T, T0, A>
   >[number]['resourceStoreActions'] = {
     deleteOne: id =>
       mutateList(old =>
@@ -48,7 +46,7 @@ export const makeResourceListActionsTemplate = <
       )?.get(id),
   };
 
-  const actions = rest.makeResourceListActions<T, T0, W, O, A>({
+  const actions = rest.makeResourceListActions<T, T0, A>({
     ...options,
     resourceStoreActions: queryActions,
   });

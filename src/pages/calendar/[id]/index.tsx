@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/drawer';
 import * as Carousel from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
 
 // я хз как вычислять первое значение
@@ -27,6 +29,9 @@ export default function Id() {
   const { fields } = records.store.editableRightNow();
   const isCardSelected = Boolean(fields);
 
+  const { data: serviceList = new Map([[1, { id: 1, title: 'service 💅' }]]) } =
+    services.useGet(params.id);
+
   useEffect(() => {
     if (isCardSelected) {
       requestAnimationFrame(() => {
@@ -35,21 +40,18 @@ export default function Id() {
     }
   }, [isCardSelected]);
 
-  const [snap, setSnaps] = useState<number | null | string>(snapPoints[0]);
+  const [snap, setSnap] = useState<number | null | string>(snapPoints[0]);
   const [editServiceModalIsOpen, setEditServiceModalOpen] = useState(false);
+
+  useEffect(() => {
+    setSnap(snapPoints[0]);
+  }, [fields?.id]);
 
   return (
     <>
       <main className="max-h-dvh overscroll-none">
-        <Carousel.Host
-          onScroll={() => {
-            console.log('scrolling...');
-          }}
-          onScrollEnd={() => {
-            console.log('scrolling... END!');
-          }}
-        >
-          <Carousel.Item className="min-w-full" aria-hidden="false">
+        <Carousel.Host>
+          <Carousel.Item className="min-w-full">
             <article className="content-grid">
               <h1 className="my-4 highlighter text-center font-serif text-4xl">
                 Glam book
@@ -80,7 +82,7 @@ export default function Id() {
               modal={false}
               snapPoints={snapPoints}
               activeSnapPoint={snap}
-              setActiveSnapPoint={setSnaps}
+              setActiveSnapPoint={setSnap}
             >
               <DrawerContent className="h-[80svh]">
                 <DrawerHeader>
@@ -96,6 +98,11 @@ export default function Id() {
                     )}
                   >
                     <form action="" id="edit-record-card">
+                      {serviceList &&
+                        Array.from(serviceList, ([, v]) => (
+                          <Toggle variant="outline" key={v.id}>{v.title}</Toggle>
+                        ))}
+
                       <label>
                         <span>services:</span>
 
@@ -107,7 +114,7 @@ export default function Id() {
                         </Button>
                       </label>
 
-                      <textarea
+                      <Textarea
                         id=""
                         name=""
                         defaultValue={fields?.sign}
@@ -119,7 +126,7 @@ export default function Id() {
                             },
                           });
                         }}
-                      ></textarea>
+                      />
                     </form>
                   </section>
                 </div>

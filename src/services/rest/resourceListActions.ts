@@ -27,9 +27,9 @@ const makeEditableRightNowStore = <T extends { id: number }>() =>
 export const makeResourceListActions = function <
   T extends { id: number },
   T0 extends { id: number },
-  W extends Omit<T, 'id'>,
-  O extends W & { id?: number },
   A extends unknown[],
+  W extends Omit<T, 'id'> = Omit<T, 'id'>,
+  O extends W & { id?: number } = W & { id?: number },
 >({
   Itself,
   resource,
@@ -89,8 +89,7 @@ export const makeResourceListActions = function <
     }
 
     const b = resourceStoreActions.getOne(fields.id);
-    const isThereAnyPointInMovingForward =
-      isNew || !b || !deepEqual(fields, b);
+    const isThereAnyPointInMovingForward = isNew || !b || !deepEqual(fields, b);
 
     if (!isThereAnyPointInMovingForward) {
       return;
@@ -111,8 +110,8 @@ export const makeResourceListActions = function <
 
   const deleteOne = (id: number) =>
     pipe(
-      `${resource}/${id}`,
-      rest.client,
+      [`${resource}/${id}`, { method: 'DELETE' }] as const,
+      params => rest.client(...params),
       tryDecodeInto(Schema.Struct({ success: Schema.Boolean })),
     );
 
