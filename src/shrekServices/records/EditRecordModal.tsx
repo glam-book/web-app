@@ -29,24 +29,17 @@ export const EditRecordModal = () => {
     serviceList &&
     Array.from(serviceList).filter(([, i]) => Boolean(i.title)).length > 0;
 
-  const makeServiceToggleFields = useCallback(
-    () =>
-      new Map(
-        Array.from(serviceList ?? new Map(), ([k]) => [
-          k,
-          Boolean(recordFields?.serviceIdList.has(k)),
-        ]),
-      ),
-    [serviceList, recordFields],
-  );
+  const makeServiceToggleFields = () =>
+    new Map(
+      Array.from(serviceList ?? new Map(), ([k]) => [
+        k,
+        Boolean(recordFields?.serviceIdList.has(k)),
+      ]),
+    );
 
   const [serviceToggleFields, setServiceToggleFields] = useState(
     makeServiceToggleFields,
   );
-
-  useEffect(() => {
-    setServiceToggleFields(makeServiceToggleFields);
-  }, [makeServiceToggleFields]);
 
   const [snap, setSnap] = useState<number | null | string>(snapPoints[0]);
 
@@ -55,10 +48,14 @@ export const EditRecordModal = () => {
   }, [recordFields?.id]);
 
   useEffect(() => {
+    setServiceToggleFields(makeServiceToggleFields);
+  }, [recordFields?.id]);
+
+  useEffect(() => {
     const form = document.forms.namedItem('edit-record-card');
     const textarea = form?.querySelector<HTMLTextAreaElement>('[name="sign"]');
     if (!textarea) return;
-    textarea.defaultValue = recordFields?.sign;
+    textarea.defaultValue = String(recordFields?.sign);
     form?.reset();
   }, [recordFields?.id]);
 
