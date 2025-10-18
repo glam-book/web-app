@@ -1,5 +1,19 @@
 import { isValid as isValidDate, isEqual as isEqualDates } from 'date-fns';
 
+const arePrimitiveSetsEqual = <T>(s1: Set<T>, s2: Set<T>): boolean => {
+  if (s1.size !== s2.size) {
+    return false;
+  }
+
+  for (const el of s1) {
+    if (!s2.has(el)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export const deepEqual = <T extends object>(a: T, b: T): boolean => {
   if (a === b) return true;
 
@@ -19,7 +33,11 @@ export const deepEqual = <T extends object>(a: T, b: T): boolean => {
       typeof b1 === 'object' &&
       b1 !== null
     ) {
-      isEqual = deepEqual(a1, b1);
+      if (a1 instanceof Set && b1 instanceof Set) {
+        isEqual = arePrimitiveSetsEqual(a1, b1);
+      } else {
+        isEqual = deepEqual(a1, b1);
+      }
     } else {
       isEqual = a1 === b1;
     }

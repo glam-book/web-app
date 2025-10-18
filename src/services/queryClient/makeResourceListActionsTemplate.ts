@@ -29,7 +29,7 @@ export const makeResourceListActionsTemplate = <
     deleteOne: id =>
       mutateList(old =>
         produce(old, draft => {
-          draft?.delete(id);
+          if (id !== undefined) draft?.delete(id);
         }),
       ),
 
@@ -80,6 +80,7 @@ export const makeResourceListActionsTemplate = <
     useGet,
     deleteOne,
     finishEdit,
+    resetEdit: actions.resetEdit,
     startEdit: actions.startEdit,
     store: actions.store,
   };

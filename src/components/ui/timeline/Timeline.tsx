@@ -87,8 +87,9 @@ export const Timeline = ({
 
   const scrollToDate = useCallback(
     (date: Date) => {
+      if (!scrollView) return;
       const position = dateToDisplayUnits(date);
-      const lhPx = parseFloat(getComputedStyle(scrollView!).lineHeight);
+      const lhPx = parseFloat(getComputedStyle(scrollView).lineHeight);
       const y = lhPx * position;
       scrollView?.scroll(0, y);
     },
