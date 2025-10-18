@@ -14,8 +14,13 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
   const { fields } = services.store.editableRightNow();
 
   return (
-    <Drawer open={Boolean(fields)} onClose={services.resetEdit} {...props}>
-      <DrawerContent className="pb-4">
+    <Drawer
+      open={Boolean(fields)}
+      repositionInputs={false}
+      onClose={services.resetEdit}
+      {...props}
+    >
+      <DrawerContent className="min-h-[80dvh] pb-4">
         <DrawerHeader>
           <DrawerTitle>Сервис</DrawerTitle>
           <DrawerDescription className="hidden">
