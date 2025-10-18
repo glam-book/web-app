@@ -1,5 +1,6 @@
 import { Effect, Schema, flow, pipe } from 'effect';
 import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
 
 import { rest } from '@/services';
 import { deepEqual, tryDecodeInto } from '@/utils';
@@ -40,7 +41,7 @@ export const makeResourceListActions = function <
   resource: string;
   adapter: (...args: A) => string;
   resourceStoreActions: {
-    deleteOne: (id: number) => void;
+    deleteOne: (id?: number) => void;
     setOne: (item: T) => void;
     getOne: (id: number) => T | undefined;
   };
@@ -77,6 +78,12 @@ export const makeResourceListActions = function <
     });
 
     resourceStoreActions.setOne(optimistic as unknown as T);
+  };
+
+  const resetEdit = () => {
+    const { fields, isNew, reset } = editableRightNow.getState();
+    if (isNew) resourceStoreActions.deleteOne(fields?.id);
+    reset();
   };
 
   const finishEdit = () => {
@@ -134,6 +141,7 @@ export const makeResourceListActions = function <
 
     deleteOneOptimistic,
     startEdit,
+    resetEdit,
     finishEdit,
 
     store: {
