@@ -196,7 +196,7 @@ export const Timeline = ({
       <div
         ref={setScrollView}
         className={cn(
-          'relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal overscroll-auto scroll-smooth',
+          'relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal scroll-smooth',
         )}
         onScrollEnd={_e => {
           const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
