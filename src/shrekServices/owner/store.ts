@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 type State = {
-  id?: number | string;
+  calendarId?: number | string;
 };
 
 export const store = create<State>()(() => ({}));

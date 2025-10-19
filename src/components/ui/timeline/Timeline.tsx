@@ -6,7 +6,7 @@ import { type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import type { MapValueType } from '@/types';
-import { records } from '@/shrekServices';
+import { records, owner } from '@/shrekServices';
 import { activeCard } from '@/components/ui/timeline/store';
 
 import { Container } from './components/container';
@@ -50,6 +50,7 @@ export const Timeline = ({
   const selectedCardState = records.store.editableRightNow();
   const activeCardState = activeCard();
   const isCardSelected = Boolean(selectedCardState.fields);
+  const ownerResult = owner.useIsOwner();
 
   const validSectionSizeInMinutes = useMemo(
     () => validateSectionSize(sectionSizeInMinutes),
@@ -184,7 +185,7 @@ export const Timeline = ({
         className,
         'overflow-y-hidden relative text-xl isolate bg-white',
       )}
-      onClick={onClick}
+      onClick={ownerResult.isOwner ? onClick : onClick}
       {...props}
     >
       <div className="absolute inset-0 flex flex-col justify-center">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { produce } from 'immer';
 import { PlusIcon } from 'lucide-react';
 
@@ -13,8 +13,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Toggle } from '@/components/ui/toggle';
-import { ButtonGroup } from '@/components/ui/button-group';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { records, services } from '@/shrekServices';
 
 const snapPoints = ['230px', 1];
@@ -22,6 +22,7 @@ const snapPoints = ['230px', 1];
 export const EditRecordModal = () => {
   const { fields: recordFields } = records.store.editableRightNow();
   const isCardSelected = Boolean(recordFields);
+  const open = isCardSelected;
 
   const { data: serviceList } = services.useGet();
 
@@ -29,16 +30,13 @@ export const EditRecordModal = () => {
     serviceList &&
     Array.from(serviceList).filter(([, i]) => Boolean(i.title)).length > 0;
 
-  const makeServiceToggleFields = () =>
-    new Map(
-      Array.from(serviceList ?? new Map(), ([k]) => [
-        k,
-        Boolean(recordFields?.serviceIdList.has(k)),
-      ]),
-    );
+  const makeServiceToggleDefaultFields = () =>
+    recordFields?.serviceIdList
+      ? Array.from(recordFields.serviceIdList, String)
+      : [];
 
   const [serviceToggleFields, setServiceToggleFields] = useState(
-    makeServiceToggleFields,
+    makeServiceToggleDefaultFields,
   );
 
   const [snap, setSnap] = useState<number | null | string>(snapPoints[0]);
@@ -48,7 +46,7 @@ export const EditRecordModal = () => {
   }, [recordFields?.id]);
 
   useEffect(() => {
-    setServiceToggleFields(makeServiceToggleFields);
+    setServiceToggleFields(makeServiceToggleDefaultFields);
   }, [recordFields?.id]);
 
   useEffect(() => {
@@ -59,9 +57,21 @@ export const EditRecordModal = () => {
     form?.reset();
   }, [recordFields?.id]);
 
+  useEffect(() => {
+    if (open) {
+      document.body.style.overscrollBehavior = 'none';
+      document.documentElement.style.overscrollBehavior = 'none';
+    }
+
+    return () => {
+      document.body.style.overscrollBehavior = '';
+      document.documentElement.style.overscrollBehavior = '';
+    };
+  }, [open]);
+
   return (
     <Drawer
-      open={isCardSelected}
+      open={open}
       onClose={records.finishEdit}
       noBodyStyles
       modal={false}
@@ -71,13 +81,13 @@ export const EditRecordModal = () => {
       repositionInputs={false}
     >
       <DrawerPortal>
-        <DrawerContent className="min-h-[80dvh] pb-4">
+        <DrawerContent className="min-h-[80dvh] pb-4 bg-blurable backdrop-blur-3xl">
           <DrawerHeader>
             <DrawerTitle>HELLOW</DrawerTitle>
             <DrawerDescription>(privet)</DrawerDescription>
           </DrawerHeader>
 
-          <div className="flex-1 content-grid">
+          <div className="flex-1 overflow-auto content-grid">
             <form
               className="flex flex-col gap-4"
               id="edit-record-card"
@@ -104,30 +114,32 @@ export const EditRecordModal = () => {
               }}
             >
               <div className="flex gap-1">
-                <ButtonGroup className="overflow-auto empty:hidden">
+                <ToggleGroup
+                  type="multiple"
+                  value={serviceToggleFields}
+                  onValueChange={setServiceToggleFields}
+                  className="overflow-auto overscroll-contain flex-1 empty:hidden"
+                  variant="outline"
+                >
                   {serviceList &&
                     Array.from(serviceList)
                       .filter(([, i]) => Boolean(i.title))
                       .map(([, i]) => (
-                        <Toggle
-                          className="basis-auto"
-                          pressed={serviceToggleFields.get(i.id)}
-                          onPressedChange={v =>
-                            setServiceToggleFields(prev =>
-                              produce(prev, draft => draft.set(i.id, v)),
-                            )
-                          }
+                        <ToggleGroupItem
+                          value={String(i.id)}
+                          type="button"
+                          className="basis-auto font-mono font-bold border-destructive data-[state=on]:bg-[aliceblue]"
                           name={String(i.id)}
                           key={i.id}
-                          variant="outline"
                         >
                           {i.title}
-                        </Toggle>
+                        </ToggleGroupItem>
                       ))}
-                </ButtonGroup>
+                </ToggleGroup>
 
                 <Label>
                   <Button
+                    className="bg-[aliceblue]"
                     type="button"
                     aria-label="Add new service"
                     size="icon"
@@ -137,14 +149,19 @@ export const EditRecordModal = () => {
                     <PlusIcon />
                   </Button>
                   {!isServiceListReallyNotEmpty && (
-                    <span>Добавьте новый сервис</span>
+                    <span className="text-base">Добавьте новый сервис</span>
                   )}
                 </Label>
               </div>
 
-              <Textarea name="sign" defaultValue={recordFields?.sign} />
+              <Textarea
+                cols={2}
+                name="sign"
+                className="resize-none bg-[aliceblue]"
+                defaultValue={recordFields?.sign}
+              />
 
-              <Button className="mt-auto" type="submit">
+              <Button className="mt-auto sticky bottom-0" type="submit">
                 Сохранить
               </Button>
             </form>

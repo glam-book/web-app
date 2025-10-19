@@ -27,4 +27,4 @@ export const startEdit = flow(
   _startEdit,
 );
 
-export const useGet = () => _useGet(ownerStore.getState().id);
+export const useGet = () => _useGet(ownerStore.getState().calendarId);

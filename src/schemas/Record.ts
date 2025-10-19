@@ -37,4 +37,19 @@ export const Record = Schema.Struct({
     ),
     Schema.fromKey('serviceInfo'),
   ),
+
+  owner: Schema.optionalWith(Schema.Boolean, { default: () => false }),
+
+  pendings: pipe(
+    Schema.optionalWith(
+      Schema.Struct({
+        limits: Schema.Number,
+        active: Schema.Number,
+      }),
+      { default: () => ({ limits: 1, active: 0 }) },
+    ),
+    Schema.fromKey('recordPendings'),
+  ),
+
+  pendigable: Schema.optionalWith(Schema.Boolean, { default: () => true }),
 });

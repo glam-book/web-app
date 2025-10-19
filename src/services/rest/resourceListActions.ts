@@ -68,18 +68,6 @@ export const makeResourceListActions = function <
 
   const editableRightNow = makeEditableRightNowStore<T>();
 
-  const startEdit = (item: O) => {
-    const { id = Date.now(), ...withoutId } = item;
-    const optimistic = { ...withoutId, id };
-
-    editableRightNow.setState({
-      isNew: item.id === undefined,
-      fields: optimistic as unknown as T,
-    });
-
-    resourceStoreActions.setOne(optimistic as unknown as T);
-  };
-
   const resetEdit = () => {
     const { fields, isNew, reset } = editableRightNow.getState();
     if (isNew) resourceStoreActions.deleteOne(fields?.id);
@@ -91,16 +79,12 @@ export const makeResourceListActions = function <
 
     editableRightNow.getState().reset();
 
-    if (fields === undefined) {
-      return;
-    }
+    if (fields === undefined) return;
 
     const b = resourceStoreActions.getOne(fields.id);
     const isThereAnyPointInMovingForward = isNew || !b || !deepEqual(fields, b);
 
-    if (!isThereAnyPointInMovingForward) {
-      return;
-    }
+    if (!isThereAnyPointInMovingForward) return;
 
     resourceStoreActions.setOne(fields);
 
@@ -113,6 +97,27 @@ export const makeResourceListActions = function <
         resourceStoreActions.setOne(result);
       }),
     );
+  };
+
+  const startEdit = (item: O) => {
+    const { id = Date.now(), ...withoutId } = item;
+    const editableRightNowState = editableRightNow.getState();
+
+    if (editableRightNowState.fields?.id === id) return;
+
+    // fiber test
+    const fiber = finishEdit()?.pipe(Effect.runFork);
+
+    const optimistic = { ...withoutId, id };
+
+    editableRightNow.setState({
+      isNew: item.id === undefined,
+      fields: optimistic as unknown as T,
+    });
+
+    resourceStoreActions.setOne(optimistic as unknown as T);
+
+    return fiber;
   };
 
   const deleteOne = (id: number) =>

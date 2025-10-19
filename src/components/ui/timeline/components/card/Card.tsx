@@ -13,7 +13,9 @@ import {
   ContextMenuTrigger,
   ContextMenuPortal,
 } from '@/components/ui/context-menu';
-import { records } from '@/shrekServices';
+import { Badge } from '@/components/ui/badge';
+import { Toggle } from '@/components/ui/toggle';
+import { records, services } from '@/shrekServices';
 import { activeCard } from '@/components/ui/timeline/store';
 
 import type { CardProps } from './types';
@@ -85,107 +87,14 @@ export const Card = memo(
       clickHandler(fields);
     };
 
-    // const root = useRef<HTMLDivElement>(null);
-    // const [startTouches, setStartTouches] = useState<
-    //   [number, number] | undefined
-    // >(undefined);
-    // const touchXCoordRightAfterStart = useRef<number | undefined>(undefined);
-    // const [isSwipeForActionAllowed, setSwipeForActionAllowed] = useState(false);
-    // const [left, setLeft] = useState(0);
-    // const [fuck, setFuck] = useState(false);
-
-    // useEffect(() => {
-    //   window.addEventListener(
-    //     'scrollend',
-    //     () => {
-    //       console.log('scroll END from window');
-    //       setFuck(false);
-    //     },
-    //     true,
-    //   );
-
-    //   window.addEventListener(
-    //     'scroll',
-    //     () => {
-    //       console.log('scroll from window');
-    //       setFuck(true);
-    //     },
-    //     true,
-    //   );
-    // }, []);
+    const { data: serviceList } = services.useGet();
 
     return (
       <ContextMenu>
         <ContextMenuTrigger onKeyDown={e => e.preventDefault()}>
           <div
-            // ref={root}
             role="button"
             tabIndex={0}
-            // onTouchStart={(e) => {
-            //   if (isSwipeForActionAllowed || left !== 0) {
-            //     e.preventDefault();
-            //   }
-            //   setStartTouches([e.touches[0].clientX, e.touches[0].clientY]);
-            // }}
-            // onTouchMove={(e) => {
-            //   if (fuck) return;
-
-            //   const [startTouchX, startTouchY] = startTouches ?? [];
-
-            //   if (touchXCoordRightAfterStart.current === undefined) {
-            //     touchXCoordRightAfterStart.current = e.touches[0].clientX;
-
-            //     if (
-            //       Math.abs(startTouchX!) >
-            //         Math.abs(touchXCoordRightAfterStart.current) &&
-            //       Math.abs(startTouchY! - e.touches[0].clientY) <= 10
-            //     ) {
-            //       console.log(e.touches[0].clientY, startTouches?.[1]);
-            //       setSwipeForActionAllowed(true);
-            //       onSwipeStart();
-            //       onSwipe(true);
-            //       document.body.style.overscrollBehaviorX = 'none';
-            //       console.log('hihe');
-            //     }
-            //   }
-
-            //   if (isSwipeForActionAllowed) {
-            //     pipe(
-            //       root.current,
-            //       parseNonNullable,
-            //       Option.map((nonNullableRoot) => {
-            //         const nextLeft = Math.min(
-            //           e.touches[0].clientX - startTouches?.[0] ?? 0,
-            //           0,
-            //         );
-
-            //         setLeft(nextLeft);
-            //         console.log({ nextLeft });
-            //         // nonNullableRoot.style.left = `${Math.min(nextLeft, 0)}px`;
-            //       }),
-            //     );
-            //   }
-            // }}
-            // onTouchEnd={(e) => {
-            //   pipe(
-            //     root.current,
-            //     parseNonNullable,
-            //     Option.map((nonNullableRoot) => {
-            //       setLeft(0);
-            //       // nonNullableRoot.style.left = '0';
-            //     }),
-            //   );
-
-            //   requestAnimationFrame(() => {
-            //     console.log('end of swipe');
-            //     touchXCoordRightAfterStart.current = undefined;
-            //     setStartTouches(undefined);
-            //     onSwipe(false);
-            //     document.body.style.overscrollBehaviorX = '';
-            //     onSwipeEnd();
-            //     setSwipeForActionAllowed(false);
-            //   });
-            // }}
             onClick={onClick}
             className={cn(
               'flex absolute w-full',
@@ -195,7 +104,6 @@ export const Card = memo(
             style={{
               top: convertToSpecificDisplayUnits(displayedFields.top),
               height: convertToSpecificDisplayUnits(displayedFields.size),
-              // left: fuck ? 0 : `${left}px`,
             }}
           >
             <div
@@ -204,10 +112,6 @@ export const Card = memo(
                 isSelected && 'bg-[tomato]',
               )}
             >
-              {/*<p className="absolute top-0 flex w-full h-full justify-center items-center text-muted-foreground">
-            {fields.id}
-          </p>*/}
-
               <div className="sticky top-0">
                 {isSelected && (
                   <div className="flex font-mono">
@@ -260,7 +164,40 @@ export const Card = memo(
                   </div>
                 )}
 
-                {!isSelected && <p className="text-left">{fields.sign}</p>}
+                {!isSelected && (
+                  <div className="flex justify-between">
+                    <div className="flex flex-col">
+                      <p className="text-left">{fields.sign}</p>
+                      <div className="flex gap-0.5">
+                        {Array.from(fields.serviceIdList, serviceId => {
+                          const title = serviceList?.get(serviceId)?.title;
+                          return (
+                            title && (
+                              <Badge
+                                className="bg-[deepskyblue] font-bold font-mono"
+                                variant="destructive"
+                                key={serviceId}
+                              >
+                                {title}
+                              </Badge>
+                            )
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="p-1">
+                      <Toggle
+                        variant="outline"
+                        className="text-sm font-mono font-bold border-destructive"
+                        onPressedChange={e => console.log(e)}
+                        onClick={e => e.stopPropagation()}
+                      >
+                        {fields.pendings.active}/{fields.pendings.limits}
+                      </Toggle>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

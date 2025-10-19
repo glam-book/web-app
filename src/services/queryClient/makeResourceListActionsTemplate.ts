@@ -62,11 +62,8 @@ export const makeResourceListActionsTemplate = <
   const useGet = (...params: Partial<Parameters<typeof fetchList>>) =>
     useQuery({
       queryKey: [options.resource, ...params],
-      queryFn: () => {
-        if (params.every(Boolean)) {
-          return fetchList(...(params as Parameters<typeof fetchList>));
-        }
-      },
+      enabled: params.every(Boolean),
+      queryFn: () => fetchList(...(params as Parameters<typeof fetchList>)),
     });
 
   const deleteOne = flow(actions.deleteOneOptimistic, Effect.runPromiseExit);

@@ -10,7 +10,7 @@ export default function Id() {
   const params = useParams('/calendar/:id');
 
   useEffect(() => {
-    owner.store.setState({ id: params.id });
+    owner.store.setState({ calendarId: params.id });
   }, [params.id]);
 
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -20,11 +20,15 @@ export default function Id() {
   const isCardSelected = Boolean(recordFields);
 
   useEffect(() => {
+    let afid: number;
+
     if (isCardSelected) {
-      requestAnimationFrame(() => {
+      afid = requestAnimationFrame(() => {
         document.body.style.pointerEvents = '';
       });
     }
+
+    return () => cancelAnimationFrame(afid);
   }, [isCardSelected]);
 
   return (
@@ -40,7 +44,7 @@ export default function Id() {
               mode="single"
               selected={date}
               onSelect={setDate}
-              className="w-min justify-self-center"
+              className="w-full justify-self-center"
             />
           </article>
         </Carousel.Item>
