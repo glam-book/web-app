@@ -1,3 +1,5 @@
+import { produce } from 'immer';
+
 import {
   Drawer,
   DrawerContent,
@@ -20,7 +22,7 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
       onClose={services.resetEdit}
       {...props}
     >
-      <DrawerContent className="min-h-[80dvh] pb-4">
+      <DrawerContent className="min-h-[80dvh] pb-4 backdrop-blur-3xl">
         <DrawerHeader>
           <DrawerTitle>Сервис</DrawerTitle>
           <DrawerDescription className="hidden">
@@ -35,10 +37,11 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
               services.store.editableRightNow.setState({
-                fields: {
-                  ...fields!,
-                  title: (fd.get('title') as string) ?? '',
-                },
+                fields: produce(fields, draft => {
+                  if (draft === undefined) return;
+                  draft.title = fd.get('title') as string;
+                  draft.price = parseFloat(fd.get('price') as string);
+                }),
               });
 
               services.finishEdit();
@@ -52,6 +55,16 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
                 placeholder="Название"
                 defaultValue={fields?.title}
                 required
+              />
+            </Label>
+
+            <Label className="flex-col items-start">
+              <Input
+                name="price"
+                type="text"
+                placeholder="Цена в реблях"
+                defaultValue={fields?.price}
+                inputMode="numeric"
               />
             </Label>
 

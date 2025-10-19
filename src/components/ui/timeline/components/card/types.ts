@@ -1,17 +1,21 @@
-type Fields<T extends Record<string, unknown>> = {
+import {Record} from '@/schemas';
+
+type Fields = typeof Record.Type;
+
+/* type Fields<T extends Record<string, unknown>> = {
   id: number;
   sign: string;
   from: Date;
   to: Date;
-} & T;
+} & T; */
 
-export type CardProps<T extends Record<string, unknown> = {}> = {
+export type CardProps = {
   convertToSpecificDisplayUnits: (n: number) => string;
   dateToDisplayUnits: (date: Date) => number;
   displayUnitsToMinutes: (units: number) => number;
-  clickHandler: (fields: Fields<T>) => void;
+  clickHandler: (fields: Fields) => void;
   aimPosition: number;
-  fields: Fields<T>;
+  fields: Fields;
   isSelected: boolean;
   minCardSize?: number;
 };
