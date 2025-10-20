@@ -16,7 +16,7 @@ import './index.css';
 
 enableMapSet();
 
-// window.Telegram?.WebApp?.disableVerticalSwipes();
+window.Telegram?.WebApp?.disableVerticalSwipes();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
