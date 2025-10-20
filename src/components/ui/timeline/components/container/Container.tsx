@@ -5,8 +5,7 @@ import { activeCard } from '@/components/ui/timeline/store';
 
 import type { ContainerProps } from './types';
 
-import { Card } from '../card';
-import { CardForTheClient } from '../cardForTheClient';
+import { OwnerCard, ClientCard } from '../card';
 
 export const Container = ({ fields = new Map(), ...rest }: ContainerProps) => {
   const selectedCardState = records.store.editableRightNow();
@@ -15,8 +14,7 @@ export const Container = ({ fields = new Map(), ...rest }: ContainerProps) => {
   const fieldList = useMemo(() => Array.from(fields, ([_, v]) => v), [fields]);
 
   const ownerResult = owner.useIsOwner();
-  // const Comp = isOwnerResult.isOwner ? Card : CardForTheClient;
-  const Comp = Card;
+  const Comp = ownerResult.isOwner ? OwnerCard : ClientCard;
 
   return (
     ownerResult.isFetched &&

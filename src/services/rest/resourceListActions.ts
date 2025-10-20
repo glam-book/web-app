@@ -1,6 +1,5 @@
 import { Effect, Schema, flow, pipe } from 'effect';
 import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
 
 import { rest } from '@/services';
 import { deepEqual, tryDecodeInto } from '@/utils';

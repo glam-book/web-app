@@ -1,1 +1,2 @@
-export { Card } from './Card';
+export { OwnerCard, ClientCard } from './Card';
+export { type CardProps } from './types';

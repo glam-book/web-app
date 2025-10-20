@@ -1,8 +1,9 @@
-import { Schema, flow } from 'effect';
+import { Effect, Schema, flow, pipe } from 'effect';
 import { format } from 'date-fns';
 
-import { queryClient } from '@/services';
+import { queryClient, rest } from '@/services';
 import { Record as Itself } from '@/schemas/Record';
+import { tryDecodeInto } from '@/utils';
 
 const resource = 'record';
 
@@ -26,3 +27,18 @@ export const startEdit = flow(
   }).make,
   _startEdit,
 );
+
+export const makeAppointment = (
+  recordId: (typeof Itself.Type)['id'],
+  serviceIdList: number[],
+) =>
+  pipe(
+    [
+      `${resource}/pending/${recordId}`,
+      { method: 'PUT', body: JSON.stringify(serviceIdList) },
+    ] as const,
+    params => rest.client(...params),
+    tryDecodeInto(Itself),
+    Effect.tap(record => store.listActions.setOne(record)),
+    Effect.runPromise,
+  );

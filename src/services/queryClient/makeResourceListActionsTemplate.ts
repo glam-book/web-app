@@ -79,6 +79,9 @@ export const makeResourceListActionsTemplate = <
     finishEdit,
     resetEdit: actions.resetEdit,
     startEdit: actions.startEdit,
-    store: actions.store,
-  };
+    store: {
+      editableRightNow: actions.store.editableRightNow,
+      listActions: queryActions,
+    },
+  } as const;
 };

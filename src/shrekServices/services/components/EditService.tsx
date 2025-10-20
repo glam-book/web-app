@@ -40,7 +40,10 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
                 fields: produce(fields, draft => {
                   if (draft === undefined) return;
                   draft.title = fd.get('title') as string;
-                  draft.price = parseFloat(fd.get('price') as string);
+                  const priceCandidate = parseFloat(fd.get('price') as string);
+                  draft.price = Number.isNaN(priceCandidate)
+                    ? 0
+                    : priceCandidate;
                 }),
               });
 
@@ -63,7 +66,7 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
                 name="price"
                 type="text"
                 placeholder="Цена в реблях"
-                defaultValue={fields?.price}
+                defaultValue={fields?.price ? fields.price : ''}
                 inputMode="numeric"
               />
             </Label>
