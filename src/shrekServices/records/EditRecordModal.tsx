@@ -14,10 +14,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { records, services } from '@/shrekServices';
 
-const snapPoints = ['230px', 1];
+const snapPoints = [0.5, 1];
 
 export const EditRecordModal = () => {
   const { fields: recordFields } = records.store.editableRightNow();
@@ -128,7 +127,7 @@ export const EditRecordModal = () => {
                         <ToggleGroupItem
                           value={String(i.id)}
                           type="button"
-                          className="basis-auto font-mono font-bold border-destructive data-[state=on]:bg-[aliceblue]"
+                          className="basis-auto font-mono font-bold border-destructive data-[state=on]:bg-[deepskyblue] data-[state=on]:text-white"
                           name={String(i.id)}
                           key={i.id}
                         >

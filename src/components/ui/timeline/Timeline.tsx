@@ -2,12 +2,15 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { pipe, flow } from 'effect';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 import { cn } from '@/lib/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import type { MapValueType } from '@/types';
 import { records, owner } from '@/shrekServices';
 import { activeCard } from '@/components/ui/timeline/store';
+import { Sdometer } from '@/components/ui/sdometer';
 
 import { Container } from './components/container';
 import { TimeLabel } from './components/timeLabel';
@@ -92,7 +95,7 @@ export const Timeline = ({
       const position = dateToDisplayUnits(date);
       const lhPx = parseFloat(getComputedStyle(scrollView).lineHeight);
       const y = lhPx * position;
-      scrollView?.scroll(0, y);
+      scrollView.scroll(0, y);
     },
     [scrollView, dateToDisplayUnits],
   );
@@ -185,14 +188,16 @@ export const Timeline = ({
         className,
         'overflow-y-hidden relative text-xl isolate bg-white',
       )}
-      onClick={ownerResult.isOwner ? onClick : onClick}
+      onClick={ownerResult.isOwner ? onClick : undefined}
       {...props}
     >
-      <div className="absolute inset-0 flex flex-col justify-center">
-        <div className="aim flex-1 border-b" />
-        <div className="flex h-[2px] bg-[red]"></div>
-        <div className="flex-1" />
-      </div>
+      {ownerResult.isOwner && (
+        <div className="absolute inset-0 flex flex-col justify-center">
+          <div className="aim flex-1 border-b" />
+          <div className="flex h-[2px] bg-[red]"></div>
+          <div className="flex-1" />
+        </div>
+      )}
 
       <div
         ref={setScrollView}
@@ -208,6 +213,24 @@ export const Timeline = ({
           }
         }}
       >
+        <h2 className="sticky z-10 top-0 flex items-end-safe font-serif bg-blurable backdrop-blur-3xl">
+          <time className="text-2xl">
+            {format(currentDate, 'dd MMMM', { locale: ru })}
+          </time>
+          <span className="text-2xl">/</span>
+          <time className="inline-flex">
+            <Sdometer
+              value={format(
+                pipe(
+                  aimPosition,
+                  displayUnitsToMinutes,
+                  setMinutesToDate(currentDate),
+                ),
+                'HH:mm',
+              ).trim()}
+            />
+          </time>
+        </h2>
         <div className="h-[50%] flex items-end bg-sky-50 overflow-hidden">
           <div>
             {timeList.map(time => (
@@ -228,7 +251,9 @@ export const Timeline = ({
             >
               <TimeLabel
                 label={time}
-                isIntersecting={idx === intersectionTimeIndex}
+                isIntersecting={
+                  idx === intersectionTimeIndex && ownerResult.isOwner
+                }
                 className={cn(idx === 0 && `-translate-y-2/4 h-[1.25lh]`)}
               />
 

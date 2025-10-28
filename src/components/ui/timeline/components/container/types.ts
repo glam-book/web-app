@@ -1,6 +1,4 @@
-import type { Card } from '../card';
-
-type CardProps = React.ComponentProps<typeof Card>;
+import type { CardProps } from '../card';
 
 export type Fields = CardProps['fields'];
 

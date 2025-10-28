@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { useParams } from '@/router';
 import { services, records, owner } from '@/shrekServices';
-import { Calendar } from '@/components/ui/calendar';
+import { Era } from '@/components/ui/era';
 import { Timeline } from '@/components/ui/timeline';
 import * as Carousel from '@/components/ui/carousel';
+import type { HostApi } from '@/components/ui/carousel';
+import { Toaster } from '@/components/ui/sonner';
 
 export default function Id() {
   const params = useParams('/calendar/:id');
@@ -31,21 +33,21 @@ export default function Id() {
     return () => cancelAnimationFrame(afid);
   }, [isCardSelected]);
 
+  const carouselApi = useRef<HostApi>(null);
+
+  useEffect(() => {
+    console.log(window.Telegram?.WebApp, 'tgwebapp');
+    return () => carouselApi.current?.next(1);
+  }, [date]);
+
   return (
     <main className="max-h-dvh overscroll-none">
-      <Carousel.Host>
+      <Carousel.Host ref={carouselApi}>
         <Carousel.Item className="min-w-full">
-          <article className="content-grid">
-            <h1 className="my-4 highlighter text-center font-serif text-4xl">
-              Glam book
-            </h1>
-
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              className="w-full justify-self-center"
-            />
+          <article className="flex flex-col min-h-dvh max-h-dvh">
+            <div className="content-grid flex-1 overflow-hidden">
+              <Era onSelect={setDate} selected={date} className="without-gap" />
+            </div>
           </article>
         </Carousel.Item>
 
@@ -63,6 +65,8 @@ export default function Id() {
           <services.components.EditService />
         </Carousel.Item>
       </Carousel.Host>
+
+      <Toaster />
     </main>
   );
 }
