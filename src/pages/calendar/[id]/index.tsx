@@ -36,7 +36,6 @@ export default function Id() {
   const carouselApi = useRef<HostApi>(null);
 
   useEffect(() => {
-    console.log(window.Telegram?.WebApp, 'tgwebapp');
     return () => carouselApi.current?.next(1);
   }, [date]);
 
