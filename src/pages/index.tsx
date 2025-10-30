@@ -8,8 +8,10 @@ export default function Home() {
   const { data: me } = services.me.useGet();
 
   useEffect(() => {
-    if (me !== undefined) {
-      navigate('/calendar/:id', { params: { id: `${me.id}` } });
+    const calendarId = /*tgStartParams.calendarId ?? */ me?.id;
+
+    if (calendarId) {
+      navigate('/calendar/:id', { params: { id: String(calendarId) } });
     }
   }, [me]);
 }

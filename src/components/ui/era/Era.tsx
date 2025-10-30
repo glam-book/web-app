@@ -1,4 +1,12 @@
-import { memo, useMemo, useState, useCallback, useEffect } from 'react';
+import {
+  memo,
+  useMemo,
+  useState,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 import {
   format,
   getDay,
@@ -15,7 +23,14 @@ import {
 import { ru } from 'date-fns/locale';
 
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+
+// fuck
+const isSafari = () =>
+  navigator.userAgent.indexOf('Safari') > -1 &&
+  navigator.userAgent.indexOf('Chrome') === -1;
 
 const Month = memo(
   ({
@@ -64,18 +79,28 @@ const Month = memo(
             <tr key={idx} className="text-center flex [&>*]:flex-1 snap-start">
               {d.map((dd, ddindex) => (
                 <td className="font-mono text-sm" key={ddindex}>
-                  <button
-                    onClick={dd ? () => onSelect(dd) : undefined}
-                    type="button"
-                    className={cn(
-                      'w-full h-full flex justify-center border-t active:bg-card',
-                      dd &&
+                  {dd && (
+                    <button
+                      onClick={() => onSelect(dd)}
+                      type="button"
+                      className={cn(
+                        'w-full h-full flex justify-center border-t',
                         isEqual(startOfDay(dd), startOfDay(selected)) &&
-                        'bg-card',
-                    )}
-                  >
-                    {dd ? getDate(dd) : ''}
-                  </button>
+                          'bg-card',
+                      )}
+                    >
+                      <Badge
+                        variant={
+                          isEqual(startOfDay(dd), startOfDay(new Date()))
+                            ? 'destructive'
+                            : 'outline'
+                        }
+                        className="h-min rounded-2xl border-none"
+                      >
+                        {getDate(dd)}
+                      </Badge>
+                    </button>
+                  )}
                 </td>
               ))}
             </tr>
@@ -102,30 +127,31 @@ export const Era = ({
   const intersectionObserverOpts = useMemo(
     () => ({
       root: scrollView,
-      rootMargin: '50%',
-      threshold: 1,
+      threshold: [0.55],
     }),
     [scrollView],
   );
 
-  const [center, setCenter] = useState(selected);
+  const n = Math.max(29, 9);
 
-  const n = 9;
-  const nMonths = useMemo(() => {
-    const res = Array.from({ length: n }, (_, idx) =>
+  const makeNMonths = (center: Date) =>
+    Array.from({ length: n }, (_, idx) =>
       addMonths(center, idx - Math.floor(n / 2)),
     );
-    return res;
-  }, [center]);
 
-  useEffect(() => {
+  const [months, setMonths] = useState(makeNMonths(selected));
+
+  const scrollToCenter = () => {
     if (!scrollView) return;
     const rect = scrollView.getBoundingClientRect();
     scrollView.scroll(0, rect.height * Math.floor(n / 2));
+  };
+
+  useEffect(() => {
+    scrollToCenter();
   }, [scrollView]);
 
   const cb = useCallback((e: IntersectionObserverEntry) => {
-    console.log({ e });
     if (!e.isIntersecting) return;
 
     const target = e.target as HTMLElement;
@@ -134,9 +160,12 @@ export const Era = ({
     );
 
     if (!isValid(date)) return;
-
-    setCenter(date);
   }, []);
+
+  useLayoutEffect(() => {
+    if (!isSafari()) return;
+    requestAnimationFrame(scrollToCenter);
+  }, [months]);
 
   return (
     <>
@@ -145,9 +174,35 @@ export const Era = ({
           ref={setScrollView}
           {...props}
           className={cn('overflow-y-auto h-full')}
+          onScrollEnd={e => {
+            if (!isSafari()) return;
+            const target = e.currentTarget;
+            const depth = target.scrollHeight - target.scrollTop;
+
+            if (depth <= target.clientHeight) {
+              setMonths(makeNMonths(months.at(-1) as Date));
+            }
+
+            if (target.scrollTop <= 0) {
+              setMonths(makeNMonths(months[0]));
+            }
+          }}
+          onScroll={e => {
+            if (isSafari()) return;
+            const target = e.currentTarget;
+            const depth = target.scrollHeight - target.scrollTop;
+
+            if (depth <= target.clientHeight * 4) {
+              setMonths(makeNMonths(months.at(-1) as Date));
+            }
+
+            if (target.scrollTop <= target.clientHeight * 4) {
+              setMonths(makeNMonths(months[0]));
+            }
+          }}
         >
           <div className="h-full">
-            {nMonths.map(v => (
+            {months.map(v => (
               <IntersectionTarget
                 key={v.getTime()}
                 className="h-full"
@@ -155,10 +210,10 @@ export const Era = ({
                 callback={cb}
               >
                 <Month
-                  selected={selected}
                   onSelect={onSelect}
-                  data-date={v.getTime()}
+                  selected={selected}
                   date={v}
+                  data-date={v.getTime()}
                 />
               </IntersectionTarget>
             ))}
@@ -175,6 +230,17 @@ export const Era = ({
           <div>ВС</div>
         </div>
       </div>
+
+      <Button
+        type="button"
+        variant="destructive"
+        onClick={() => {
+          setMonths(makeNMonths(new Date()));
+          scrollToCenter();
+        }}
+      >
+        TODAY
+      </Button>
     </>
   );
 };
