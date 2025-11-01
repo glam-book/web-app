@@ -63,18 +63,18 @@ const Month = memo(
     return (
       <table
         aria-label={`${format(date, 'yyyy MMMM')}`}
-        className={cn('h-full flex flex-col', className)}
+        className={cn('relative h-full flex flex-col', className)}
         {...props}
       >
-        <thead className="sticky top-0 z-2 bg-blurable backdrop-blur-3xl">
+        <thead className="absolute translate-y-[-1lh] text-2xl bg-blurable backdrop-blur-3xl">
           <tr>
-            <td className="text-2xl font-serif">
-              {format(date, 'LLLL yyyy', { locale: ru })}
+            <td className="font-serif indent-3">
+              <span>{format(date, 'LLLL yyyy', { locale: ru })}</span>
             </td>
           </tr>
         </thead>
 
-        <tbody className="flex-1 flex flex-col [&>*]:flex-1">
+        <tbody className="flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh]">
           {daysGroupedByWeek.map((d, idx) => (
             <tr key={idx} className="text-center flex [&>*]:flex-1 snap-start">
               {d.map((dd, ddindex) => (
@@ -123,11 +123,13 @@ export const Era = ({
   ...props
 }: Props) => {
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
+  const [header, setHeader] = useState<HTMLDivElement | null>(null);
 
   const intersectionObserverOpts = useMemo(
     () => ({
       root: scrollView,
-      threshold: [0.55],
+      threshold: [0.1, 0.9],
+      rootMargin: '0px 0px 0px -80%',
     }),
     [scrollView],
   );
@@ -151,8 +153,11 @@ export const Era = ({
     scrollToCenter();
   }, [scrollView]);
 
+  const [visibleDate, setVisibleDate] = useState(selected);
+
   const cb = useCallback((e: IntersectionObserverEntry) => {
     if (!e.isIntersecting) return;
+    console.log(e);
 
     const target = e.target as HTMLElement;
     const date = new Date(
@@ -160,6 +165,8 @@ export const Era = ({
     );
 
     if (!isValid(date)) return;
+
+    setVisibleDate(date);
   }, []);
 
   useLayoutEffect(() => {
@@ -168,79 +175,88 @@ export const Era = ({
   }, [months]);
 
   return (
-    <>
-      <div className={cn('relative h-full overflow-hidden', className)}>
-        <div
-          ref={setScrollView}
-          {...props}
-          className={cn('overflow-y-auto h-full')}
-          onScrollEnd={e => {
-            if (!isSafari()) return;
-            const target = e.currentTarget;
-            const depth = target.scrollHeight - target.scrollTop;
+    <div
+      className={cn('relative h-full flex flex-col overflow-hidden', className)}
+    >
+      <div ref={setHeader} className="flex flex-col border-b">
+        <div className="flex justify-between pr-0.5">
+          <h2 className="font-serif text-2xl indent-3">
+            {format(visibleDate, 'LLLL yyyy', { locale: ru })}
+          </h2>
 
-            if (depth <= target.clientHeight) {
-              setMonths(makeNMonths(months.at(-1) as Date));
-            }
-
-            if (target.scrollTop <= 0) {
-              setMonths(makeNMonths(months[0]));
-            }
-          }}
-          onScroll={e => {
-            if (isSafari()) return;
-            const target = e.currentTarget;
-            const depth = target.scrollHeight - target.scrollTop;
-
-            if (depth <= target.clientHeight * 4) {
-              setMonths(makeNMonths(months.at(-1) as Date));
-            }
-
-            if (target.scrollTop <= target.clientHeight * 4) {
-              setMonths(makeNMonths(months[0]));
-            }
-          }}
-        >
-          <div className="h-full">
-            {months.map(v => (
-              <IntersectionTarget
-                key={v.getTime()}
-                className="h-full"
-                intersectionOpts={intersectionObserverOpts}
-                callback={cb}
-              >
-                <Month
-                  onSelect={onSelect}
-                  selected={selected}
-                  date={v}
-                  data-date={v.getTime()}
-                />
-              </IntersectionTarget>
-            ))}
-          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="destructive"
+            onClick={() => {
+              setMonths(makeNMonths(new Date()));
+              scrollToCenter();
+            }}
+          >
+            TODAY
+          </Button>
         </div>
 
-        <div className="absolute top-[1lh] w-full z-1 text-2xl text-center flex justify-around bg-blurable backdrop-blur-3xl [&>*]:lowercase border-b pointer-events-none [&>*]:text-base">
-          <div>ПН</div>
-          <div>ВТ</div>
-          <div>СР</div>
-          <div>ЧТ</div>
-          <div>ПТ</div>
-          <div>СБ</div>
-          <div>ВС</div>
-        </div>
+        <ul className="flex justify-around text-sm lowercase">
+          <li>ПН</li>
+          <li>ВТ</li>
+          <li>СР</li>
+          <li>ЧТ</li>
+          <li>ПТ</li>
+          <li>СБ</li>
+          <li>ВС</li>
+        </ul>
       </div>
 
-      <Button
-        type="button"
-        variant="destructive"
-        onClick={() => {
-          setMonths(makeNMonths(new Date()));
-          scrollToCenter();
+      <div
+        ref={setScrollView}
+        {...props}
+        className={cn('overflow-y-auto flex-1')}
+        onScrollEnd={e => {
+          if (!isSafari()) return;
+          const target = e.currentTarget;
+          const depth = target.scrollHeight - target.scrollTop;
+
+          if (depth <= target.clientHeight) {
+            setMonths(makeNMonths(months.at(-1) as Date));
+          }
+
+          if (target.scrollTop <= 0) {
+            setMonths(makeNMonths(months[0]));
+          }
+        }}
+        onScroll={e => {
+          if (isSafari()) return;
+          const target = e.currentTarget;
+          const depth = target.scrollHeight - target.scrollTop;
+
+          if (depth <= target.clientHeight * 4) {
+            setMonths(makeNMonths(months.at(-1) as Date));
+          }
+
+          if (target.scrollTop <= target.clientHeight * 4) {
+            setMonths(makeNMonths(months[0]));
+          }
         }}
       >
-        TODAY
-      </Button>
-    </>
+        <div className="h-full">
+          {months.map(v => (
+            <IntersectionTarget
+              key={v.getTime()}
+              className="h-full"
+              intersectionOpts={intersectionObserverOpts}
+              callback={cb}
+            >
+              <Month
+                onSelect={onSelect}
+                selected={selected}
+                date={v}
+                data-date={v.getTime()}
+              />
+            </IntersectionTarget>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
