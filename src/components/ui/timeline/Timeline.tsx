@@ -231,7 +231,7 @@ export const Timeline = ({
             />
           </time>
         </h2>
-        <div className="h-[50%] flex items-end bg-sky-50 overflow-hidden">
+        <div className="h-[50%] flex items-end bg-background overflow-hidden">
           <div>
             {timeList.map(time => (
               <TimeLabel key={time} label={time} />
@@ -289,7 +289,7 @@ export const Timeline = ({
           />
         </div>
 
-        <div className="h-[50%] flex bg-sky-50 overflow-hidden">
+        <div className="h-[50%] flex bg-background overflow-hidden">
           <div>
             {timeList.map(time => (
               <TimeLabel key={time} label={time} />

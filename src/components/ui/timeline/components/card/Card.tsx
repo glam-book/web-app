@@ -437,7 +437,8 @@ export const OwnerCard = ({ fields, isSelected, ...rest }: CardProps) => {
           <Content
             className={cn(
               'text-stands-out',
-              !fields.pendigable && 'bg-[greenyellow] text-[coral]',
+              fields.pendings.limits === fields.pendings.active &&
+                'bg-emerald-200/50 text-[coral]',
             )}
           >
             <div className="flex">

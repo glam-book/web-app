@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Share } from 'lucide-react';
 
 import { useParams } from '@/router';
 import { services, records, owner } from '@/shrekServices';
@@ -7,6 +8,7 @@ import { Timeline } from '@/components/ui/timeline';
 import * as Carousel from '@/components/ui/carousel';
 import type { HostApi } from '@/components/ui/carousel';
 import { Toaster } from '@/components/ui/sonner';
+import { Button } from '@/components/ui/button';
 
 export default function Id() {
   const params = useParams('/calendar/:id');
@@ -40,11 +42,32 @@ export default function Id() {
   }, [date]);
 
   return (
-    <main className="max-h-dvh overscroll-none">
-      <Carousel.Host ref={carouselApi}>
-        <Carousel.Item className="min-w-full">
-          <article className="flex flex-col min-h-dvh max-h-dvh">
-            <div className="content-grid flex-1 overflow-hidden">
+    <main className="flex flex-col gap-0.5 max-h-dvh overscroll-none">
+      <header className="flex justify-between items-center">
+        <Button
+          aria-label="Share"
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="ml-auto"
+          onClick={() => {
+            const o = { calendarId: params.id };
+            navigator.share({
+              url: `https://t.me/glambookbot/slapdash?startapp=${JSON.stringify(o)}`,
+              title: 'GLAM APP (betta)',
+            }).catch((e) => {
+              alert(JSON.stringify(e));
+            });
+          }}
+        >
+          <Share />
+        </Button>
+      </header>
+
+      <Carousel.Host className="flex-1 overflow-y-hidden" ref={carouselApi}>
+        <Carousel.Item className="min-w-full flex">
+          <article className="flex-1 flex flex-col">
+            <div className="flex-1 overflow-hidden">
               <Era onSelect={setDate} selected={date} className="without-gap" />
             </div>
           </article>
