@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Share } from 'lucide-react';
+import { shareURL } from '@tma.js/sdk-react';
 
 import { useParams } from '@/router';
 import { services, records, owner } from '@/shrekServices';
@@ -52,12 +53,18 @@ export default function Id() {
           className="ml-auto"
           onClick={() => {
             const o = { calendarId: params.id };
-            navigator.share({
-              url: `https://t.me/glambookbot/slapdash?startapp=${JSON.stringify(o)}`,
-              title: 'GLAM APP (betta)',
-            }).catch((e) => {
-              alert(JSON.stringify(e));
-            });
+            shareURL(
+              `https://t.me/glambookbot/slapdash?startapp=${JSON.stringify(o)}`,
+              'CALENDAR',
+            );
+            // navigator
+            //   .share({
+            //     url: `https://t.me/glambookbot/slapdash?startapp=${JSON.stringify(o)}`,
+            //     title: 'GLAM APP (betta)',
+            //   })
+            //   .catch(e => {
+            //     console.warn(e);
+            //   });
           }}
         >
           <Share />
