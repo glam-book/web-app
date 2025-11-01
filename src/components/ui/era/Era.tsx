@@ -5,7 +5,6 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useRef,
 } from 'react';
 import {
   format,
@@ -84,7 +83,7 @@ const Month = memo(
                       onClick={() => onSelect(dd)}
                       type="button"
                       className={cn(
-                        'w-full h-full flex justify-center border-t',
+                        'w-full h-full pt-1 flex justify-center border-t',
                         isEqual(startOfDay(dd), startOfDay(selected)) &&
                           'bg-card',
                       )}
@@ -123,12 +122,11 @@ export const Era = ({
   ...props
 }: Props) => {
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
-  const [header, setHeader] = useState<HTMLDivElement | null>(null);
 
   const intersectionObserverOpts = useMemo(
     () => ({
       root: scrollView,
-      threshold: [0.1, 0.9],
+      threshold: [0.1, 0.8],
       rootMargin: '0px 0px 0px -80%',
     }),
     [scrollView],
@@ -157,7 +155,6 @@ export const Era = ({
 
   const cb = useCallback((e: IntersectionObserverEntry) => {
     if (!e.isIntersecting) return;
-    console.log(e);
 
     const target = e.target as HTMLElement;
     const date = new Date(
@@ -178,7 +175,7 @@ export const Era = ({
     <div
       className={cn('relative h-full flex flex-col overflow-hidden', className)}
     >
-      <div ref={setHeader} className="flex flex-col border-b">
+      <div className="flex flex-col border-b">
         <div className="flex justify-between pr-0.5">
           <h2 className="font-serif text-2xl indent-3">
             {format(visibleDate, 'LLLL yyyy', { locale: ru })}
