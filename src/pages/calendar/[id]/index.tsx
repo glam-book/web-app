@@ -54,7 +54,7 @@ export default function Id() {
           onClick={() => {
             const startAppParam = { calendarId: params.id };
             shareURL(
-              `https://t.me/glambookbot/slapdash?startapp=${encodeURIComponent(JSON.stringify(startAppParam))}`,
+              `https://t.me/glambookbot/slapdash?startapp=${btoa(JSON.stringify(startAppParam))}`,
               'CALENDAR',
             );
             // navigator
