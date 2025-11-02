@@ -1,7 +1,8 @@
 import { Effect, flow } from 'effect';
+import { retrieveRawInitData } from '@tma.js/sdk-react';
 
 import * as http from '@/services/http';
-import { tgUser } from '@/constants';
+// import { tgUser } from '@/constants';
 import { contramap } from '@/utils';
 
 const getCorrectRestUrl = (input: string | URL): string => {
@@ -27,7 +28,9 @@ export const client = flow(
     (url, ...rest) => [getCorrectRestUrl(url), ...rest] as const,
   ),
   Effect.provideService(http.ClientConfig, {
-    defaultHeaders: { 'X-tg-data': tgUser, 'Content-Type': 'application/json' },
+    defaultHeaders: {
+      'X-tg-data': String(retrieveRawInitData()),
+      'Content-Type': 'application/json',
+    },
   }),
 );
-
