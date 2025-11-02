@@ -7,7 +7,6 @@ import {
   init,
   mockTelegramEnv,
   emitEvent,
-  initData,
   swipeBehavior,
   retrieveLaunchParams,
   retrieveRawInitData,
@@ -87,8 +86,9 @@ if (import.meta.env.DEV) {
 
 init();
 
-console.log(retrieveRawInitData());
-console.log(retrieveLaunchParams().tgWebAppData?.start_param);
+// console.log(retrieveRawInitData());
+// console.log(retrieveLaunchParams().tgWebAppData?.start_param);
+console.log(retrieveLaunchParams().tgWebAppPlatform);
 
 // window.Telegram?.WebApp?.disableVerticalSwipes();
 swipeBehavior.mount();

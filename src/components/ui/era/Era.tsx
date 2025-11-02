@@ -20,6 +20,7 @@ import {
   isEqual,
 } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { retrieveLaunchParams } from '@tma.js/sdk-react';
 
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,13 @@ import { cn } from '@/lib/utils';
 const isSafari = () =>
   navigator.userAgent.indexOf('Safari') > -1 &&
   navigator.userAgent.indexOf('Chrome') === -1;
+
+const isTgSafari = () => {
+  const platform = retrieveLaunchParams().tgWebAppPlatform;
+  return platform === 'ios' || platform === 'macos';
+};
+
+const isFinallySafari = () => isSafari() || isTgSafari();
 
 const Month = memo(
   ({
@@ -167,7 +175,7 @@ export const Era = ({
   }, []);
 
   useLayoutEffect(() => {
-    if (!isSafari()) return;
+    if (!isFinallySafari()) return;
     requestAnimationFrame(scrollToCenter);
   }, [months]);
 
@@ -210,7 +218,7 @@ export const Era = ({
         {...props}
         className={cn('overflow-y-auto flex-1')}
         onScrollEnd={e => {
-          if (!isSafari()) return;
+          if (!isFinallySafari()) return;
           const target = e.currentTarget;
           const depth = target.scrollHeight - target.scrollTop;
 
@@ -223,7 +231,7 @@ export const Era = ({
           }
         }}
         onScroll={e => {
-          if (isSafari()) return;
+          if (isFinallySafari()) return;
           const target = e.currentTarget;
           const depth = target.scrollHeight - target.scrollTop;
 
