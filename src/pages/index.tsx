@@ -17,7 +17,7 @@ export default function Home() {
           atob(retrieveLaunchParams().tgWebAppData?.start_param ?? ''),
         ),
       ),
-      tryDecodeInto(Schema.Struct({ calendarId: Schema.Number })),
+      tryDecodeInto(Schema.Struct({ calendarId: Schema.String })),
       E.catchAll(() => E.succeed({ calendarId: me?.id })),
       E.tap(Console.log),
       E.andThen(x => E.fromNullable(x.calendarId)),
