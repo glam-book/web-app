@@ -11,21 +11,21 @@ export default function Home() {
   const { data: me } = services.me.useGet();
 
   useEffect(() => {
-    E.runSyncExit(
-      pipe(
-        E.try(() =>
-          JSON.parse(
-            atob(retrieveLaunchParams().tgWebAppData?.start_param ?? ''),
-          ),
-        ),
-        tryDecodeInto(Schema.Struct({ calendarId: Schema.Number })),
-        E.catchAll(() => E.succeed({ calendarId: me?.id })),
-        E.tap(Console.log),
-        E.andThen(x => E.fromNullable(x.calendarId)),
-        E.tap(calendarId =>
-          navigate('/calendar/:id', { params: { id: String(calendarId) } }),
+    pipe(
+      E.try(() =>
+        JSON.parse(
+          atob(retrieveLaunchParams().tgWebAppData?.start_param ?? ''),
         ),
       ),
+      tryDecodeInto(Schema.Struct({ calendarId: Schema.Number })),
+      E.catchAll(() => E.succeed({ calendarId: me?.id })),
+      E.tap(Console.log),
+      E.andThen(x => E.fromNullable(x.calendarId)),
+      E.tap(calendarId => {
+        console.debug({ calendarId });
+        navigate('/calendar/:id', { params: { id: String(calendarId) } });
+      }),
+      E.runSyncExit,
     );
   }, [me]);
 }
