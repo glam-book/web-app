@@ -10,6 +10,7 @@ import {
   initData,
   swipeBehavior,
   retrieveLaunchParams,
+  retrieveRawInitData,
 } from '@tma.js/sdk-react';
 
 import 'scrollyfills';
@@ -86,8 +87,8 @@ if (import.meta.env.DEV) {
 
 init();
 
-console.log(initData.raw());
-console.log(retrieveLaunchParams(), window.Telegram?.WebApp?.initData);
+console.log(retrieveRawInitData());
+console.log(retrieveLaunchParams().tgWebAppData?.start_param);
 
 // window.Telegram?.WebApp?.disableVerticalSwipes();
 swipeBehavior.mount();

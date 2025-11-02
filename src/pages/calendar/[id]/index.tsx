@@ -52,9 +52,9 @@ export default function Id() {
           size="icon"
           className="ml-auto"
           onClick={() => {
-            const o = { calendarId: params.id };
+            const startAppParam = { calendarId: params.id };
             shareURL(
-              `https://t.me/glambookbot/slapdash?startapp=${JSON.stringify(o)}`,
+              `https://t.me/glambookbot/slapdash?startapp=${encodeURIComponent(JSON.stringify(startAppParam))}`,
               'CALENDAR',
             );
             // navigator
