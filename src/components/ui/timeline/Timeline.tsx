@@ -191,13 +191,11 @@ export const Timeline = ({
       onClick={ownerResult.isOwner ? onClick : undefined}
       {...props}
     >
-      {ownerResult.isOwner && (
-        <div className="absolute inset-0 flex flex-col justify-center">
-          <div className="aim flex-1 border-b" />
-          <div className="flex h-[2px] bg-[red]"></div>
-          <div className="flex-1" />
-        </div>
-      )}
+      <div className="absolute z-1 inset-0 flex flex-col justify-center pointer-events-none">
+        <div className="aim flex-1 border-b" />
+        <div className="flex h-[2px] bg-red-500"></div>
+        <div className="flex-1" />
+      </div>
 
       <div
         ref={setScrollView}
@@ -207,7 +205,7 @@ export const Timeline = ({
         onScrollEnd={_e => {
           const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
           setAimPosition(newAimPosition);
-          console.log({ newAimPosition });
+          console.debug({ newAimPosition });
           if (isCardSelected) {
             activeCardState.toggle('isUnfreezed', true);
           }
@@ -231,10 +229,17 @@ export const Timeline = ({
             />
           </time>
         </h2>
+
         <div className="h-[50%] flex items-end bg-background overflow-hidden">
-          <div>
+          <div className="flex-1">
             {timeList.map(time => (
-              <TimeLabel key={time} label={time} />
+              <div key={time} className="flex">
+                <TimeLabel label={time} />
+                <div className="flex-1 flex flex-col">
+                  <div className="flex-1 border-b border-dashed" />
+                  <div className="flex-1" />
+                </div>
+              </div>
             ))}
             <div className={cn(dummy({ size }))} />
           </div>
@@ -251,9 +256,7 @@ export const Timeline = ({
             >
               <TimeLabel
                 label={time}
-                isIntersecting={
-                  idx === intersectionTimeIndex && ownerResult.isOwner
-                }
+                isIntersecting={idx === intersectionTimeIndex}
                 className={cn(idx === 0 && `-translate-y-2/4 h-[1.25lh]`)}
               />
 
@@ -290,9 +293,15 @@ export const Timeline = ({
         </div>
 
         <div className="h-[50%] flex bg-background overflow-hidden">
-          <div>
+          <div className="flex-1">
             {timeList.map(time => (
-              <TimeLabel key={time} label={time} />
+              <div key={time} className="flex">
+                <TimeLabel label={time} />
+                <div className="flex-1 flex flex-col">
+                  <div className="flex-1 border-b border-dashed" />
+                  <div className="flex-1" />
+                </div>
+              </div>
             ))}
           </div>
         </div>

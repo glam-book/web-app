@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Share } from 'lucide-react';
 import { shareURL } from '@tma.js/sdk-react';
+import { differenceInMonths } from 'date-fns';
 
 import { useParams } from '@/router';
 import { services, records, owner } from '@/shrekServices';
@@ -11,6 +12,22 @@ import type { HostApi } from '@/components/ui/carousel';
 import { Toaster } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
 
+const between = (n: number, min: number, max: number) => n >= min && n <= max;
+
+const Detail = ({ month }: { month: Date }) => {
+  const { calendarId } = owner.store.getState();
+  // const { data: details } = records.useGetPreview(calendarId, month);
+  // console.debug({ details });
+
+  return (
+    <span className="flex flex-col gap-0.5">
+      {Array.from({ length: 5 }, () => (
+        <span className="min-h-[0.5lh] flex-1 bg-teal-200"></span>
+      ))}
+    </span>
+  );
+};
+
 export default function Id() {
   const params = useParams('/calendar/:id');
 
@@ -18,7 +35,8 @@ export default function Id() {
     owner.store.setState({ calendarId: params.id });
   }, [params.id]);
 
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date>(new Date());
+  const [visibleMonth, setVisibleMonth] = useState(date);
 
   const { data: recordList } = records.useGet(params.id, date);
   const { fields: recordFields } = records.store.editableRightNow();
@@ -75,7 +93,17 @@ export default function Id() {
         <Carousel.Item className="min-w-full flex">
           <article className="flex-1 flex flex-col">
             <div className="flex-1 overflow-hidden">
-              <Era onSelect={setDate} selected={date} className="without-gap" />
+              <Era
+                onSelect={setDate}
+                selected={date}
+                onChangeVisibleMonth={setVisibleMonth}
+                className="without-gap"
+                Detail={({ date }) =>
+                  between(differenceInMonths(date, visibleMonth), 0, 1) && (
+                    <Detail month={date} />
+                  )
+                }
+              />
             </div>
           </article>
         </Carousel.Item>

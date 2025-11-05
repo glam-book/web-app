@@ -1,5 +1,6 @@
 import { Effect, Schema, flow, pipe } from 'effect';
 import { format } from 'date-fns';
+import { useQuery } from '@tanstack/react-query';
 
 import { queryClient, rest } from '@/services';
 import { Record as Itself } from '@/schemas/Record';
@@ -42,3 +43,21 @@ export const makeAppointment = (
     Effect.tap(record => store.listActions.setOne(record)),
     Effect.runPromise,
   );
+
+export const getPreview = (userId: number | string, month: Date) =>
+  pipe(
+    `${resource}/calendar?userId=${userId}&month=${format(month, 'MM')}&year=${format(month, 'yyyy')}`,
+    rest.client,
+    tryDecodeInto(Schema.Array(Schema.Struct({}))),
+    Effect.runPromise,
+  );
+
+export const useGetPreview = (
+  userId: number | string | undefined,
+  month: Date,
+) =>
+  useQuery({
+    queryKey: [`${resource}/preview/${format(month, 'MM')}`, userId, month],
+    enabled: [userId, month].every(Boolean),
+    queryFn: () => getPreview(userId as number | string, month),
+  });

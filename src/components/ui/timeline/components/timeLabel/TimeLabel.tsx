@@ -14,8 +14,7 @@ export const TimeLabel = ({
     <time
       className={cn(
         'h-[2.5lh] flex flex-col justify-center',
-        // !time.endsWith('00') && 'text-transparent',
-        isIntersecting && 'text-[pink]',
+        isIntersecting && 'text-red-400',
         className,
       )}
       dateTime={label}
