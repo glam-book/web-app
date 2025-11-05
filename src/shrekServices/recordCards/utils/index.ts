@@ -1,1 +1,0 @@
-export { recordFromRecordWithOptionalId } from './recordFromRecordWithOptionalId';

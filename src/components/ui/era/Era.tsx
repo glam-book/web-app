@@ -21,6 +21,7 @@ import {
 } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { retrieveLaunchParams } from '@tma.js/sdk-react';
+import { Circle } from 'lucide-react';
 
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,9 @@ const isTgSafari = () => {
   return platform === 'ios' || platform === 'macos';
 };
 
-const isFinallySafari = () => isSafari() || isTgSafari();
+// const isFinallySafari = () => isSafari() || isTgSafari();
+const isFinallySafari = () =>
+  document.documentElement.style.overflowAnchor === undefined;
 
 const Month = memo(
   ({
@@ -45,11 +48,13 @@ const Month = memo(
     selected,
     date,
     className,
+    Detail,
     ...props
   }: {
     onSelect: (date: Date) => void;
     selected: Date;
     date: Date;
+    Detail?: (props: { date: Date }) => React.ReactNode;
   } & Omit<React.ComponentProps<'table'>, 'onSelect'>) => {
     const d = eachDayOfInterval({
       start: startOfMonth(date),
@@ -70,7 +75,7 @@ const Month = memo(
     return (
       <table
         aria-label={`${format(date, 'yyyy MMMM')}`}
-        className={cn('relative h-full flex flex-col', className)}
+        className={cn('relative max-w-dvw h-full flex flex-col', className)}
         {...props}
       >
         <thead className="absolute translate-y-[-1lh] text-2xl bg-blurable backdrop-blur-3xl">
@@ -81,11 +86,14 @@ const Month = memo(
           </tr>
         </thead>
 
-        <tbody className="flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh]">
+        <tbody className="max-h-dvh min-h-1 flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh]">
           {daysGroupedByWeek.map((d, idx) => (
-            <tr key={idx} className="text-center flex [&>*]:flex-1 snap-start">
+            <tr
+              key={idx}
+              className="max-h-[calc(100dvh/5)] min-h-1 flex-1 text-center flex [&>*]:flex-1 snap-start"
+            >
               {d.map((dd, ddindex) => (
-                <td className="font-mono text-sm" key={ddindex}>
+                <td className="h-full overflow-hidden" key={ddindex}>
                   {dd && (
                     <button
                       onClick={() => onSelect(dd)}
@@ -96,16 +104,22 @@ const Month = memo(
                           'bg-card',
                       )}
                     >
-                      <Badge
-                        variant={
-                          isEqual(startOfDay(dd), startOfDay(new Date()))
-                            ? 'destructive'
-                            : 'outline'
-                        }
-                        className="h-min rounded-2xl border-none"
-                      >
-                        {getDate(dd)}
-                      </Badge>
+                      <span className="flex-1 max-w-full flex flex-col text-sm">
+                        <Badge
+                          variant={
+                            isEqual(startOfDay(dd), startOfDay(new Date()))
+                              ? 'destructive'
+                              : 'outline'
+                          }
+                          className="h-min self-center font-mono rounded-2xl border-none"
+                        >
+                          {getDate(dd)}
+                        </Badge>
+
+                        <span className="empty:hidden w-full flex-1 p-0.5">
+                          {Detail && <Detail date={dd} />}
+                        </span>
+                      </span>
                     </button>
                   )}
                 </td>
@@ -121,12 +135,16 @@ const Month = memo(
 type Props = {
   onSelect: (date: Date) => void;
   selected?: Date;
+  Detail?: (props: { date: Date }) => React.ReactNode;
+  onChangeVisibleMonth?: (month: Date) => void;
 } & Omit<React.ComponentProps<'div'>, 'onSelect'>;
 
 export const Era = ({
   onSelect,
   selected = new Date(),
   className,
+  onChangeVisibleMonth,
+  Detail,
   ...props
 }: Props) => {
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
@@ -172,6 +190,7 @@ export const Era = ({
     if (!isValid(date)) return;
 
     setVisibleDate(date);
+    onChangeVisibleMonth?.(date);
   }, []);
 
   useLayoutEffect(() => {
@@ -257,6 +276,7 @@ export const Era = ({
                 selected={selected}
                 date={v}
                 data-date={v.getTime()}
+                Detail={Detail}
               />
             </IntersectionTarget>
           ))}
