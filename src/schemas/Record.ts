@@ -17,7 +17,7 @@ export const Record = Schema.Struct({
   ),
 
   sign: pipe(
-    Schema.optionalWith(Schema.String, { default: () => '' }),
+    Schema.optionalWith(Schema.NullOr(Schema.String), { default: () => '' }),
     Schema.fromKey('comment'),
   ),
 
