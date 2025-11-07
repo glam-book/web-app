@@ -12,6 +12,7 @@ import type { HostApi } from '@/components/ui/carousel';
 import { Toaster } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const between = (n: number, min: number, max: number) => n >= min && n <= max;
 
@@ -54,7 +55,17 @@ export default function Id() {
   const [date, setDate] = useState<Date>(new Date());
   const [visibleMonth, setVisibleMonth] = useState(date);
 
-  const { data: recordList } = records.useGet(params.id, date);
+  const { data: recordList, error: errorRecordList } = records.useGet(
+    params.id,
+    date,
+  );
+
+  useEffect(() => {
+    if (errorRecordList) {
+      toast.error(JSON.stringify(errorRecordList));
+    }
+  }, [errorRecordList]);
+
   const { fields: recordFields } = records.store.editableRightNow();
   const isCardSelected = Boolean(recordFields);
 
@@ -89,7 +100,9 @@ export default function Id() {
   return (
     <main className="flex flex-col gap-0.5 max-h-dvh overscroll-none">
       <header className="flex justify-between items-center">
-        <span className="font-serif text-xl indent-2">isOwner: {String(isOwner)}</span>
+        <span className="font-serif text-xl indent-2">
+          isOwner: {String(isOwner)}
+        </span>
         <Button
           aria-label="Share"
           type="button"
