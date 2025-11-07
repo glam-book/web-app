@@ -45,22 +45,6 @@ const Detail = memo(({ month }: { month: Date }) => {
   );
 });
 
-const between = (n: number, min: number, max: number) => n >= min && n <= max;
-
-const Detail = ({ month }: { month: Date }) => {
-  const { calendarId } = owner.store.getState();
-  // const { data: details } = records.useGetPreview(calendarId, month);
-  // console.debug({ details });
-
-  return (
-    <span className="flex flex-col gap-0.5">
-      {Array.from({ length: 5 }, () => (
-        <span className="min-h-[0.5lh] flex-1 bg-teal-200"></span>
-      ))}
-    </span>
-  );
-};
-
 export default function Id() {
   const params = useParams('/calendar/:id');
 
