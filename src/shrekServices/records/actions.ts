@@ -6,6 +6,8 @@ import { queryClient, rest } from '@/services';
 import { Record as Itself } from '@/schemas/Record';
 import { tryDecodeInto } from '@/utils';
 
+import { Preview } from './Preview';
+
 const resource = 'record';
 
 export const {
@@ -48,7 +50,7 @@ export const getPreview = (userId: number | string, month: Date) =>
   pipe(
     `${resource}/calendar?userId=${userId}&month=${format(month, 'MM')}&year=${format(month, 'yyyy')}`,
     rest.client,
-    tryDecodeInto(Schema.Array(Schema.Struct({}))),
+    tryDecodeInto(Preview),
     Effect.runPromise,
   );
 

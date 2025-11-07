@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { Share } from 'lucide-react';
 import { shareURL } from '@tma.js/sdk-react';
-import { differenceInMonths } from 'date-fns';
+import { differenceInMonths, getDate } from 'date-fns';
 
 import { useParams } from '@/router';
 import { services, records, owner } from '@/shrekServices';
@@ -11,6 +11,39 @@ import * as Carousel from '@/components/ui/carousel';
 import type { HostApi } from '@/components/ui/carousel';
 import { Toaster } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
+const between = (n: number, min: number, max: number) => n >= min && n <= max;
+
+const Detail = memo(({ month }: { month: Date }) => {
+  const { calendarId } = owner.store.getState();
+  const { isOwner } = owner.useIsOwner();
+  const { data: details } = records.useGetPreview(calendarId, month);
+  console.debug({ details });
+  const detailsForTheDay = details?.[getDate(month)];
+  const isPreviewForClient =
+    !isOwner && detailsForTheDay?.some(i => i.canPending);
+
+  return (
+    <span
+      className={cn(
+        'min-h-full flex flex-col gap-0.5 empty:hidden',
+        isPreviewForClient && 'bg-teal-200',
+      )}
+    >
+      {!isPreviewForClient &&
+        detailsForTheDay?.map((item, idx) => (
+          <span
+            key={idx}
+            className={cn(
+              'min-h-[0.5lh] flex-1 bg-card',
+              item.hasPendings && 'bg-teal-200',
+            )}
+          />
+        ))}
+    </span>
+  );
+});
 
 const between = (n: number, min: number, max: number) => n >= min && n <= max;
 
@@ -60,6 +93,14 @@ export default function Id() {
     return () => carouselApi.current?.next(1);
   }, [date]);
 
+  const DetailsForTheDay = useCallback(
+    ({ date }: { date: Date }) =>
+      between(differenceInMonths(date, visibleMonth), 0, 1) && (
+        <Detail month={date} />
+      ),
+    [visibleMonth],
+  );
+
   return (
     <main className="flex flex-col gap-0.5 max-h-dvh overscroll-none">
       <header className="flex justify-between items-center">
@@ -98,11 +139,7 @@ export default function Id() {
                 selected={date}
                 onChangeVisibleMonth={setVisibleMonth}
                 className="without-gap"
-                Detail={({ date }) =>
-                  between(differenceInMonths(date, visibleMonth), 0, 1) && (
-                    <Detail month={date} />
-                  )
-                }
+                Detail={DetailsForTheDay}
               />
             </div>
           </article>
