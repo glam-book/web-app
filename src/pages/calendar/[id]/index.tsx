@@ -19,7 +19,6 @@ const Detail = memo(({ month }: { month: Date }) => {
   const { calendarId } = owner.store.getState();
   const { isOwner } = owner.useIsOwner();
   const { data: details } = records.useGetPreview(calendarId, month);
-  console.debug({ details });
   const detailsForTheDay = details?.[getDate(month)];
   const isPreviewForClient =
     !isOwner && detailsForTheDay?.some(i => i.canPending);
@@ -85,9 +84,12 @@ export default function Id() {
     [visibleMonth],
   );
 
+  const { isOwner } = owner.useIsOwner();
+
   return (
     <main className="flex flex-col gap-0.5 max-h-dvh overscroll-none">
       <header className="flex justify-between items-center">
+        <span className="font-serif text-xl indent-2">isOwner: {String(isOwner)}</span>
         <Button
           aria-label="Share"
           type="button"
