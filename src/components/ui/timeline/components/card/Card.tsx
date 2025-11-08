@@ -292,8 +292,6 @@ export const ClientCard = ({ fields, isSelected, ...rest }: CardProps) => {
       records.makeAppointment(fields.id, serviceIdList),
   });
 
-  console.debug('ClientCard::', fields);
-
   if (!fields.pendigable) return;
 
   return (

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { Share } from 'lucide-react';
 import { shareURL } from '@tma.js/sdk-react';
-import { differenceInMonths, getDate } from 'date-fns';
+import { differenceInMonths, getDate, startOfMonth } from 'date-fns';
+import { toast } from 'sonner';
 
 import { useParams } from '@/router';
 import { services, records, owner } from '@/shrekServices';
@@ -12,14 +13,16 @@ import type { HostApi } from '@/components/ui/carousel';
 import { Toaster } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 
 const between = (n: number, min: number, max: number) => n >= min && n <= max;
 
 const Detail = memo(({ month }: { month: Date }) => {
   const { calendarId } = owner.store.getState();
   const { isOwner } = owner.useIsOwner();
-  const { data: details } = records.useGetPreview(calendarId, month);
+  const { data: details } = records.useGetPreview(
+    calendarId,
+    startOfMonth(month),
+  );
   const detailsForTheDay = details?.[getDate(month)];
   const isPreviewForClient =
     !isOwner && detailsForTheDay?.some(i => i.canPending);
@@ -31,12 +34,12 @@ const Detail = memo(({ month }: { month: Date }) => {
         isPreviewForClient && 'bg-teal-200',
       )}
     >
-      {!isPreviewForClient &&
+      {isOwner &&
         detailsForTheDay?.map((item, idx) => (
           <span
             key={idx}
             className={cn(
-              'min-h-[0.5lh] flex-1 bg-card',
+              'h-[0.5lh] flex-1 bg-card',
               item.hasPendings && 'bg-teal-200',
             )}
           />
@@ -113,16 +116,7 @@ export default function Id() {
             const startAppParam = { calendarId: params.id };
             shareURL(
               `https://t.me/glambookbot/slapdash?startapp=${btoa(JSON.stringify(startAppParam))}`,
-              'CALENDAR',
             );
-            // navigator
-            //   .share({
-            //     url: `https://t.me/glambookbot/slapdash?startapp=${JSON.stringify(o)}`,
-            //     title: 'GLAM APP (betta)',
-            //   })
-            //   .catch(e => {
-            //     console.warn(e);
-            //   });
           }}
         >
           <Share />

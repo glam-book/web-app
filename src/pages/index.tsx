@@ -19,7 +19,7 @@ export default function Home() {
       ),
       tryDecodeInto(Schema.Struct({ calendarId: Schema.String })),
       E.catchAll(() => E.succeed({ calendarId: me?.id })),
-      E.tap(Console.log),
+      E.tap(Console.debug),
       E.andThen(x => E.fromNullable(x.calendarId)),
       E.tap(calendarId => {
         console.debug({ calendarId });

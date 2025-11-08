@@ -1,1 +1,0 @@
-export { CardForTheClient } from './CardForTheClient';
