@@ -86,11 +86,8 @@ if (import.meta.env.DEV) {
 
 init();
 
-// console.log(retrieveRawInitData());
-// console.log(retrieveLaunchParams().tgWebAppData?.start_param);
-console.log(retrieveLaunchParams().tgWebAppPlatform);
+console.debug(retrieveLaunchParams().tgWebAppPlatform);
 
-// window.Telegram?.WebApp?.disableVerticalSwipes();
 swipeBehavior.mount();
 swipeBehavior.disableVertical();
 

@@ -5,10 +5,5 @@ export const useIsOwner = () => {
   const { calendarId } = useOwnerStore();
   const meResult = useGetMe();
 
-  console.debug({
-    isOwner: meResult.data?.id === Number(calendarId),
-    calendarId,
-  });
-
   return { ...meResult, isOwner: meResult.data?.id === Number(calendarId) };
 };

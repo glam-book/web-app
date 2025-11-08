@@ -15,7 +15,6 @@ export const Container = ({ fields = new Map(), ...rest }: ContainerProps) => {
 
   const ownerResult = owner.useIsOwner();
   const Comp = ownerResult.isOwner ? OwnerCard : ClientCard;
-  console.debug({ isOwnerInContainer: ownerResult.isOwner });
 
   return (
     ownerResult.isFetched &&

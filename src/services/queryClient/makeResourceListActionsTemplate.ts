@@ -68,10 +68,9 @@ export const makeResourceListActionsTemplate = <
 
   const deleteOne = flow(actions.deleteOneOptimistic, Effect.runPromiseExit);
 
-  const finishEdit = flow(
-    actions.finishEdit,
-    x => x !== undefined && Effect.runPromiseExit(x),
-  );
+  const finishEdit = flow(actions.finishEdit, x => {
+    if (x) return Effect.runPromiseExit(x);
+  });
 
   return {
     useGet,

@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { queryClient, rest } from '@/services';
 import { Record as Itself } from '@/schemas/Record';
 import { tryDecodeInto } from '@/utils';
+import { invalidateQueries } from '@/lib/tanstackQuery';
 
 import { Preview } from './Preview';
 
@@ -14,7 +15,7 @@ export const {
   startEdit: _startEdit,
   store,
   useGet,
-  finishEdit,
+  finishEdit: _finishEdit,
   deleteOne,
 } = queryClient.makeResourceListActionsTemplate({
   resource,
@@ -59,7 +60,15 @@ export const useGetPreview = (
   month: Date,
 ) =>
   useQuery({
-    queryKey: [`${resource}/preview/${format(month, 'MM')}`, userId, month],
+    queryKey: [`${resource}/preview`, userId, month],
     enabled: [userId, month].every(Boolean),
     queryFn: () => getPreview(userId as number | string, month),
   });
+
+export const invalidatePreview = () =>
+  invalidateQueries([`${resource}/preview`]);
+
+export const finishEdit = flow(_finishEdit, x => {
+  x?.then(invalidatePreview);
+  return x;
+});
