@@ -39,7 +39,7 @@ const Detail = memo(({ month }: { month: Date }) => {
           <span
             key={idx}
             className={cn(
-              'h-[0.5lh] flex-1 bg-card',
+              'h-[0.5lh] bg-card',
               item.hasPendings && 'bg-teal-200',
             )}
           />
