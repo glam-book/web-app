@@ -18,10 +18,7 @@ export const Container = ({
   const fieldList = useMemo(() => Array.from(fields, ([_, v]) => v), [fields]);
 
   const ownerResult = owner.useIsOwner();
-  // const Comp = ownerResult.isOwner ? OwnerCard : ClientCard;
-  const Comp = OwnerCard;
-
-  console.debug('container render');
+  const Comp = ownerResult.isOwner ? OwnerCard : ClientCard;
 
   return (
     ownerResult.isFetched &&

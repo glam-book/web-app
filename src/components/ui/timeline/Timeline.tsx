@@ -201,8 +201,7 @@ export const Timeline = ({
         className,
         'overflow-y-hidden relative text-xl isolate bg-white',
       )}
-      // onClick={ownerResult.isOwner ? onClick : undefined}
-      onClick={onClick}
+      onClick={ownerResult.isOwner ? onClick : undefined}
       {...props}
     >
       <div className="absolute z-1 inset-0 flex flex-col justify-center pointer-events-none">
