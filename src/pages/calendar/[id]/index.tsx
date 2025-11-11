@@ -13,8 +13,7 @@ import type { HostApi } from '@/components/ui/carousel';
 import { Toaster } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-const between = (n: number, min: number, max: number) => n >= min && n <= max;
+import { between } from '@/utils';
 
 const Detail = memo(({ month }: { month: Date }) => {
   const { calendarId } = owner.store.getState();

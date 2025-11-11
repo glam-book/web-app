@@ -11,6 +11,7 @@ import type { MapValueType } from '@/types';
 import { records, owner } from '@/shrekServices';
 import { activeCard } from '@/components/ui/timeline/store';
 import { Sdometer } from '@/components/ui/sdometer';
+import { between } from '@/utils';
 
 import { Container } from './components/container';
 import { TimeLabel } from './components/timeLabel';
@@ -172,10 +173,15 @@ export const Timeline = ({
       records.finishEdit();
       records.startEdit(fields);
 
-      const aimEqFrom =
-        dateToDisplayUnits(fields.from) === aimPositionRef.current;
+      const from = dateToDisplayUnits(fields.from);
+      const dontNeedScrollToTheCard = between(
+        aimPositionRef.current,
+        from - sectionDisplaySize,
+        from + sectionDisplaySize,
+        { strict: true },
+      );
 
-      activeCardState.toggle('isUnfreezed', aimEqFrom);
+      activeCardState.toggle('isUnfreezed', dontNeedScrollToTheCard);
     },
     [dateToDisplayUnits],
   );
@@ -225,7 +231,7 @@ export const Timeline = ({
             {format(currentDate, 'dd MMMM', { locale: ru })}
           </time>
           {/*
-            */}
+           */}
           <span className="text-2xl">/</span>
           <Sdometer
             value={format(
