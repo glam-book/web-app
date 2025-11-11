@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { pipe, flow } from 'effect';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
@@ -50,6 +50,7 @@ export const Timeline = ({
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
   const [intersectionTimeIndex, setIntersecionTimeIndex] = useState(0);
   const [aimPosition, setAimPosition] = useState(0);
+  const aimPositionRef = useRef(aimPosition);
   const selectedCardState = records.store.editableRightNow();
   const activeCardState = activeCard();
   const isCardSelected = Boolean(selectedCardState.fields);
@@ -158,20 +159,26 @@ export const Timeline = ({
     createNewCard();
   };
 
-  const onTheCardClick = (fields: CardFields) => {
-    const isThatCardSelected = fields.id === selectedCardState.fields?.id;
+  const onTheCardClick = useCallback(
+    (fields: CardFields) => {
+      const isThatCardSelected =
+        fields.id === records.store.editableRightNow.getState().fields?.id;
 
-    if (isThatCardSelected) {
-      activeCardState.toggle('isResizeMode');
-      return;
-    }
+      if (isThatCardSelected) {
+        activeCardState.toggle('isResizeMode');
+        return;
+      }
 
-    records.finishEdit();
-    records.startEdit(fields);
+      records.finishEdit();
+      records.startEdit(fields);
 
-    const aimEqFrom = dateToDisplayUnits(fields.from) === aimPosition;
-    activeCardState.toggle('isUnfreezed', aimEqFrom);
-  };
+      const aimEqFrom =
+        dateToDisplayUnits(fields.from) === aimPositionRef.current;
+
+      activeCardState.toggle('isUnfreezed', aimEqFrom);
+    },
+    [dateToDisplayUnits],
+  );
 
   const intersectionObserverOpts = useMemo(
     () => ({
@@ -188,7 +195,8 @@ export const Timeline = ({
         className,
         'overflow-y-hidden relative text-xl isolate bg-white',
       )}
-      onClick={ownerResult.isOwner ? onClick : undefined}
+      // onClick={ownerResult.isOwner ? onClick : undefined}
+      onClick={onClick}
       {...props}
     >
       <div className="absolute z-1 inset-0 flex flex-col justify-center pointer-events-none">
@@ -205,6 +213,7 @@ export const Timeline = ({
         onScrollEnd={_e => {
           const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
           setAimPosition(newAimPosition);
+          aimPositionRef.current = newAimPosition;
           console.debug({ newAimPosition });
           if (isCardSelected) {
             activeCardState.toggle('isUnfreezed', true);
@@ -215,19 +224,19 @@ export const Timeline = ({
           <time className="text-2xl">
             {format(currentDate, 'dd MMMM', { locale: ru })}
           </time>
+          {/*
+            */}
           <span className="text-2xl">/</span>
-          <time className="inline-flex">
-            <Sdometer
-              value={format(
-                pipe(
-                  aimPosition,
-                  displayUnitsToMinutes,
-                  setMinutesToDate(currentDate),
-                ),
-                'HH:mm',
-              ).trim()}
-            />
-          </time>
+          <Sdometer
+            value={format(
+              pipe(
+                aimPosition,
+                displayUnitsToMinutes,
+                setMinutesToDate(currentDate),
+              ),
+              'HH:mm',
+            )}
+          />
         </h2>
 
         <div className="h-[50%] flex items-end bg-background overflow-hidden">
