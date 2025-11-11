@@ -54,7 +54,7 @@ export default function Id() {
     owner.store.setState({ calendarId: params.id });
   }, [params.id]);
 
-  const [date, setDate] = useState<Date>(new Date());
+  const [date, setDate] = useState(new Date());
   const [visibleMonth, setVisibleMonth] = useState(date);
 
   const { data: recordList, error: errorRecordList } = records.useGet(

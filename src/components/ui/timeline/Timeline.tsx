@@ -244,7 +244,7 @@ export const Timeline = ({
           />
         </h2>
 
-        <div className="h-[50%] flex items-end bg-background overflow-hidden">
+        <div className="h-[calc(50%-1.25lh)] flex items-end bg-gray-100 overflow-hidden">
           <div className="flex-1">
             {timeList.map(time => (
               <div key={time} className="flex">
@@ -306,13 +306,24 @@ export const Timeline = ({
           />
         </div>
 
-        <div className="h-[50%] flex bg-background overflow-hidden">
+        <div className="h-[50%] flex bg-gray-100 overflow-hidden">
           <div className="flex-1">
-            {timeList.map(time => (
+            {timeList.map((time, idx) => (
               <div key={time} className="flex">
-                <TimeLabel label={time} />
+                <TimeLabel
+                  className={cn(
+                    idx === 0 &&
+                      'bg-[linear-gradient(180deg,var(--background),transparent)]',
+                  )}
+                  label={time}
+                />
                 <div className="flex-1 flex flex-col">
-                  <div className="flex-1 border-b border-dashed" />
+                  <div
+                    className={cn(
+                      'flex-1 border-b border-dashed',
+                      idx === 0 && 'bg-background',
+                    )}
+                  />
                   <div className="flex-1" />
                 </div>
               </div>
