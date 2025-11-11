@@ -10,9 +10,9 @@ type SdometerProps = React.HTMLAttributes<HTMLDivElement> & {
 
 const Item = memo(({ val }: { val: string }) => {
   return (
-    <span className="relative min-w-[1ch] min-h-[1lh] flex">
+    <span className="min-w-[1ch] min-h-[1lh] flex">
       <span
-        className="absolute flex flex-col transition-all duration-500"
+        className="flex flex-col transition-all duration-500"
         style={{ translate: `0 -${val}lh` }}
       >
         <span className="h-[1lh]">0</span>
