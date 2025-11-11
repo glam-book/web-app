@@ -3,11 +3,11 @@ import { ru } from 'date-fns/locale';
 import {
   useState,
   useEffect,
-  memo,
   useCallback,
   createContext,
   type PropsWithChildren,
   useContext,
+  memo,
 } from 'react';
 import { flow, pipe } from 'effect';
 import { TrashIcon } from '@radix-ui/react-icons';
@@ -51,11 +51,13 @@ const CardContext = createContext<{
   isSelected: false,
 });
 
-const Root = memo<PropsWithChildren<Pick<CardProps, 'isSelected' | 'fields'>>>(
-  ({ children, fields, isSelected }) => {
-    return <CardContext value={{ fields, isSelected }}>{children}</CardContext>;
-  },
-);
+const Root = ({
+  children,
+  fields,
+  isSelected,
+}: PropsWithChildren<Pick<CardProps, 'isSelected' | 'fields'>>) => {
+  return <CardContext value={{ fields, isSelected }}>{children}</CardContext>;
+};
 
 const LongpressMenu = ({ children }: PropsWithChildren) => {
   const { fields } = useContext(CardContext);
@@ -134,8 +136,10 @@ const Sign = () => {
     <p className="text-foreground text-left empty:hidden">{fields.sign}</p>
   );
 };
+
 const Content = ({ className, children }: React.ComponentProps<'div'>) => {
   const { isSelected } = useContext(CardContext);
+  const { fields: editableRightNowFields } = records.store.editableRightNow();
 
   return (
     <div
@@ -153,18 +157,10 @@ const Content = ({ className, children }: React.ComponentProps<'div'>) => {
                 'text-foreground inline-flex',
                 activeCard.getState().isResizeMode || 'text-current',
               )}
-              dateTime={format(
-                String(records.store.editableRightNow.getState().fields?.from),
-                'MM-dd',
-              )}
+              dateTime={format(String(editableRightNowFields?.from), 'MM-dd')}
             >
               <Sdometer
-                value={format(
-                  String(
-                    records.store.editableRightNow.getState().fields?.from,
-                  ),
-                  'HH:mm',
-                )}
+                value={format(String(editableRightNowFields?.from), 'HH:mm')}
               />
             </time>
             <span className="text-foreground">-</span>
@@ -173,16 +169,10 @@ const Content = ({ className, children }: React.ComponentProps<'div'>) => {
                 'text-foreground inline-flex',
                 activeCard.getState().isResizeMode && 'text-current',
               )}
-              dateTime={format(
-                String(records.store.editableRightNow.getState().fields?.to),
-                'MM-dd',
-              )}
+              dateTime={format(String(editableRightNowFields?.to), 'MM-dd')}
             >
               <Sdometer
-                value={format(
-                  String(records.store.editableRightNow.getState().fields?.to),
-                  'HH:mm',
-                )}
+                value={format(String(editableRightNowFields?.to), 'HH:mm')}
               />
             </time>
           </div>
@@ -233,30 +223,28 @@ export const TheCard = ({
     }
   }, [isSelected, aimPosition, minCardSize]);
 
+  const displayUnitsToDate = useCallback(
+    (units: number, base = new Date()) =>
+      pipe(units, displayUnitsToMinutes, setMinutesToDate(base)),
+    [displayUnitsToMinutes],
+  );
+
   useEffect(() => {
-    const { fields: editableFields } =
-      records.store.editableRightNow.getState();
+    const editableFields = records.store.editableRightNow.getState().fields;
 
     if (isSelected && editableFields) {
       records.store.editableRightNow.setState({
         fields: {
           ...editableFields,
-
-          from: pipe(
-            displayedFields.top,
-            displayUnitsToMinutes,
-            setMinutesToDate(editableFields.from),
-          ),
-
-          to: pipe(
+          from: displayUnitsToDate(displayedFields.top, editableFields.from),
+          to: displayUnitsToDate(
             displayedFields.top + displayedFields.size,
-            displayUnitsToMinutes,
-            setMinutesToDate(editableFields.to),
+            editableFields.to,
           ),
         },
       });
     }
-  }, [displayedFields, displayUnitsToMinutes, isSelected]);
+  }, [displayedFields, displayUnitsToDate, isSelected]);
 
   const onClick = () => {
     clickHandler(fields);
@@ -282,7 +270,7 @@ export const TheCard = ({
   );
 };
 
-export const ClientCard = ({ fields, isSelected, ...rest }: CardProps) => {
+export const ClientCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
   const { data: serviceList } = services.useGet();
 
   const [open, setOpen] = useState(false);
@@ -427,9 +415,9 @@ export const ClientCard = ({ fields, isSelected, ...rest }: CardProps) => {
       </TheCard>
     </Root>
   );
-};
+});
 
-export const OwnerCard = ({ fields, isSelected, ...rest }: CardProps) => {
+export const OwnerCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
   return (
     <Root fields={fields} isSelected={isSelected}>
       <LongpressMenu>
@@ -453,4 +441,4 @@ export const OwnerCard = ({ fields, isSelected, ...rest }: CardProps) => {
       </LongpressMenu>
     </Root>
   );
-};
+});

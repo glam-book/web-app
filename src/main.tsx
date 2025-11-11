@@ -9,7 +9,6 @@ import {
   emitEvent,
   swipeBehavior,
   retrieveLaunchParams,
-  retrieveRawInitData,
 } from '@tma.js/sdk-react';
 
 import 'scrollyfills';

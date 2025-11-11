@@ -7,27 +7,38 @@ import type { ContainerProps } from './types';
 
 import { OwnerCard, ClientCard } from '../card';
 
-export const Container = ({ fields = new Map(), ...rest }: ContainerProps) => {
+export const Container = ({
+  fields = new Map(),
+  aimPosition,
+  ...rest
+}: ContainerProps) => {
   const selectedCardState = records.store.editableRightNow();
   const activeCardState = activeCard();
 
   const fieldList = useMemo(() => Array.from(fields, ([_, v]) => v), [fields]);
 
   const ownerResult = owner.useIsOwner();
-  const Comp = ownerResult.isOwner ? OwnerCard : ClientCard;
+  // const Comp = ownerResult.isOwner ? OwnerCard : ClientCard;
+  const Comp = OwnerCard;
+
+  console.debug('container render');
 
   return (
     ownerResult.isFetched &&
-    fieldList.map(cardFields => (
-      <Comp
-        key={cardFields.id}
-        fields={cardFields}
-        isSelected={
-          cardFields.id === selectedCardState.fields?.id &&
-          activeCardState.isUnfreezed
-        }
-        {...rest}
-      />
-    ))
+    fieldList.map(cardFields => {
+      const isSelected =
+        cardFields.id === selectedCardState.fields?.id &&
+        activeCardState.isUnfreezed;
+
+      return (
+        <Comp
+          key={cardFields.id}
+          fields={cardFields}
+          isSelected={isSelected}
+          aimPosition={isSelected ? aimPosition : 0}
+          {...rest}
+        />
+      );
+    })
   );
 };
