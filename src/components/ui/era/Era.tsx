@@ -86,7 +86,7 @@ const Month = memo(
                       onClick={() => onSelect(dd)}
                       type="button"
                       className={cn(
-                        'w-full h-full pt-1 flex justify-center border-t',
+                        'relative w-full h-full pt-1 flex justify-center border-t',
                         isEqual(startOfDay(dd), startOfDay(selected)) &&
                           'bg-card',
                       )}
