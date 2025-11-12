@@ -20,25 +20,12 @@ import {
   isEqual,
 } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { retrieveLaunchParams } from '@tma.js/sdk-react';
-import { Circle } from 'lucide-react';
 
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-// fuck
-const isSafari = () =>
-  navigator.userAgent.indexOf('Safari') > -1 &&
-  navigator.userAgent.indexOf('Chrome') === -1;
-
-const isTgSafari = () => {
-  const platform = retrieveLaunchParams().tgWebAppPlatform;
-  return platform === 'ios' || platform === 'macos';
-};
-
-// const isFinallySafari = () => isSafari() || isTgSafari();
 const isFinallySafari = () =>
   document.documentElement.style.overflowAnchor === undefined;
 
@@ -99,7 +86,7 @@ const Month = memo(
                       onClick={() => onSelect(dd)}
                       type="button"
                       className={cn(
-                        'w-full h-full pt-1 flex justify-center border-t',
+                        'relative w-full h-full pt-1 flex justify-center border-t',
                         isEqual(startOfDay(dd), startOfDay(selected)) &&
                           'bg-card',
                       )}

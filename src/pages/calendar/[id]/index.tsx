@@ -29,8 +29,8 @@ const Detail = memo(({ month }: { month: Date }) => {
   return (
     <span
       className={cn(
-        'min-h-full flex flex-col gap-0.5 empty:hidden',
-        isPreviewForClient && 'bg-teal-200',
+        'min-h-full flex flex-col gap-0.5',
+        isPreviewForClient && 'absolute inset-0 bg-teal-200',
       )}
     >
       {isOwner &&
@@ -54,7 +54,7 @@ export default function Id() {
     owner.store.setState({ calendarId: params.id });
   }, [params.id]);
 
-  const [date, setDate] = useState<Date>(new Date());
+  const [date, setDate] = useState(new Date());
   const [visibleMonth, setVisibleMonth] = useState(date);
 
   const { data: recordList, error: errorRecordList } = records.useGet(

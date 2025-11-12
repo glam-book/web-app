@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { pipe, flow } from 'effect';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
-import { format } from 'date-fns';
+import { format, getDate } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
 import { cn } from '@/lib/utils';
@@ -103,11 +103,10 @@ export const Timeline = ({
   );
 
   const scrollToCard = useCallback(
-    flow(
-      ({ from, to }: CardFields, isResizeMode?: boolean) =>
-        isResizeMode ? to : from,
-      scrollToDate,
-    ),
+    flow(({ from, to }: CardFields, isResizeMode?: boolean) => {
+      if (getDate(to) - getDate(from) === 1) return from;
+      return isResizeMode ? to : from;
+    }, scrollToDate),
     [scrollToDate],
   );
 
@@ -115,7 +114,7 @@ export const Timeline = ({
     const fields = records.store.editableRightNow.getState().fields;
 
     if (isCardSelected) {
-      scrollToCard(fields!, Boolean(activeCardState.isResizeMode));
+      scrollToCard(fields!, activeCardState.isResizeMode);
     }
   }, [
     isCardSelected,
@@ -125,20 +124,24 @@ export const Timeline = ({
   ]);
 
   const createNewCard = () => {
+    const from = pipe(
+      aimPosition,
+      displayUnitsToMinutes,
+      setMinutesToDate(currentDate),
+    );
+
+    const to = pipe(
+      aimPosition + sectionDisplaySize,
+      displayUnitsToMinutes,
+      setMinutesToDate(currentDate),
+    );
+
+    console.debug({ from, to });
+
     records.startEdit({
       sign: 'new +',
-
-      from: pipe(
-        aimPosition,
-        displayUnitsToMinutes,
-        setMinutesToDate(currentDate),
-      ),
-
-      to: pipe(
-        aimPosition + sectionDisplaySize,
-        displayUnitsToMinutes,
-        setMinutesToDate(currentDate),
-      ),
+      from,
+      to,
     });
 
     activeCardState.toggle('isResizeMode', true);
@@ -244,7 +247,7 @@ export const Timeline = ({
           />
         </h2>
 
-        <div className="h-[50%] flex items-end bg-background overflow-hidden">
+        <div className="h-[calc(50%-1.25lh)] flex items-end bg-gray-100 overflow-hidden">
           <div className="flex-1">
             {timeList.map(time => (
               <div key={time} className="flex">
@@ -306,13 +309,24 @@ export const Timeline = ({
           />
         </div>
 
-        <div className="h-[50%] flex bg-background overflow-hidden">
+        <div className="h-[50%] flex bg-gray-100 overflow-hidden">
           <div className="flex-1">
-            {timeList.map(time => (
+            {timeList.map((time, idx) => (
               <div key={time} className="flex">
-                <TimeLabel label={time} />
+                <TimeLabel
+                  className={cn(
+                    idx === 0 &&
+                      'bg-[linear-gradient(180deg,var(--background),transparent)]',
+                  )}
+                  label={time}
+                />
                 <div className="flex-1 flex flex-col">
-                  <div className="flex-1 border-b border-dashed" />
+                  <div
+                    className={cn(
+                      'flex-1 border-b border-dashed',
+                      idx === 0 && 'bg-background',
+                    )}
+                  />
                   <div className="flex-1" />
                 </div>
               </div>
