@@ -1,5 +1,5 @@
 import { Effect, Schema, flow, pipe } from 'effect';
-import { format } from 'date-fns';
+import { format, getDate, startOfDay } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 
 import { queryClient, rest } from '@/services';
@@ -16,7 +16,7 @@ export const {
   store,
   useGet,
   finishEdit: _finishEdit,
-  deleteOne,
+  deleteOne: _deleteOne,
 } = queryClient.makeResourceListActionsTemplate({
   resource,
   Itself,
@@ -68,7 +68,28 @@ export const useGetPreview = (
 export const invalidatePreview = () =>
   invalidateQueries([`${resource}/preview`]);
 
-export const finishEdit = flow(_finishEdit, x => {
+const validateToDate = () => {
+  const { fields } = store.editableRightNow.getState();
+  const { from, to } = fields ?? {};
+
+  if (!from || !to) return;
+
+  const isNeedToReplaceDate = getDate(to) > getDate(from);
+
+  store.editableRightNow.setState({
+    fields: {
+      ...fields!,
+      to: isNeedToReplaceDate ? startOfDay(to) : to,
+    },
+  });
+};
+
+export const finishEdit = flow(validateToDate, _finishEdit, x => {
+  x?.then(invalidatePreview);
+  return x;
+});
+
+export const deleteOne = flow(_deleteOne, x => {
   x?.then(invalidatePreview);
   return x;
 });

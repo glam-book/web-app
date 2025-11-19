@@ -30,7 +30,7 @@ const Detail = memo(({ month }: { month: Date }) => {
     <span
       className={cn(
         'min-h-full flex flex-col gap-0.5',
-        isPreviewForClient && 'absolute inset-0 bg-teal-200',
+        isPreviewForClient && 'absolute z-[-1] inset-0 bg-teal-200/50',
       )}
     >
       {isOwner &&
@@ -91,9 +91,9 @@ export default function Id() {
 
   const DetailsForTheDay = useCallback(
     ({ date }: { date: Date }) =>
-      between(differenceInMonths(date, visibleMonth), 0, 1) && (
-        <Detail month={date} />
-      ),
+      between(differenceInMonths(date, visibleMonth), 0, 1, {
+        strict: true,
+      }) && <Detail month={date} />,
     [visibleMonth],
   );
 
@@ -101,10 +101,13 @@ export default function Id() {
 
   return (
     <main className="flex flex-col gap-0.5 max-h-dvh overscroll-none">
-      <header className="flex justify-between items-center">
-        <span className="font-serif text-xl indent-2">
-          isOwner: {String(isOwner)}
-        </span>
+      <header className="flex justify-between">
+        <span
+          className={cn(
+            'flex-1 flex items-center font-serif text-xl indent-2',
+            isOwner && 'bg-card',
+          )}
+        />
         <Button
           aria-label="Share"
           type="button"
@@ -123,9 +126,9 @@ export default function Id() {
       </header>
 
       <Carousel.Host className="flex-1 overflow-y-hidden" ref={carouselApi}>
-        <Carousel.Item className="min-w-full flex">
+        <Carousel.Item className="flex-1 min-w-full flex">
           <article className="flex-1 flex flex-col">
-            <div className="flex-1 overflow-hidden">
+            <div className="overflow-hidden">
               <Era
                 onSelect={setDate}
                 selected={date}
@@ -137,7 +140,7 @@ export default function Id() {
           </article>
         </Carousel.Item>
 
-        <Carousel.Item className="min-w-full">
+        <Carousel.Item className="flex-1 min-w-full">
           <section className="max-h-svh overflow-hidden">
             <Timeline
               className="flex-1 relative bg-card border h-svh"
@@ -151,6 +154,8 @@ export default function Id() {
           <services.components.EditService />
         </Carousel.Item>
       </Carousel.Host>
+
+      <footer className="">FOOTER::::</footer>
 
       <Toaster />
     </main>

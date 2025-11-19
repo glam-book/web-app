@@ -13,6 +13,7 @@ const getCorrectRestUrl = (input: string | URL): string => {
   }
 
   const apiPath = __API_PATH__;
+  console.log({ apiPath });
   const inputWithoutApiPath = inputString.replace(
     apiPath.replace(/^\/*(.*?)\/*$/, (_, g: string) => g),
     '',
