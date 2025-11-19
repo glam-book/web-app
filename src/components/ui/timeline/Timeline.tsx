@@ -218,7 +218,7 @@ export const Timeline = ({
         className={cn(
           'relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal scroll-smooth',
         )}
-        onScrollEnd={_e => {
+        onScrollEnd={() => {
           const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
           setAimPosition(newAimPosition);
           aimPositionRef.current = newAimPosition;

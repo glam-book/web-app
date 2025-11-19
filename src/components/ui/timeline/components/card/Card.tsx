@@ -1,45 +1,46 @@
-import { format } from 'date-fns';
-import { ru } from 'date-fns/locale';
-import {
-  useState,
-  useEffect,
-  useCallback,
-  createContext,
-  type PropsWithChildren,
-  useContext,
-  memo,
-} from 'react';
-import { flow, pipe } from 'effect';
 import { TrashIcon } from '@radix-ui/react-icons';
 import { useMutation } from '@tanstack/react-query';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
+import { flow, pipe } from 'effect';
+import {
+  createContext,
+  FC,
+  memo,
+  type PropsWithChildren,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { toast } from 'sonner';
 
-import { cn } from '@/lib/utils';
-import { Sdometer } from '@/components/ui/sdometer';
-import { setMinutesToDate } from '@/components/ui/timeline/utils';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuTrigger,
   ContextMenuPortal,
+  ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { Badge } from '@/components/ui/badge';
-import { Toggle } from '@/components/ui/toggle';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Menu, MenuItem } from '@/components/ui/menu';
 import {
   Dialog,
-  DialogHeader,
-  DialogTitle,
   DialogContent,
-  DialogOverlay,
-  DialogTrigger,
   DialogDescription,
+  DialogHeader,
+  DialogOverlay,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
-import { records, services } from '@/shrekServices';
+import { Label } from '@/components/ui/label';
+import { Menu, MenuItem } from '@/components/ui/menu';
+import { Sdometer } from '@/components/ui/sdometer';
 import { activeCard } from '@/components/ui/timeline/store';
+import { setMinutesToDate } from '@/components/ui/timeline/utils';
+import { Toggle } from '@/components/ui/toggle';
+import { cn } from '@/lib/utils';
+import { records, services } from '@/shrekServices';
 
 import type { CardProps } from './types';
 
@@ -86,7 +87,7 @@ const LongpressMenu = ({ children }: PropsWithChildren) => {
   );
 };
 
-const PendingButton = ({ className }: React.ComponentProps<'div'>) => {
+const PendingButton = ({ className, onOpenChange }: React.ComponentProps<'div'> & { onOpenChange?: (open: boolean) => void }) => {
   const { fields } = useContext(CardContext);
 
   return (
@@ -94,7 +95,9 @@ const PendingButton = ({ className }: React.ComponentProps<'div'>) => {
       <Toggle
         variant="outline"
         className="text-sm text-foreground font-mono font-bold border-destructive"
-        onPressedChange={e => console.log(e)}
+        onPressedChange={pressed => {
+          onOpenChange?.(pressed);
+        }}
         onClick={e => e.stopPropagation()}
       >
         {fields.pendings.active}/{fields.pendings.limits}
@@ -102,6 +105,81 @@ const PendingButton = ({ className }: React.ComponentProps<'div'>) => {
     </div>
   );
 };
+
+const PendingDetails: FC = () => {
+  const { fields } = useContext(CardContext);
+  const [open, setOpen] = useState(false);
+  const { data: pendingList, isLoading } = records.usePendingDetails(fields.id);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <PendingButton onOpenChange={setOpen} className="ml-auto" />
+      <DialogContent
+        onClick={e => e.stopPropagation()}
+        className="max-w-2xl"
+        onPointerDownOutside={e => e.preventDefault()}
+      >
+        <DialogHeader className="text-left">
+          <DialogTitle className="text-2xl">Запросы на услугу</DialogTitle>
+        </DialogHeader>
+
+        {isLoading && <div className="text-center py-8">Загрузка...</div>}
+
+        {!isLoading && (!pendingList || pendingList.length === 0) && (
+          <div className="text-center py-8 text-muted-foreground">
+            Нет запросов
+          </div>
+        )}
+
+        {!isLoading && pendingList && pendingList.length > 0 && (
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {pendingList.map((pending, idx) => (
+              <div
+                key={idx}
+                className="p-4 border rounded-lg space-y-2"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-semibold">
+                      {pending.contact.firstName} {pending.contact.lastName}
+                    </p>
+                    {pending.contact.tgUserName && (
+                      <p className="text-sm text-muted-foreground">
+                        @{pending.contact.tgUserName}
+                      </p>
+                    )}
+                  </div>
+                  <Badge variant={pending.confirmed ? 'default' : 'secondary'}>
+                    {pending.confirmed ? 'Подтверждено' : 'Ожидание'}
+                  </Badge>
+                </div>
+
+                <p className="text-sm text-muted-foreground">
+                  {format(pending.requestTime, 'dd MMMM HH:mm', { locale: ru })}
+                </p>
+
+                <div className="space-y-1">
+                  {pending.services.map(service => (
+                    <div key={service.id} className="text-sm flex justify-between">
+                      <span>{service.title}</span>
+                      <span className="font-mono">
+                        {new Intl.NumberFormat('ru-RU', {
+                          style: 'currency',
+                          currency: 'RUB',
+                          maximumFractionDigits: 0,
+                        }).format(service.price)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 const Badges = () => {
   const { fields } = useContext(CardContext);
@@ -304,7 +382,6 @@ export const ClientCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
               <DialogContent
                 onClick={e => {
                   e.stopPropagation();
-                  !makeAppointment.isPending && setOpen(false);
                 }}
                 className="h-dvh min-w-full p-0 flex flex-col gap-8 rounded-none bg-transparent backdrop-blur-xl"
                 onPointerDownOutside={e => e.preventDefault()}
@@ -366,8 +443,9 @@ export const ClientCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
                       if (
                         e.currentTarget === e.target &&
                         !makeAppointment.isPending
-                      )
+                      ) {
                         setOpen(false);
+                      }
                     }}
                   >
                     <Menu>
@@ -434,7 +512,7 @@ export const OwnerCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
                 <Sign />
                 <Badges />
               </div>
-              <PendingButton className="ml-auto" />
+              <PendingDetails />
             </div>
           </Content>
         </TheCard>

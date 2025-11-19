@@ -1,19 +1,20 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { enableMapSet } from 'immer';
-import { Routes } from '@generouted/react-router';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
+  emitEvent,
   init,
   mockTelegramEnv,
-  emitEvent,
-  swipeBehavior,
   retrieveLaunchParams,
+  swipeBehavior,
 } from '@tma.js/sdk-react';
+import { enableMapSet } from 'immer';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 
 import 'scrollyfills';
 
 import { queryClient } from '@/lib/tanstackQuery';
+
+import { Routes } from '@generouted/react-router';
 
 import './index.css';
 
