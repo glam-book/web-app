@@ -2,10 +2,9 @@ import { TrashIcon } from '@radix-ui/react-icons';
 import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { flow, pipe } from 'effect';
+import { pipe } from 'effect';
 import {
   createContext,
-  FC,
   memo,
   type PropsWithChildren,
   useCallback,
@@ -87,7 +86,12 @@ const LongpressMenu = ({ children }: PropsWithChildren) => {
   );
 };
 
-const PendingButton = ({ className, onOpenChange }: React.ComponentProps<'div'> & { onOpenChange?: (open: boolean) => void }) => {
+const PendingButton = ({
+  className,
+  onOpenChange,
+}: React.ComponentProps<'div'> & {
+  onOpenChange?: (open: boolean) => void;
+}) => {
   const { fields } = useContext(CardContext);
 
   return (
@@ -106,13 +110,13 @@ const PendingButton = ({ className, onOpenChange }: React.ComponentProps<'div'> 
   );
 };
 
-const PendingDetails: FC = () => {
+const PendingDetails = () => {
   const { fields } = useContext(CardContext);
   const [open, setOpen] = useState(false);
   const { data: pendingList, isLoading } = records.usePendingDetails(fields.id);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open && !isLoading} onOpenChange={setOpen}>
       <PendingButton onOpenChange={setOpen} className="ml-auto" />
       <DialogContent
         onClick={e => e.stopPropagation()}
@@ -123,21 +127,16 @@ const PendingDetails: FC = () => {
           <DialogTitle className="text-2xl">Запросы на услугу</DialogTitle>
         </DialogHeader>
 
-        {isLoading && <div className="text-center py-8">Загрузка...</div>}
-
-        {!isLoading && (!pendingList || pendingList.length === 0) && (
+        {(!pendingList || pendingList.length === 0) && (
           <div className="text-center py-8 text-muted-foreground">
             Нет запросов
           </div>
         )}
 
-        {!isLoading && pendingList && pendingList.length > 0 && (
+        {pendingList && pendingList.length > 0 && (
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {pendingList.map((pending, idx) => (
-              <div
-                key={idx}
-                className="p-4 border rounded-lg space-y-2"
-              >
+              <div key={idx} className="p-4 border rounded-lg space-y-2">
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="font-semibold">
@@ -160,7 +159,10 @@ const PendingDetails: FC = () => {
 
                 <div className="space-y-1">
                   {pending.services.map(service => (
-                    <div key={service.id} className="text-sm flex justify-between">
+                    <div
+                      key={service.id}
+                      className="text-sm flex justify-between"
+                    >
                       <span>{service.title}</span>
                       <span className="font-mono">
                         {new Intl.NumberFormat('ru-RU', {
@@ -179,7 +181,7 @@ const PendingDetails: FC = () => {
       </DialogContent>
     </Dialog>
   );
-}
+};
 
 const Badges = () => {
   const { fields } = useContext(CardContext);
@@ -218,6 +220,7 @@ const Sign = () => {
 const Content = ({ className, children }: React.ComponentProps<'div'>) => {
   const { isSelected } = useContext(CardContext);
   const { fields: editableRightNowFields } = records.store.editableRightNow();
+  const { isResizeMode } = activeCard();
 
   return (
     <div
@@ -233,7 +236,7 @@ const Content = ({ className, children }: React.ComponentProps<'div'>) => {
             <time
               className={cn(
                 'text-foreground inline-flex',
-                activeCard.getState().isResizeMode || 'text-current',
+                isResizeMode || 'text-current',
               )}
               dateTime={format(String(editableRightNowFields?.from), 'MM-dd')}
             >
@@ -245,12 +248,12 @@ const Content = ({ className, children }: React.ComponentProps<'div'>) => {
             <time
               className={cn(
                 'text-foreground inline-flex',
-                activeCard.getState().isResizeMode && 'text-current',
+                isResizeMode && 'text-current',
               )}
               dateTime={format(String(editableRightNowFields?.to), 'MM-dd')}
             >
               <Sdometer
-                value={format(String(editableRightNowFields?.to), 'HH:mm')}
+                value={format(String(editableRightNowFields?.to), `HH:mm`)}
               />
             </time>
           </div>
@@ -277,10 +280,10 @@ export const TheCard = ({
   const calcDisplayedFields = useCallback(
     () => ({
       top: dateToDisplayUnits(fields.from),
-      size: flow(
-        () => [fields.from, fields.to].map(dateToDisplayUnits),
+      size: pipe(
+        [fields.from, fields.to].map(dateToDisplayUnits),
         ([from, to]) => to - from,
-      )(),
+      ),
     }),
     [fields, dateToDisplayUnits],
   );
@@ -317,7 +320,7 @@ export const TheCard = ({
           from: displayUnitsToDate(displayedFields.top, editableFields.from),
           to: displayUnitsToDate(
             displayedFields.top + displayedFields.size,
-            editableFields.to,
+            editableFields.from,
           ),
         },
       });

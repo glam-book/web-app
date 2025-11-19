@@ -5,13 +5,9 @@ import path from 'path';
 import generouted from '@generouted/react-router/plugin';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode: _mode }) => {
+export default defineConfig(() => {
   return {
-    plugins: [
-      react(),
-      tailwindcss(),
-      generouted(),
-    ],
+    plugins: [react(), tailwindcss(), generouted()],
     define: {
       __API_PATH__: JSON.stringify('/api/v1/'),
     },

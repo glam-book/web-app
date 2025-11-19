@@ -73,8 +73,10 @@ export const Timeline = ({
   );
 
   const dateToDisplayUnits = useCallback(
-    (date: Date) => {
-      const minutes = getMinutesFromDate(date);
+    (epoch: Date) => {
+      const minutes =
+        getMinutesFromDate(epoch) +
+        (getDate(epoch) !== getDate(currentDate) ? 24 * 60 : 0);
 
       return convertMinutesToUnits(
         numberOfSections,
@@ -82,7 +84,7 @@ export const Timeline = ({
         minutes,
       );
     },
-    [numberOfSections, sectionDisplaySize],
+    [numberOfSections, sectionDisplaySize, currentDate],
   );
 
   const displayUnitsToMinutes = useCallback(
@@ -104,7 +106,7 @@ export const Timeline = ({
 
   const scrollToCard = useCallback(
     flow(({ from, to }: CardFields, isResizeMode?: boolean) => {
-      if (getDate(to) - getDate(from) === 1) return from;
+      if (getDate(to) !== getDate(from)) return from;
       return isResizeMode ? to : from;
     }, scrollToDate),
     [scrollToDate],
@@ -136,7 +138,7 @@ export const Timeline = ({
       setMinutesToDate(currentDate),
     );
 
-    console.debug({ from, to });
+    console.debug({ from, to, currentDate });
 
     records.startEdit({
       sign: 'new +',
@@ -177,6 +179,7 @@ export const Timeline = ({
       records.startEdit(fields);
 
       const from = dateToDisplayUnits(fields.from);
+
       const dontNeedScrollToTheCard = between(
         aimPositionRef.current,
         from - sectionDisplaySize,
