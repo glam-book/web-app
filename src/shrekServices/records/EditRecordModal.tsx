@@ -52,6 +52,7 @@ export const EditRecordModal = () => {
   const [sign, setSign] = useState<string>(String(recordFields?.sign || ''));
   const maxSignLength = 800;
   const formRef = useRef<HTMLFormElement | null>(null);
+  const prevServiceIdsRef = useRef<number[]>([]);
 
   const [snap, setSnap] = useState<number | null | string>(snapPoints[0]);
 
@@ -62,6 +63,26 @@ export const EditRecordModal = () => {
   useEffect(() => {
     setServiceToggleFields(makeServiceToggleDefaultFields);
   }, [recordFields?.id]);
+
+  // If a new service appears in the service list (created elsewhere), auto-select it
+  useEffect(() => {
+    if (!serviceList) {
+      prevServiceIdsRef.current = [];
+      return;
+    }
+
+    const currentIds = Array.from(serviceList.keys()).map(Number);
+    const prev = prevServiceIdsRef.current;
+    const added = currentIds.filter(id => !prev.includes(id));
+
+    if (added.length > 0) {
+      setServiceToggleFields(prevSel =>
+        Array.from(new Set([...prevSel, ...added.map(String)])),
+      );
+    }
+
+    prevServiceIdsRef.current = currentIds;
+  }, [serviceList]);
 
   useEffect(() => {
     setSign(String(recordFields?.sign || ''));
@@ -234,6 +255,69 @@ export const EditRecordModal = () => {
                 {!isServiceListReallyNotEmpty && (
                   <div className="text-sm text-muted-foreground">Нет доступных сервисов</div>
                 )}
+              </div>
+
+              {/* Selected services info container */}
+              <div className="mt-2">
+                <div className="border rounded-lg p-3 bg-white/60">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-medium">Выбранные сервисы</div>
+                    <div className="text-xs text-muted-foreground">
+                      {serviceToggleFields.length} шт.
+                    </div>
+                  </div>
+
+                  {serviceToggleFields.length === 0 && (
+                    <div className="text-sm text-muted-foreground">Пока ничего не выбрано</div>
+                  )}
+
+                  {serviceToggleFields.length > 0 && (
+                    <div className="space-y-2">
+                      {serviceToggleFields.map(id => {
+                        const svc = serviceList?.get(Number(id));
+                        if (!svc) return null;
+                        return (
+                          <div
+                            key={id}
+                            className="flex items-center justify-between gap-2 p-2 bg-white/30 rounded-md"
+                          >
+                            <div className="flex-1">
+                              <div className="font-semibold">{svc.title}</div>
+                              <div className="text-xs text-muted-foreground">ID: {svc.id}</div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <div className="font-mono">{new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(svc.price)}</div>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                aria-label={`Удалить сервис ${svc.title}`}
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setServiceToggleFields(prev => prev.filter(x => x !== id));
+                                }}
+                              >
+                                ✕
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      <div className="flex justify-end font-bold pt-2">
+                        Итог: {' '}
+                        <span className="ml-2">
+                          {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(
+                            Array.from(serviceToggleFields).reduce((sum, id) => {
+                              const svc = serviceList?.get(Number(id));
+                              return sum + (svc?.price || 0);
+                            }, 0),
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col gap-1">
