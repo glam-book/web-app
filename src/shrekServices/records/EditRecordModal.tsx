@@ -1,22 +1,33 @@
-import { useState, useEffect } from 'react';
 import { produce } from 'immer';
-import { PlusIcon } from 'lucide-react';
+import { CirclePlus, PlusIcon, SaveIcon, TrashIcon } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
   Drawer,
   DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
   DrawerDescription,
+  DrawerHeader,
   DrawerPortal,
+  DrawerTitle,
 } from '@/components/ui/drawer';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Textarea } from '@/components/ui/textarea';
+// ToggleGroup unused here — selection moved to ContextMenu
+import { Badge } from '@/components/ui/badge';
+import {
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuPortal,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
 import { records, services } from '@/shrekServices';
 
 const snapPoints = [0.5, 1];
+const iconSize = 25;
 
 export const EditRecordModal = () => {
   const { fields: recordFields } = records.store.editableRightNow();
@@ -34,9 +45,13 @@ export const EditRecordModal = () => {
       ? Array.from(recordFields.serviceIdList, String)
       : [];
 
-  const [serviceToggleFields, setServiceToggleFields] = useState(
+  const [serviceToggleFields, setServiceToggleFields] = useState<string[]>(
     makeServiceToggleDefaultFields,
   );
+
+  const [sign, setSign] = useState<string>(String(recordFields?.sign || ''));
+  const maxSignLength = 800;
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const [snap, setSnap] = useState<number | null | string>(snapPoints[0]);
 
@@ -49,11 +64,7 @@ export const EditRecordModal = () => {
   }, [recordFields?.id]);
 
   useEffect(() => {
-    const form = document.forms.namedItem('edit-record-card');
-    const textarea = form?.querySelector<HTMLTextAreaElement>('[name="sign"]');
-    if (!textarea) return;
-    textarea.defaultValue = String(recordFields?.sign);
-    form?.reset();
+    setSign(String(recordFields?.sign || ''));
   }, [recordFields?.id]);
 
   useEffect(() => {
@@ -82,29 +93,59 @@ export const EditRecordModal = () => {
       <DrawerPortal>
         <DrawerContent className="min-h-[80dvh] pb-4 bg-blurable backdrop-blur-3xl">
           <DrawerHeader>
-            <DrawerTitle>HELLOW</DrawerTitle>
-            <DrawerDescription>(privet)</DrawerDescription>
+            <div className="flex items-center justify-between w-full">
+              <div>
+                <DrawerTitle>Редактирование записи</DrawerTitle>
+                <DrawerDescription className="text-sm">Измените данные или удалите запись</DrawerDescription>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const form = formRef.current;
+                    if (!form) return;
+                    // modern browsers: requestSubmit
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    if (typeof form.requestSubmit === 'function') form.requestSubmit();
+                    else form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                  }}
+                >
+                  <SaveIcon size={iconSize} />
+                </Button>
+
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    if (!recordFields?.id) return;
+                    if (!confirm('Удалить запись?')) return;
+                    records.deleteOne(recordFields.id);
+                    records.finishEdit();
+                  }}
+                >
+                  <TrashIcon size={iconSize}/>
+                </Button>
+              </div>
+            </div>
           </DrawerHeader>
 
           <div className="flex-1 overflow-auto content-grid">
             <form
               className="flex flex-col gap-4"
               id="edit-record-card"
+              ref={formRef}
               onSubmit={e => {
                 e.preventDefault();
-                const fd = new FormData(e.currentTarget);
-                const sign = fd.get('sign') as string;
-                const services = Array.from(
-                  e.currentTarget.querySelectorAll<HTMLButtonElement>(
-                    '[data-state="on"]',
-                  ),
-                  b => Number(b.name),
+
+                const servicesSelected = Array.from(serviceToggleFields, v =>
+                  Number(v),
                 );
 
                 records.store.editableRightNow.setState({
                   fields: produce(recordFields, draft => {
                     if (!draft) return;
-                    draft.serviceIdList = new Set(services);
+                    draft.serviceIdList = new Set(servicesSelected);
                     draft.sign = sign;
                   }),
                 });
@@ -112,57 +153,107 @@ export const EditRecordModal = () => {
                 records.finishEdit();
               }}
             >
-              <div className="flex gap-1">
-                <ToggleGroup
-                  type="multiple"
-                  value={serviceToggleFields}
-                  onValueChange={setServiceToggleFields}
-                  className="overflow-auto overscroll-contain flex-1 empty:hidden"
-                  variant="outline"
-                >
-                  {serviceList &&
-                    Array.from(serviceList)
-                      .filter(([, i]) => Boolean(i.title))
-                      .map(([, i]) => (
-                        <ToggleGroupItem
-                          value={String(i.id)}
-                          type="button"
-                          className="basis-auto font-mono font-bold border-destructive data-[state=on]:bg-[deepskyblue] data-[state=on]:text-white"
-                          name={String(i.id)}
-                          key={i.id}
-                        >
-                          {i.title}
-                        </ToggleGroupItem>
-                      ))}
-                </ToggleGroup>
+              <div className="flex gap-2 items-start">
+                <div className="flex items-center gap-2 w-full">
+                  <ContextMenu>
+                  <ContextMenuTrigger>
+                    <Button
+                      aria-label="Выбрать сервисы"
+                      variant="outline"
+                      className="flex-1 text-sm text-left"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <span className="inline-flex gap-2 flex-wrap items-center">
+                        {serviceToggleFields.length === 0 && (
+                          <span className="text-muted-foreground">Выберите сервисы</span>
+                        )}
+                        {serviceToggleFields.map(id => {
+                          const svc = serviceList?.get(Number(id));
+                          if (!svc) return null;
+                          return (
+                            <Badge key={id} className="font-mono font-bold">
+                              {svc.title}
+                            </Badge>
+                          );
+                        })}
+                      </span>
+                    </Button>
+                  </ContextMenuTrigger>
 
-                <Label>
+                  <ContextMenuPortal>
+                    <ContextMenuContent>
+                      {serviceList &&
+                        Array.from(serviceList)
+                          .filter(([, i]) => Boolean(i.title))
+                          .map(([, i]) => (
+                            <ContextMenuCheckboxItem
+                              key={i.id}
+                              checked={serviceToggleFields.includes(String(i.id))}
+                              onCheckedChange={checked => {
+                                setServiceToggleFields(prev => {
+                                  const idStr = String(i.id);
+                                  if (checked) return Array.from(new Set([...prev, idStr]));
+                                  return prev.filter(x => x !== idStr);
+                                });
+                              }}
+                            >
+                              <span className="flex-1">{i.title}</span>
+                              <span className="text-muted-foreground">{new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(i.price)}</span>
+                            </ContextMenuCheckboxItem>
+                          ))}
+
+                      <ContextMenuSeparator />
+                      <ContextMenuItem
+                        onClick={e => {
+                          e.stopPropagation();
+                          services.startEdit();
+                        }}
+                      >
+                        <PlusIcon />
+                        Создать новый сервис
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenuPortal>
+
+                  </ContextMenu>
+
                   <Button
-                    className="bg-[aliceblue]"
-                    type="button"
-                    aria-label="Add new service"
+                    aria-label="Добавить сервис"
                     size="icon"
-                    onClick={() => services.startEdit()}
-                    variant="outline"
+                    variant="ghost"
+                    onClick={e => {
+                      e.stopPropagation();
+                      services.startEdit();
+                    }}
+                    className="ml-1"
                   >
-                    <PlusIcon />
+                    <CirclePlus />
                   </Button>
-                  {!isServiceListReallyNotEmpty && (
-                    <span className="text-base">Добавьте новый сервис</span>
-                  )}
-                </Label>
+                </div>
+
+                {!isServiceListReallyNotEmpty && (
+                  <div className="text-sm text-muted-foreground">Нет доступных сервисов</div>
+                )}
               </div>
 
-              <Textarea
-                cols={2}
-                name="sign"
-                className="resize-none bg-[aliceblue]"
-                defaultValue={recordFields?.sign}
-              />
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="sign">Комментарий</Label>
+                <Textarea
+                  id="sign"
+                  name="sign"
+                  value={sign}
+                  onChange={e => setSign(e.target.value.slice(0, maxSignLength))}
+                  rows={4}
+                  placeholder="Коротко опишите запись, примечания для мастера..."
+                  className="resize-y bg-[aliceblue]"
+                />
+                <div className="text-xs text-muted-foreground text-right">
+                  {sign.length}/{maxSignLength}
+                </div>
+              </div>
 
-              <Button className="mt-auto sticky bottom-0" type="submit">
-                Сохранить
-              </Button>
+              <div className="mt-auto sticky bottom-0 pt-2 bg-gradient-to-t from-white/60">
+              </div>
             </form>
           </div>
         </DrawerContent>
