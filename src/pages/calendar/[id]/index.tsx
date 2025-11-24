@@ -90,10 +90,13 @@ export default function Id() {
   }, [date]);
 
   const DetailsForTheDay = useCallback(
-    ({ date }: { date: Date }) =>
-      between(differenceInMonths(date, visibleMonth), 0, 1, {
-        strict: true,
-      }) && <Detail month={date} />,
+    ({ date }: { date: Date }) => {
+      return (
+        between(differenceInMonths(date, visibleMonth), -1, 1, {
+          strict: true,
+        }) && <Detail month={date} />
+      );
+    },
     [visibleMonth],
   );
 
