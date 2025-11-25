@@ -13,23 +13,20 @@ import type { HostApi } from '@/components/ui/carousel';
 import { Toaster } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { between } from '@/utils';
 
 export const Detail = memo(
   ({ epoch, currentDate }: { epoch: Date; currentDate: Date }) => {
-    useEffect(() => {
-      return () => console.debug('unmount calendar preview detail:::', epoch);
-    }, []);
-
     const [shouldGetPreview, setShouldGetPreview] = useState(false);
 
     useEffect(() => {
       setShouldGetPreview(prev => {
         if (prev) return prev;
 
-        return (
-          Math.abs(
-            differenceInMonths(startOfMonth(epoch), startOfMonth(currentDate)),
-          ) === 0
+        return between(
+          differenceInMonths(startOfMonth(epoch), startOfMonth(currentDate)),
+          -1,
+          1,
         );
       });
     }, [epoch, currentDate]);
@@ -56,7 +53,7 @@ export const Detail = memo(
             <span
               key={idx}
               className={cn(
-                'h-[0.5lh] bg-card',
+                'h-[0.5lh] bg-red-300',
                 item.hasPendings && 'bg-teal-200',
               )}
             />
@@ -74,7 +71,6 @@ export default function Id() {
   }, [params.id]);
 
   const [date, setDate] = useState(new Date());
-  const [visibleMonth, setVisibleMonth] = useState(date);
 
   const { data: recordList, error: errorRecordList } = records.useGet(
     params.id,
@@ -107,13 +103,6 @@ export default function Id() {
   useEffect(() => {
     return () => carouselApi.current?.next(1);
   }, [date]);
-
-  // const DetailsForTheDay = useCallback(
-  //   ({ date }: { date: Date }) => {
-  //     return <Detail epoch={date} currentDate={visibleMonth} />;
-  //   },
-  //   [visibleMonth],
-  // );
 
   const { isOwner } = owner.useIsOwner();
 
@@ -150,7 +139,6 @@ export default function Id() {
               <Era
                 onSelect={setDate}
                 selected={date}
-                onChangeVisibleMonth={setVisibleMonth}
                 className="without-gap"
                 Detail={Detail}
               />
