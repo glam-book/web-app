@@ -10,11 +10,11 @@ import { enableMapSet } from 'immer';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
+import { Routes } from '@generouted/react-router';
 import 'scrollyfills';
 
 import { queryClient } from '@/lib/tanstackQuery';
 
-import { Routes } from '@generouted/react-router';
 
 import './index.css';
 
