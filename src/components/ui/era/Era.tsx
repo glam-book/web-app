@@ -34,6 +34,7 @@ const Month = memo(
     onSelect,
     selected,
     date,
+    visibleDate,
     className,
     Detail,
     ...props
@@ -41,7 +42,8 @@ const Month = memo(
     onSelect: (date: Date) => void;
     selected: Date;
     date: Date;
-    Detail?: (props: { date: Date }) => React.ReactNode;
+    visibleDate: Date;
+    Detail?: (props: { epoch: Date; currentDate: Date }) => React.ReactNode;
   } & Omit<React.ComponentProps<'table'>, 'onSelect'>) => {
     const d = eachDayOfInterval({
       start: startOfMonth(date),
@@ -58,6 +60,11 @@ const Month = memo(
       },
       [] as (Date | undefined)[][],
     );
+
+    useEffect(() => {
+      // console.debug('render:::', date);
+      return () => console.debug('unmount month:::', date);
+    }, []);
 
     return (
       <table
@@ -104,7 +111,9 @@ const Month = memo(
                         </Badge>
 
                         <span className="empty:hidden w-full flex-1 p-0.5">
-                          {Detail && <Detail date={dd} />}
+                          {Detail && (
+                            <Detail epoch={dd} currentDate={visibleDate} />
+                          )}
                         </span>
                       </span>
                     </button>
@@ -122,7 +131,7 @@ const Month = memo(
 type Props = {
   onSelect: (date: Date) => void;
   selected?: Date;
-  Detail?: (props: { date: Date }) => React.ReactNode;
+  Detail?: (props: { epoch: Date; currentDate: Date }) => React.ReactNode;
   onChangeVisibleMonth?: (month: Date) => void;
 } & Omit<React.ComponentProps<'div'>, 'onSelect'>;
 
@@ -261,6 +270,7 @@ export const Era = ({
               <Month
                 onSelect={onSelect}
                 selected={selected}
+                visibleDate={visibleDate}
                 date={v}
                 data-date={v.getTime()}
                 Detail={Detail}

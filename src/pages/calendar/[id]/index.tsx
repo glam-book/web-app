@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { Share } from 'lucide-react';
 import { shareURL } from '@tma.js/sdk-react';
-import { differenceInMonths, getDate, startOfMonth, getMonth } from 'date-fns';
+import { differenceInMonths, getDate, startOfMonth } from 'date-fns';
 import { toast } from 'sonner';
 
 import { useParams } from '@/router';
@@ -13,18 +13,26 @@ import type { HostApi } from '@/components/ui/carousel';
 import { Toaster } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { between } from '@/utils';
 
-const Detail = memo(
+export const Detail = memo(
   ({ epoch, currentDate }: { epoch: Date; currentDate: Date }) => {
+    useEffect(() => {
+      return () => console.debug('unmount calendar preview detail:::', epoch);
+    }, []);
+
     const [shouldGetPreview, setShouldGetPreview] = useState(false);
 
     useEffect(() => {
       setShouldGetPreview(prev => {
         if (prev) return prev;
-        return getMonth(epoch) === getMonth(currentDate);
+
+        return (
+          Math.abs(
+            differenceInMonths(startOfMonth(epoch), startOfMonth(currentDate)),
+          ) === 0
+        );
       });
-    }, [epoch]);
+    }, [epoch, currentDate]);
 
     const { calendarId } = owner.store.getState();
     const { isOwner } = owner.useIsOwner();
@@ -100,12 +108,12 @@ export default function Id() {
     return () => carouselApi.current?.next(1);
   }, [date]);
 
-  const DetailsForTheDay = useCallback(
-    ({ date }: { date: Date }) => {
-      return <Detail epoch={date} currentDate={visibleMonth} />;
-    },
-    [visibleMonth],
-  );
+  // const DetailsForTheDay = useCallback(
+  //   ({ date }: { date: Date }) => {
+  //     return <Detail epoch={date} currentDate={visibleMonth} />;
+  //   },
+  //   [visibleMonth],
+  // );
 
   const { isOwner } = owner.useIsOwner();
 
@@ -144,7 +152,7 @@ export default function Id() {
                 selected={date}
                 onChangeVisibleMonth={setVisibleMonth}
                 className="without-gap"
-                Detail={DetailsForTheDay}
+                Detail={Detail}
               />
             </div>
           </article>
