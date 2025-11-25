@@ -20,6 +20,10 @@ export const Detail = memo(
     const [shouldGetPreview, setShouldGetPreview] = useState(false);
 
     useEffect(() => {
+      alert(currentDate.toString())
+    }, [currentDate])
+
+    useEffect(() => {
       setShouldGetPreview(prev => {
         if (prev) return prev;
 
@@ -42,7 +46,9 @@ export const Detail = memo(
       !isOwner && detailsForTheDay?.some(i => i.canPending);
 
     useEffect(() => {
-      alert(`${getDate(epoch)}:::${detailsForTheDay?.length}`);
+      if (detailsForTheDay?.length) {
+        alert(`${getDate(epoch)}:::${detailsForTheDay?.length}`);
+      }
     }, [detailsForTheDay]);
 
     return (
