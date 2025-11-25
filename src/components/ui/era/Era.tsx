@@ -45,9 +45,6 @@ const Month = memo(
     visibleDate: Date;
     Detail?: (props: { epoch: Date; currentDate: Date }) => React.ReactNode;
   } & Omit<React.ComponentProps<'table'>, 'onSelect'>) => {
-    useEffect(() => {
-      alert(String(Detail));
-    }, [Detail]);
     const d = eachDayOfInterval({
       start: startOfMonth(date),
       end: endOfMonth(date),
@@ -108,8 +105,8 @@ const Month = memo(
                           {getDate(dd)}
                         </Badge>
 
+                        {String(Detail)}
                         <span className="empty:hidden w-full flex-1 p-0.5">
-                          {String(Detail)}
                           {/*Detail ? (
                             <>
                               <Detail epoch={dd} currentDate={visibleDate} />
