@@ -15,13 +15,6 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { between } from '@/utils';
 
-let tid = 0;
-
-const f = (message: string) => {
-  clearTimeout(tid);
-  tid = window.setTimeout(() => alert(message), 100);
-};
-
 export const Detail = memo(
   ({ epoch, currentDate }: { epoch: Date; currentDate: Date }) => {
     const [shouldGetPreview, setShouldGetPreview] = useState(false);
@@ -32,8 +25,8 @@ export const Detail = memo(
 
         return between(
           differenceInMonths(startOfMonth(epoch), startOfMonth(currentDate)),
-          0,
-          0,
+          -1,
+          1,
         );
       });
     }, [epoch, currentDate]);
@@ -47,17 +40,6 @@ export const Detail = memo(
 
     const detailsForTheDay = details?.[getDate(epoch)];
     const isPreviewForClient = !isOwner && detailsForTheDay?.some(i => i.canPending);
-
-    useEffect(() => {
-      f(
-        JSON.stringify({
-          details,
-          shouldGetPreview,
-          calendarId,
-          isOwner,
-        }),
-      );
-    }, [details, shouldGetPreview, calendarId, isOwner]);
 
     return (
       <span

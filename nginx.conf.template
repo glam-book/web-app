@@ -31,11 +31,11 @@ http {
         }
 
         # Static file caching for improved performance
-        location ~* \.(js|css|png|jpg|jpeg|gif|svg|ico|ttf|woff|woff2)$ {
-            expires 1y;
-            add_header Cache-Control "public, no-transform";
-            access_log off;
-        }
+        #location ~* \.(js|css|png|jpg|jpeg|gif|svg|ico|ttf|woff|woff2)$ {
+        #    expires 1y;
+        #    add_header Cache-Control "public, no-transform";
+        #    access_log off;
+        #}
 
         # Logging (optional for debugging)
         access_log  /var/log/nginx/access.log;
