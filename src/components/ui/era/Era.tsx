@@ -61,11 +61,6 @@ const Month = memo(
       [] as (Date | undefined)[][],
     );
 
-    useEffect(() => {
-      // console.debug('render:::', date);
-      return () => console.debug('unmount month:::', date);
-    }, []);
-
     return (
       <table
         aria-label={`${format(date, 'yyyy MMMM')}`}
