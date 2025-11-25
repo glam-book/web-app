@@ -106,8 +106,15 @@ const Month = memo(
                         </Badge>
 
                         <span className="empty:hidden w-full flex-1 p-0.5">
-                          {Detail && (
-                            <Detail epoch={dd} currentDate={visibleDate} />
+                          {Detail ? (
+                            <>
+                              <Detail epoch={dd} currentDate={visibleDate} />
+                              <span className="absolute top-[1lh] inset-0">
+                                not empty
+                              </span>
+                            </>
+                          ) : (
+                            'empty'
                           )}
                         </span>
                       </span>
