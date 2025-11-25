@@ -130,11 +130,14 @@ export const makeResourceListActions = function <
     pipe(
       id,
       Effect.fromNullable,
-      Effect.tap(xid => {
-        const { fields, reset } = editableRightNow.getState();
-        if (fields?.id === xid) reset();
-      }),
       Effect.tap(resourceStoreActions.deleteOne),
+      Effect.andThen(xid => {
+        const { fields, isNew, reset } = editableRightNow.getState();
+        const recordIsBeingEditedRightNow = xid === fields?.id;
+        if (recordIsBeingEditedRightNow) reset();
+        return recordIsBeingEditedRightNow && isNew ? undefined : xid;
+      }),
+      Effect.andThen(Effect.fromNullable),
       Effect.andThen(deleteOne),
     );
 
