@@ -1,8 +1,10 @@
 import { produce } from 'immer';
-import { CirclePlus, PlusIcon, SaveIcon, TrashIcon } from 'lucide-react';
+import { Clock, MessageSquare, Plus, SaveIcon, TrashIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
   Drawer,
   DrawerContent,
@@ -10,19 +12,11 @@ import {
   DrawerHeader,
   DrawerPortal,
   DrawerTitle,
+  DrawerTrigger,
 } from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import {
-  ContextMenu,
-  ContextMenuCheckboxItem,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuPortal,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+// context-menu not used anymore here
 import { records, services } from '@/shrekServices';
 
 const snapPoints = [0.5, 1];
@@ -35,9 +29,14 @@ export const EditRecordModal = () => {
 
   const { data: serviceList } = services.useGet();
 
-  const isServiceListReallyNotEmpty =
-    serviceList &&
-    Array.from(serviceList).filter(([, i]) => Boolean(i.title)).length > 0;
+  type ServiceLike = {
+    id: number;
+    title?: string;
+    name?: string;
+    price?: number;
+    category?: string;
+    duration?: number;
+  };
 
   const makeServiceToggleDefaultFields = () =>
     recordFields?.serviceIdList
@@ -98,6 +97,36 @@ export const EditRecordModal = () => {
       document.documentElement.style.overscrollBehavior = '';
     };
   }, [open]);
+
+  // Service selection drawers & UI state
+  const [isServicesDrawerOpen, setIsServicesDrawerOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Convert the Map -> array of services (only those with title)
+  const allServices = (serviceList && Array.from(serviceList.values()).filter(i => Boolean(i.title))) || [] as ServiceLike[];
+
+  const categories = Array.from(new Set(allServices.map((s: ServiceLike) => s.category ?? 'Без категории')));
+
+  const filteredServices = selectedCategory === null ? allServices : allServices.filter((s: ServiceLike) => (s.category ?? 'Без категории') === selectedCategory);
+
+  // Helpers to treat the currently selected service ids as full service objects
+  const timeSlot = {
+    services: serviceToggleFields
+      .map(id => serviceList?.get(Number(id)))
+      .filter(Boolean) as ServiceLike[],
+  };
+
+  const addService = (service: ServiceLike) => {
+    const idStr = String(service.id);
+    setServiceToggleFields(prev => (prev.includes(idStr) ? prev : [...prev, idStr]));
+  };
+
+  const removeService = (id: number) => {
+    setServiceToggleFields(prev => prev.filter(x => x !== String(id)));
+  };
+
+  const totalDuration = timeSlot.services.reduce((sum, s) => sum + (Number(s.duration) || 0), 0);
+  const totalPrice = timeSlot.services.reduce((sum, s) => sum + (Number(s.price) || 0), 0);
 
   return (
     <Drawer
@@ -182,184 +211,159 @@ export const EditRecordModal = () => {
                 records.finishEdit();
               }}
             >
-              <div className="flex gap-2 items-start">
-                <div className="flex items-center gap-2 w-full">
-                  <ContextMenu>
-                    <ContextMenuTrigger>
-                      <Button
-                        aria-label="Выбрать сервисы"
-                        variant="outline"
-                        className="flex-1 text-sm text-left"
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <span className="inline-flex gap-2 flex-wrap items-center">
-                          {serviceToggleFields.length === 0 && (
-                            <span className="text-muted-foreground">
-                              Выберите сервисы
-                            </span>
-                          )}
-                          {serviceToggleFields.map(id => {
-                            const svc = serviceList?.get(Number(id));
-                            if (!svc) return null;
-                            return (
-                              <Badge key={id} className="font-mono font-bold">
-                                {svc.title}
-                              </Badge>
-                            );
-                          })}
-                        </span>
+              {/* Services Card */}
+              <Card className="p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-gray-700" />
+                    <h2 className="text-gray-900">Услуги</h2>
+                  </div>
+
+                  <Drawer open={isServicesDrawerOpen} onOpenChange={setIsServicesDrawerOpen}>
+                    <DrawerTrigger asChild>
+                      <Button size="sm">
+                        <Plus className="w-4 h-4 mr-1" />
+                        Добавить
                       </Button>
-                    </ContextMenuTrigger>
+                    </DrawerTrigger>
+                    <DrawerContent className="max-h-[85vh]">
+                      <DrawerHeader>
+                        <DrawerTitle>Выберите услугу</DrawerTitle>
+                        <DrawerDescription>
+                          Добавьте услуги в окно календаря
+                        </DrawerDescription>
+                      </DrawerHeader>
 
-                    <ContextMenuPortal>
-                      <ContextMenuContent>
-                        {serviceList &&
-                          Array.from(serviceList)
-                            .filter(([, i]) => Boolean(i.title))
-                            .map(([, i]) => (
-                              <ContextMenuCheckboxItem
-                                key={i.id}
-                                checked={serviceToggleFields.includes(
-                                  String(i.id),
-                                )}
-                                onCheckedChange={checked => {
-                                  setServiceToggleFields(prev => {
-                                    const idStr = String(i.id);
-                                    if (checked)
-                                      return Array.from(
-                                        new Set([...prev, idStr]),
-                                      );
-                                    return prev.filter(x => x !== idStr);
-                                  });
-                                }}
-                              >
-                                <span className="flex-1">{i.title}</span>
-                                <span className="text-muted-foreground">
-                                  {new Intl.NumberFormat('ru-RU', {
-                                    style: 'currency',
-                                    currency: 'RUB',
-                                    maximumFractionDigits: 0,
-                                  }).format(i.price)}
-                                </span>
-                              </ContextMenuCheckboxItem>
-                            ))}
+                      {/* Category Filter */}
+                      <div className="flex overflow-x-auto gap-2 px-4 pb-3 border-b">
+                        <Button
+                          variant={selectedCategory === null ? 'default' : 'outline'}
+                          size="sm"
+                          className="shrink-0"
+                          onClick={() => setSelectedCategory(null)}
+                        >
+                          Все
+                        </Button>
+                        {categories.map(category => (
+                          <Button
+                            key={category}
+                            variant={selectedCategory === category ? 'default' : 'outline'}
+                            size="sm"
+                            className="shrink-0"
+                            onClick={() => setSelectedCategory(category)}
+                          >
+                            {category}
+                          </Button>
+                        ))}
+                      </div>
 
-                        <ContextMenuSeparator />
-                        <ContextMenuItem
-                          onClick={e => {
-                            e.stopPropagation();
+                      {/* Services List */}
+                      <div className="overflow-y-auto flex-1 px-4 py-3">
+                        {/* Create New Service Button */}
+                        <Button
+                          variant="outline"
+                          className="w-full mb-3 border-dashed"
+                          onClick={() => {
+                            // open service editor (existing behavior)
+                            setIsServicesDrawerOpen(false);
                             services.startEdit();
                           }}
                         >
-                          <PlusIcon />
-                          Создать новый сервис
-                        </ContextMenuItem>
-                      </ContextMenuContent>
-                    </ContextMenuPortal>
-                  </ContextMenu>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Создать новую услугу
+                        </Button>
 
-                  <Button
-                    aria-label="Добавить сервис"
-                    size="icon"
-                    variant="ghost"
-                    onClick={e => {
-                      e.stopPropagation();
-                      services.startEdit();
-                    }}
-                    className="ml-1"
-                  >
-                    <CirclePlus />
-                  </Button>
+                        <div className="space-y-2">
+                          {filteredServices.map((service: ServiceLike) => {
+                            const isAdded = timeSlot.services.some(s => s.id === service.id);
+                            return (
+                              <div
+                                key={service.id}
+                                className={`p-3 border rounded-lg active:scale-[0.98] transition-all ${
+                                  isAdded ? 'bg-gray-50 border-gray-300' : 'bg-white active:bg-gray-50'
+                                }`}
+                                onClick={() => !isAdded && addService(service)}
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                      <h3 className="text-gray-900">{service.title ?? service.name}</h3>
+                                      <Badge variant="secondary" className="shrink-0">{service.category ?? '—'}</Badge>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-gray-600">
+                                      <span className="flex items-center gap-1">
+                                        <Clock className="w-3.5 h-3.5" />
+                                        {service.duration ? `${service.duration} мин` : '—'}
+                                      </span>
+                                      <span>{new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(service.price ?? 0)}</span>
+                                    </div>
+                                  </div>
+                                  {isAdded && (
+                                    <Badge className="shrink-0">✓</Badge>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </DrawerContent>
+                  </Drawer>
                 </div>
 
-                {!isServiceListReallyNotEmpty && (
-                  <div className="text-sm text-muted-foreground">
-                    Нет доступных сервисов
+                {timeSlot.services.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <MessageSquare className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <p>Услуги не добавлены</p>
                   </div>
-                )}
-              </div>
-
-              {/* Selected services info container */}
-              <div className="mt-2">
-                <div className="border rounded-lg p-3 bg-white/60">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="font-medium">Выбранные сервисы</div>
-                    <div className="text-xs text-muted-foreground">
-                      {serviceToggleFields.length} шт.
-                    </div>
-                  </div>
-
-                  {serviceToggleFields.length === 0 && (
-                    <div className="text-sm text-muted-foreground">
-                      Пока ничего не выбрано
-                    </div>
-                  )}
-
-                  {serviceToggleFields.length > 0 && (
-                    <div className="space-y-2">
-                      {serviceToggleFields.map(id => {
-                        const svc = serviceList?.get(Number(id));
-                        if (!svc) return null;
-                        return (
-                          <div
-                            key={id}
-                            className="flex items-center justify-between gap-2 p-2 bg-white/30 rounded-md"
-                          >
-                            <div className="flex-1">
-                              <div className="font-semibold">{svc.title}</div>
-                              <div className="text-xs text-muted-foreground">
-                                ID: {svc.id}
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <div className="font-mono">
-                                {new Intl.NumberFormat('ru-RU', {
-                                  style: 'currency',
-                                  currency: 'RUB',
-                                  maximumFractionDigits: 0,
-                                }).format(svc.price)}
-                              </div>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                aria-label={`Удалить сервис ${svc.title}`}
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  setServiceToggleFields(prev =>
-                                    prev.filter(x => x !== id),
-                                  );
-                                }}
-                              >
-                                ✕
-                              </Button>
-                            </div>
+                ) : (
+                  <div className="space-y-2">
+                    {timeSlot.services.map((service: ServiceLike) => (
+                      <div
+                        key={service.id}
+                        className="flex items-start gap-3 p-3 bg-white border rounded-lg"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <h3 className="text-gray-900">{service.title ?? service.name}</h3>
+                            <Badge variant="outline" className="shrink-0">{service.category ?? '—'}</Badge>
                           </div>
-                        );
-                      })}
+                          <div className="flex items-center gap-3 text-gray-600">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5" />
+                              {service.duration ? `${service.duration} мин` : '—'}
+                            </span>
+                            <span>{new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(service.price ?? 0)}</span>
+                          </div>
+                        </div>
 
-                      <div className="flex justify-end font-bold pt-2">
-                        Итог:{' '}
-                        <span className="ml-2">
-                          {new Intl.NumberFormat('ru-RU', {
-                            style: 'currency',
-                            currency: 'RUB',
-                            maximumFractionDigits: 0,
-                          }).format(
-                            Array.from(serviceToggleFields).reduce(
-                              (sum, id) => {
-                                const svc = serviceList?.get(Number(id));
-                                return sum + (svc?.price || 0);
-                              },
-                              0,
-                            ),
-                          )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeService(service.id)}
+                          className="text-gray-500 active:text-red-600 shrink-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+
+                    {/* Summary */}
+                    <div className="pt-3 mt-3 border-t space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Продолжительность:</span>
+                        <span className="text-gray-900">
+                          {Math.floor(totalDuration / 60)}ч {totalDuration % 60}мин
                         </span>
                       </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Стоимость:</span>
+                        <span className="text-gray-900">{new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(totalPrice)}</span>
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
+                )}
+              </Card>
 
               <div className="flex flex-col gap-1">
                 <Label htmlFor="sign">Комментарий</Label>
