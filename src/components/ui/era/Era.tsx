@@ -106,7 +106,8 @@ const Month = memo(
                         </Badge>
 
                         <span className="empty:hidden w-full flex-1 p-0.5">
-                          {Detail ? (
+                          {String(Detail)}
+                          {/*Detail ? (
                             <>
                               <Detail epoch={dd} currentDate={visibleDate} />
                               <span className="absolute top-[1lh] inset-0">
@@ -115,7 +116,7 @@ const Month = memo(
                             </>
                           ) : (
                             'empty'
-                          )}
+                          )*/}
                         </span>
                       </span>
                     </button>
