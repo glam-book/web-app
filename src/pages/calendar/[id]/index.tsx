@@ -41,6 +41,10 @@ export const Detail = memo(
     const isPreviewForClient =
       !isOwner && detailsForTheDay?.some(i => i.canPending);
 
+    useEffect(() => {
+      alert(`${getDate(epoch)}:::${detailsForTheDay?.length}`);
+    }, [detailsForTheDay]);
+
     return (
       <span
         className={cn(
