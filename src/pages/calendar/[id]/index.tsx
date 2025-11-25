@@ -15,13 +15,16 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { between } from '@/utils';
 
+let tid = 0;
+
+const f = (message: string) => {
+  clearTimeout(tid);
+  tid = window.setTimeout(() => alert(message), 100);
+};
+
 export const Detail = memo(
   ({ epoch, currentDate }: { epoch: Date; currentDate: Date }) => {
     const [shouldGetPreview, setShouldGetPreview] = useState(false);
-
-    useEffect(() => {
-      alert(currentDate.toString())
-    }, [currentDate])
 
     useEffect(() => {
       setShouldGetPreview(prev => {
@@ -29,8 +32,8 @@ export const Detail = memo(
 
         return between(
           differenceInMonths(startOfMonth(epoch), startOfMonth(currentDate)),
-          -1,
-          1,
+          0,
+          0,
         );
       });
     }, [epoch, currentDate]);
@@ -41,15 +44,21 @@ export const Detail = memo(
       shouldGetPreview ? calendarId : undefined,
       startOfMonth(epoch),
     );
+
     const detailsForTheDay = details?.[getDate(epoch)];
     const isPreviewForClient =
       !isOwner && detailsForTheDay?.some(i => i.canPending);
 
     useEffect(() => {
-      if (detailsForTheDay?.length) {
-        alert(`${getDate(epoch)}:::${detailsForTheDay?.length}`);
-      }
-    }, [detailsForTheDay]);
+      f(
+        JSON.stringify({
+          details,
+          shouldGetPreview,
+          calendarId,
+          isOwner,
+        }),
+      );
+    }, [details, shouldGetPreview, calendarId, isOwner]);
 
     return (
       <span
