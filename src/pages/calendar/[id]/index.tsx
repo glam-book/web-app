@@ -46,8 +46,7 @@ export const Detail = memo(
     );
 
     const detailsForTheDay = details?.[getDate(epoch)];
-    const isPreviewForClient =
-      !isOwner && detailsForTheDay?.some(i => i.canPending);
+    const isPreviewForClient = !isOwner && detailsForTheDay?.some(i => i.canPending);
 
     useEffect(() => {
       f(
@@ -180,7 +179,7 @@ export default function Id() {
         </Carousel.Item>
       </Carousel.Host>
 
-      <footer className="">FOOTER::::</footer>
+      <footer className="">FOOTER::::MUT</footer>
 
       <Toaster />
     </main>
