@@ -105,7 +105,7 @@ const Month = memo(
                           {getDate(dd)}
                         </Badge>
 
-                        <span className="w-full flex-1 p-0.5 overflow-hidden">
+                        <span className="empty:hidden w-full flex-1 p-0.5">
                           {Detail && (
                             <Detail epoch={dd} currentDate={visibleDate} />
                           )}

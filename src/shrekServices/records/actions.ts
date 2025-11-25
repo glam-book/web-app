@@ -62,7 +62,32 @@ export const useGetPreview = (
   useQuery({
     queryKey: [`${resource}/preview`, userId, month],
     enabled: [userId, month].every(Boolean),
-    queryFn: () => getPreview(userId as number | string, month),
+    queryFn: () =>
+      getPreview(userId as number | string, month).catch(() => ({
+        '1': [
+          {
+            day: 1,
+            ts: new Date(),
+            isOwner: true,
+            canPending: true,
+            hasPendings: false,
+          },
+          {
+            day: 1,
+            ts: new Date(),
+            isOwner: true,
+            canPending: true,
+            hasPendings: false,
+          },
+          {
+            day: 1,
+            ts: new Date(),
+            isOwner: true,
+            canPending: true,
+            hasPendings: false,
+          },
+        ],
+      })),
   });
 
 export const invalidatePreview = () =>
