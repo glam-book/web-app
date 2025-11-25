@@ -39,12 +39,28 @@ export const Detail = memo(
     );
 
     const detailsForTheDay = details?.[getDate(epoch)];
-    const isPreviewForClient = !isOwner && detailsForTheDay?.some(i => i.canPending);
+    const isPreviewForClient =
+      !isOwner && detailsForTheDay?.some(i => i.canPending);
+
+    const hostRef = useRef<HTMLSpanElement>(null);
+
+    useEffect(() => {
+      const host = hostRef.current;
+      let timerId = 0;
+      if (host) {
+        host.style.display = 'none';
+        timerId = requestAnimationFrame(() => {
+          host.style.display = '';
+        });
+      }
+      return () => cancelAnimationFrame(timerId);
+    }, [details]);
 
     return (
       <span
+        ref={hostRef}
         className={cn(
-          'min-h-full flex flex-col gap-0.5',
+          'min-w-0.5 min-h-full h-full grid auto-rows-min gap-0.5',
           isPreviewForClient && 'absolute z-[-1] inset-0 bg-teal-200/50',
         )}
       >
@@ -53,7 +69,7 @@ export const Detail = memo(
             <span
               key={idx}
               className={cn(
-                'h-[0.5lh] bg-red-300',
+                'min-h-[0.5lh] h-[0.5lh] bg-card',
                 item.hasPendings && 'bg-teal-200',
               )}
             />
@@ -115,6 +131,7 @@ export default function Id() {
             isOwner && 'bg-card',
           )}
         />
+
         <Button
           aria-label="Share"
           type="button"
