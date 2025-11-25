@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-// ToggleGroup unused here — selection moved to ContextMenu
 import { Badge } from '@/components/ui/badge';
 import {
   ContextMenu,
@@ -117,7 +116,9 @@ export const EditRecordModal = () => {
             <div className="flex items-center justify-between w-full">
               <div>
                 <DrawerTitle>Редактирование записи</DrawerTitle>
-                <DrawerDescription className="text-sm">Измените данные или удалите запись</DrawerDescription>
+                <DrawerDescription className="hidden">
+                  Измените данные или удалите запись
+                </DrawerDescription>
               </div>
 
               <div className="flex gap-2">
@@ -129,23 +130,30 @@ export const EditRecordModal = () => {
                     // modern browsers: requestSubmit
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
-                    if (typeof form.requestSubmit === 'function') form.requestSubmit();
-                    else form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                    if (typeof form.requestSubmit === 'function')
+                      form.requestSubmit();
+                    else
+                      form.dispatchEvent(
+                        new Event('submit', {
+                          bubbles: true,
+                          cancelable: true,
+                        }),
+                      );
                   }}
                 >
                   <SaveIcon size={iconSize} />
                 </Button>
 
                 <Button
+                  type="button"
                   variant="destructive"
                   onClick={() => {
                     if (!recordFields?.id) return;
                     if (!confirm('Удалить запись?')) return;
                     records.deleteOne(recordFields.id);
-                    records.finishEdit();
                   }}
                 >
-                  <TrashIcon size={iconSize}/>
+                  <TrashIcon size={iconSize} />
                 </Button>
               </div>
             </div>
@@ -177,65 +185,77 @@ export const EditRecordModal = () => {
               <div className="flex gap-2 items-start">
                 <div className="flex items-center gap-2 w-full">
                   <ContextMenu>
-                  <ContextMenuTrigger>
-                    <Button
-                      aria-label="Выбрать сервисы"
-                      variant="outline"
-                      className="flex-1 text-sm text-left"
-                      onClick={e => e.stopPropagation()}
-                    >
-                      <span className="inline-flex gap-2 flex-wrap items-center">
-                        {serviceToggleFields.length === 0 && (
-                          <span className="text-muted-foreground">Выберите сервисы</span>
-                        )}
-                        {serviceToggleFields.map(id => {
-                          const svc = serviceList?.get(Number(id));
-                          if (!svc) return null;
-                          return (
-                            <Badge key={id} className="font-mono font-bold">
-                              {svc.title}
-                            </Badge>
-                          );
-                        })}
-                      </span>
-                    </Button>
-                  </ContextMenuTrigger>
-
-                  <ContextMenuPortal>
-                    <ContextMenuContent>
-                      {serviceList &&
-                        Array.from(serviceList)
-                          .filter(([, i]) => Boolean(i.title))
-                          .map(([, i]) => (
-                            <ContextMenuCheckboxItem
-                              key={i.id}
-                              checked={serviceToggleFields.includes(String(i.id))}
-                              onCheckedChange={checked => {
-                                setServiceToggleFields(prev => {
-                                  const idStr = String(i.id);
-                                  if (checked) return Array.from(new Set([...prev, idStr]));
-                                  return prev.filter(x => x !== idStr);
-                                });
-                              }}
-                            >
-                              <span className="flex-1">{i.title}</span>
-                              <span className="text-muted-foreground">{new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(i.price)}</span>
-                            </ContextMenuCheckboxItem>
-                          ))}
-
-                      <ContextMenuSeparator />
-                      <ContextMenuItem
-                        onClick={e => {
-                          e.stopPropagation();
-                          services.startEdit();
-                        }}
+                    <ContextMenuTrigger>
+                      <Button
+                        aria-label="Выбрать сервисы"
+                        variant="outline"
+                        className="flex-1 text-sm text-left"
+                        onClick={e => e.stopPropagation()}
                       >
-                        <PlusIcon />
-                        Создать новый сервис
-                      </ContextMenuItem>
-                    </ContextMenuContent>
-                  </ContextMenuPortal>
+                        <span className="inline-flex gap-2 flex-wrap items-center">
+                          {serviceToggleFields.length === 0 && (
+                            <span className="text-muted-foreground">
+                              Выберите сервисы
+                            </span>
+                          )}
+                          {serviceToggleFields.map(id => {
+                            const svc = serviceList?.get(Number(id));
+                            if (!svc) return null;
+                            return (
+                              <Badge key={id} className="font-mono font-bold">
+                                {svc.title}
+                              </Badge>
+                            );
+                          })}
+                        </span>
+                      </Button>
+                    </ContextMenuTrigger>
 
+                    <ContextMenuPortal>
+                      <ContextMenuContent>
+                        {serviceList &&
+                          Array.from(serviceList)
+                            .filter(([, i]) => Boolean(i.title))
+                            .map(([, i]) => (
+                              <ContextMenuCheckboxItem
+                                key={i.id}
+                                checked={serviceToggleFields.includes(
+                                  String(i.id),
+                                )}
+                                onCheckedChange={checked => {
+                                  setServiceToggleFields(prev => {
+                                    const idStr = String(i.id);
+                                    if (checked)
+                                      return Array.from(
+                                        new Set([...prev, idStr]),
+                                      );
+                                    return prev.filter(x => x !== idStr);
+                                  });
+                                }}
+                              >
+                                <span className="flex-1">{i.title}</span>
+                                <span className="text-muted-foreground">
+                                  {new Intl.NumberFormat('ru-RU', {
+                                    style: 'currency',
+                                    currency: 'RUB',
+                                    maximumFractionDigits: 0,
+                                  }).format(i.price)}
+                                </span>
+                              </ContextMenuCheckboxItem>
+                            ))}
+
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          onClick={e => {
+                            e.stopPropagation();
+                            services.startEdit();
+                          }}
+                        >
+                          <PlusIcon />
+                          Создать новый сервис
+                        </ContextMenuItem>
+                      </ContextMenuContent>
+                    </ContextMenuPortal>
                   </ContextMenu>
 
                   <Button
@@ -253,7 +273,9 @@ export const EditRecordModal = () => {
                 </div>
 
                 {!isServiceListReallyNotEmpty && (
-                  <div className="text-sm text-muted-foreground">Нет доступных сервисов</div>
+                  <div className="text-sm text-muted-foreground">
+                    Нет доступных сервисов
+                  </div>
                 )}
               </div>
 
@@ -268,7 +290,9 @@ export const EditRecordModal = () => {
                   </div>
 
                   {serviceToggleFields.length === 0 && (
-                    <div className="text-sm text-muted-foreground">Пока ничего не выбрано</div>
+                    <div className="text-sm text-muted-foreground">
+                      Пока ничего не выбрано
+                    </div>
                   )}
 
                   {serviceToggleFields.length > 0 && (
@@ -283,18 +307,28 @@ export const EditRecordModal = () => {
                           >
                             <div className="flex-1">
                               <div className="font-semibold">{svc.title}</div>
-                              <div className="text-xs text-muted-foreground">ID: {svc.id}</div>
+                              <div className="text-xs text-muted-foreground">
+                                ID: {svc.id}
+                              </div>
                             </div>
 
                             <div className="flex items-center gap-2">
-                              <div className="font-mono">{new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(svc.price)}</div>
+                              <div className="font-mono">
+                                {new Intl.NumberFormat('ru-RU', {
+                                  style: 'currency',
+                                  currency: 'RUB',
+                                  maximumFractionDigits: 0,
+                                }).format(svc.price)}
+                              </div>
                               <Button
                                 size="icon"
                                 variant="ghost"
                                 aria-label={`Удалить сервис ${svc.title}`}
                                 onClick={e => {
                                   e.stopPropagation();
-                                  setServiceToggleFields(prev => prev.filter(x => x !== id));
+                                  setServiceToggleFields(prev =>
+                                    prev.filter(x => x !== id),
+                                  );
                                 }}
                               >
                                 ✕
@@ -305,13 +339,20 @@ export const EditRecordModal = () => {
                       })}
 
                       <div className="flex justify-end font-bold pt-2">
-                        Итог: {' '}
+                        Итог:{' '}
                         <span className="ml-2">
-                          {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(
-                            Array.from(serviceToggleFields).reduce((sum, id) => {
-                              const svc = serviceList?.get(Number(id));
-                              return sum + (svc?.price || 0);
-                            }, 0),
+                          {new Intl.NumberFormat('ru-RU', {
+                            style: 'currency',
+                            currency: 'RUB',
+                            maximumFractionDigits: 0,
+                          }).format(
+                            Array.from(serviceToggleFields).reduce(
+                              (sum, id) => {
+                                const svc = serviceList?.get(Number(id));
+                                return sum + (svc?.price || 0);
+                              },
+                              0,
+                            ),
                           )}
                         </span>
                       </div>
@@ -326,7 +367,9 @@ export const EditRecordModal = () => {
                   id="sign"
                   name="sign"
                   value={sign}
-                  onChange={e => setSign(e.target.value.slice(0, maxSignLength))}
+                  onChange={e =>
+                    setSign(e.target.value.slice(0, maxSignLength))
+                  }
                   rows={4}
                   placeholder="Коротко опишите запись, примечания для мастера..."
                   className="resize-y bg-[aliceblue]"
@@ -336,8 +379,7 @@ export const EditRecordModal = () => {
                 </div>
               </div>
 
-              <div className="mt-auto sticky bottom-0 pt-2 bg-gradient-to-t from-white/60">
-              </div>
+              <div className="mt-auto sticky bottom-0 pt-2 bg-gradient-to-t from-white/60"></div>
             </form>
           </div>
         </DrawerContent>

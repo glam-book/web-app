@@ -1,10 +1,10 @@
-import { Effect, Schema, flow, pipe } from 'effect';
+import { Effect, Exit, Schema, flow, pipe } from 'effect';
 import { format, getDate, startOfDay } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 
 import { queryClient, rest } from '@/services';
 import { Record as Itself } from '@/schemas/Record';
-import { tryDecodeInto } from '@/utils';
+import { tryDecodeInto, contramap } from '@/utils';
 import { invalidateQueries } from '@/lib/tanstackQuery';
 
 import { Preview } from './Preview';
@@ -85,11 +85,11 @@ const validateToDate = () => {
 };
 
 export const finishEdit = flow(validateToDate, _finishEdit, x => {
-  x?.then(invalidatePreview);
+  x?.then(Exit.map(invalidatePreview));
   return x;
 });
 
 export const deleteOne = flow(_deleteOne, x => {
-  x?.then(invalidatePreview);
+  x?.then(Exit.map(result => result.success && invalidatePreview));
   return x;
 });

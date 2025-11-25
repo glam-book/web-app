@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { Share } from 'lucide-react';
 import { shareURL } from '@tma.js/sdk-react';
-import { differenceInMonths, getDate, startOfMonth } from 'date-fns';
+import { differenceInMonths, getDate, startOfMonth, getMonth } from 'date-fns';
 import { toast } from 'sonner';
 
 import { useParams } from '@/router';
@@ -15,37 +15,48 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { between } from '@/utils';
 
-const Detail = memo(({ month }: { month: Date }) => {
-  const { calendarId } = owner.store.getState();
-  const { isOwner } = owner.useIsOwner();
-  const { data: details } = records.useGetPreview(
-    calendarId,
-    startOfMonth(month),
-  );
-  const detailsForTheDay = details?.[getDate(month)];
-  const isPreviewForClient =
-    !isOwner && detailsForTheDay?.some(i => i.canPending);
+const Detail = memo(
+  ({ epoch, currentDate }: { epoch: Date; currentDate: Date }) => {
+    const [shouldGetPreview, setShouldGetPreview] = useState(false);
 
-  return (
-    <span
-      className={cn(
-        'min-h-full flex flex-col gap-0.5',
-        isPreviewForClient && 'absolute z-[-1] inset-0 bg-teal-200/50',
-      )}
-    >
-      {isOwner &&
-        detailsForTheDay?.map((item, idx) => (
-          <span
-            key={idx}
-            className={cn(
-              'h-[0.5lh] bg-card',
-              item.hasPendings && 'bg-teal-200',
-            )}
-          />
-        ))}
-    </span>
-  );
-});
+    useEffect(() => {
+      setShouldGetPreview(prev => {
+        if (prev) return prev;
+        return getMonth(epoch) === getMonth(currentDate);
+      });
+    }, [epoch]);
+
+    const { calendarId } = owner.store.getState();
+    const { isOwner } = owner.useIsOwner();
+    const { data: details } = records.useGetPreview(
+      shouldGetPreview ? calendarId : undefined,
+      startOfMonth(epoch),
+    );
+    const detailsForTheDay = details?.[getDate(epoch)];
+    const isPreviewForClient =
+      !isOwner && detailsForTheDay?.some(i => i.canPending);
+
+    return (
+      <span
+        className={cn(
+          'min-h-full flex flex-col gap-0.5',
+          isPreviewForClient && 'absolute z-[-1] inset-0 bg-teal-200/50',
+        )}
+      >
+        {isOwner &&
+          detailsForTheDay?.map((item, idx) => (
+            <span
+              key={idx}
+              className={cn(
+                'h-[0.5lh] bg-card',
+                item.hasPendings && 'bg-teal-200',
+              )}
+            />
+          ))}
+      </span>
+    );
+  },
+);
 
 export default function Id() {
   const params = useParams('/calendar/:id');
@@ -91,11 +102,7 @@ export default function Id() {
 
   const DetailsForTheDay = useCallback(
     ({ date }: { date: Date }) => {
-      return (
-        between(differenceInMonths(date, visibleMonth), -1, 1, {
-          strict: true,
-        }) && <Detail month={date} />
-      );
+      return <Detail epoch={date} currentDate={visibleMonth} />;
     },
     [visibleMonth],
   );
