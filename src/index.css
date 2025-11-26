@@ -6,7 +6,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/fonts/monof55.ttf");
+  src: url('/fonts/monof55.ttf');
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -169,6 +169,15 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+
+  --fs--2: clamp(0.7813rem, 0.7736rem + 0.0341vw, 0.8rem);
+  --fs--1: clamp(0.9375rem, 0.9119rem + 0.1136vw, 1rem);
+  --fs-0: clamp(1.125rem, 1.0739rem + 0.2273vw, 1.25rem);
+  --fs-1: clamp(1.35rem, 1.2631rem + 0.3864vw, 1.5625rem);
+  --fs-2: clamp(1.62rem, 1.4837rem + 0.6057vw, 1.9531rem);
+  --fs-3: clamp(1.944rem, 1.7405rem + 0.9044vw, 2.4414rem);
+  --fs-4: clamp(2.3328rem, 2.0387rem + 1.3072vw, 3.0518rem);
+  --fs-5: clamp(2.7994rem, 2.384rem + 1.8461vw, 3.8147rem);
 
   /* --font-mono: monofur, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --text-base: 1.1rem;

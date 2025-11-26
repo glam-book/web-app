@@ -87,7 +87,7 @@ export const useGetPreview = (
             hasPendings: false,
           },
         ],
-      })),
+      } as typeof Preview.Type)),
   });
 
 export const invalidatePreview = () =>

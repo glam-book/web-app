@@ -2,7 +2,6 @@ import { Effect, flow } from 'effect';
 import { retrieveRawInitData } from '@tma.js/sdk-react';
 
 import * as http from '@/services/http';
-// import { tgUser } from '@/constants';
 import { contramap } from '@/utils';
 
 const getCorrectRestUrl = (input: string | URL): string => {
@@ -13,7 +12,6 @@ const getCorrectRestUrl = (input: string | URL): string => {
   }
 
   const apiPath = __API_PATH__;
-  console.log({ apiPath });
   const inputWithoutApiPath = inputString.replace(
     apiPath.replace(/^\/*(.*?)\/*$/, (_, g: string) => g),
     '',

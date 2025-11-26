@@ -11,6 +11,7 @@ import {
   useContext,
   useEffect,
   useState,
+  Suspense,
 } from 'react';
 import { toast } from 'sonner';
 
@@ -32,6 +33,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerPortal,
+  DrawerTitle,
+  DrawerHeader,
+  DrawerDescription,
+  DrawerContent,
+} from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Menu, MenuItem } from '@/components/ui/menu';
 import { Sdometer } from '@/components/ui/sdometer';
@@ -107,6 +117,69 @@ const PendingButton = ({
         {fields.pendings.active}/{fields.pendings.limits}
       </Toggle>
     </div>
+  );
+};
+
+const PendingsContent = memo(() => {
+  const { fields } = useContext(CardContext);
+  const [pendingList, setPendingList] = useState<
+    Awaited<ReturnType<typeof records.getPendingDetails>>
+  >([]);
+
+  useEffect(() => {
+    records
+      .getPendingDetails(fields.id)
+      .then(setPendingList)
+      .catch(console.error);
+  }, []);
+
+  return <div>{pendingList?.[0]?.contact?.tgUserName}</div>;
+});
+
+const Pendings = () => {
+  const { fields } = useContext(CardContext);
+
+  const [open, setOpen] = useState(false);
+  return (
+    <Drawer
+      open={open}
+      onOpenChange={internalOpen => {
+        setOpen(internalOpen);
+        requestAnimationFrame(() => {
+          const overlay = document.querySelector('[data-vaul-overlay]');
+          overlay?.addEventListener('click', e => {
+            console.log('overlay click!');
+            e.stopPropagation();
+            setOpen(false);
+          });
+        });
+      }}
+    >
+      <DrawerTrigger asChild>
+        <Button
+          onClick={e => {
+            e.stopPropagation();
+            setOpen(true);
+          }}
+        >
+          {fields.pendings.active}/{fields.pendings.limits}
+        </Button>
+      </DrawerTrigger>
+
+      <DrawerPortal>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Запросы на услугу</DrawerTitle>
+            <DrawerDescription className="hidden">
+              info about clients
+            </DrawerDescription>
+          </DrawerHeader>
+          <Suspense fallback="hui">
+            <PendingsContent />
+          </Suspense>
+        </DrawerContent>
+      </DrawerPortal>
+    </Drawer>
   );
 };
 
@@ -510,12 +583,12 @@ export const OwnerCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
                 'bg-emerald-200/50 text-[coral]',
             )}
           >
-            <div className="flex">
+            <div className="flex justify-between">
               <div className="flex-col">
                 <Sign />
                 <Badges />
               </div>
-              <PendingDetails />
+              <Pendings />
             </div>
           </Content>
         </TheCard>

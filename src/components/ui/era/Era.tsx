@@ -18,6 +18,7 @@ import {
   isValid,
   startOfDay,
   isEqual,
+  getMonth,
 } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -100,7 +101,7 @@ const Month = memo(
                               ? 'destructive'
                               : 'outline'
                           }
-                          className="h-min self-center font-mono rounded-2xl border-none"
+                          className="h-min self-center font-mono rounded-2xl border-none text-base"
                         >
                           {getDate(dd)}
                         </Badge>
@@ -149,7 +150,7 @@ export const Era = ({
     [scrollView],
   );
 
-  const n = Math.max(29, 9);
+  const n = Math.max(16, 9);
 
   const makeNMonths = (center: Date) =>
     Array.from({ length: n }, (_, idx) =>
