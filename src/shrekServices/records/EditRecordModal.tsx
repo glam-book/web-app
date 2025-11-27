@@ -1,5 +1,12 @@
 import { produce } from 'immer';
-import { Clock, MessageSquare, Plus, SaveIcon, TrashIcon, X } from 'lucide-react';
+import {
+  Clock,
+  MessageSquare,
+  Plus,
+  SaveIcon,
+  TrashIcon,
+  X,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -103,11 +110,22 @@ export const EditRecordModal = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Convert the Map -> array of services (only those with title)
-  const allServices = (serviceList && Array.from(serviceList.values()).filter(i => Boolean(i.title))) || [] as ServiceLike[];
+  const allServices =
+    (serviceList &&
+      Array.from(serviceList.values()).filter(i => Boolean(i.title))) ||
+    ([] as ServiceLike[]);
 
-  const categories = Array.from(new Set(allServices.map((s: ServiceLike) => s.category ?? 'Без категории')));
+  const categories = Array.from(
+    new Set(allServices.map((s: ServiceLike) => s.category ?? 'Без категории')),
+  );
 
-  const filteredServices = selectedCategory === null ? allServices : allServices.filter((s: ServiceLike) => (s.category ?? 'Без категории') === selectedCategory);
+  const filteredServices =
+    selectedCategory === null
+      ? allServices
+      : allServices.filter(
+          (s: ServiceLike) =>
+            (s.category ?? 'Без категории') === selectedCategory,
+        );
 
   // Helpers to treat the currently selected service ids as full service objects
   const timeSlot = {
@@ -118,15 +136,23 @@ export const EditRecordModal = () => {
 
   const addService = (service: ServiceLike) => {
     const idStr = String(service.id);
-    setServiceToggleFields(prev => (prev.includes(idStr) ? prev : [...prev, idStr]));
+    setServiceToggleFields(prev =>
+      prev.includes(idStr) ? prev : [...prev, idStr],
+    );
   };
 
   const removeService = (id: number) => {
     setServiceToggleFields(prev => prev.filter(x => x !== String(id)));
   };
 
-  const totalDuration = timeSlot.services.reduce((sum, s) => sum + (Number(s.duration) || 0), 0);
-  const totalPrice = timeSlot.services.reduce((sum, s) => sum + (Number(s.price) || 0), 0);
+  const totalDuration = timeSlot.services.reduce(
+    (sum, s) => sum + (Number(s.duration) || 0),
+    0,
+  );
+  const totalPrice = timeSlot.services.reduce(
+    (sum, s) => sum + (Number(s.price) || 0),
+    0,
+  );
 
   return (
     <Drawer
@@ -137,10 +163,10 @@ export const EditRecordModal = () => {
       snapPoints={snapPoints}
       activeSnapPoint={snap}
       setActiveSnapPoint={setSnap}
-      repositionInputs={false}
+      repositionInputs
     >
       <DrawerPortal>
-        <DrawerContent className="min-h-[80dvh] pb-4 bg-blurable backdrop-blur-3xl">
+        <DrawerContent className="pb-4 bg-blurable backdrop-blur-3xl">
           <DrawerHeader>
             <div className="flex items-center justify-between w-full">
               <div>
@@ -188,7 +214,7 @@ export const EditRecordModal = () => {
             </div>
           </DrawerHeader>
 
-          <div className="flex-1 overflow-auto content-grid">
+          <div className="flex-1 content-grid">
             <form
               className="flex flex-col gap-4"
               id="edit-record-card"
@@ -219,14 +245,17 @@ export const EditRecordModal = () => {
                     <h2 className="text-gray-900">Услуги</h2>
                   </div>
 
-                  <Drawer open={isServicesDrawerOpen} onOpenChange={setIsServicesDrawerOpen}>
+                  <Drawer
+                    open={isServicesDrawerOpen}
+                    onOpenChange={setIsServicesDrawerOpen}
+                  >
                     <DrawerTrigger asChild>
                       <Button size="sm">
                         <Plus className="w-4 h-4 mr-1" />
                         Добавить
                       </Button>
                     </DrawerTrigger>
-                    <DrawerContent className="max-h-[85vh]">
+                    <DrawerContent>
                       <DrawerHeader>
                         <DrawerTitle>Выберите услугу</DrawerTitle>
                         <DrawerDescription>
@@ -237,7 +266,9 @@ export const EditRecordModal = () => {
                       {/* Category Filter */}
                       <div className="flex overflow-x-auto gap-2 px-4 pb-3 border-b">
                         <Button
-                          variant={selectedCategory === null ? 'default' : 'outline'}
+                          variant={
+                            selectedCategory === null ? 'default' : 'outline'
+                          }
                           size="sm"
                           className="shrink-0"
                           onClick={() => setSelectedCategory(null)}
@@ -247,7 +278,11 @@ export const EditRecordModal = () => {
                         {categories.map(category => (
                           <Button
                             key={category}
-                            variant={selectedCategory === category ? 'default' : 'outline'}
+                            variant={
+                              selectedCategory === category
+                                ? 'default'
+                                : 'outline'
+                            }
                             size="sm"
                             className="shrink-0"
                             onClick={() => setSelectedCategory(category)}
@@ -275,27 +310,46 @@ export const EditRecordModal = () => {
 
                         <div className="space-y-2">
                           {filteredServices.map((service: ServiceLike) => {
-                            const isAdded = timeSlot.services.some(s => s.id === service.id);
+                            const isAdded = timeSlot.services.some(
+                              s => s.id === service.id,
+                            );
                             return (
                               <div
                                 key={service.id}
                                 className={`p-3 border rounded-lg active:scale-[0.98] transition-all ${
-                                  isAdded ? 'bg-gray-50 border-gray-300' : 'bg-white active:bg-gray-50'
+                                  isAdded
+                                    ? 'bg-gray-50 border-gray-300'
+                                    : 'bg-white active:bg-gray-50'
                                 }`}
                                 onClick={() => !isAdded && addService(service)}
                               >
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                      <h3 className="text-gray-900">{service.title ?? service.name}</h3>
-                                      <Badge variant="secondary" className="shrink-0">{service.category ?? '—'}</Badge>
+                                      <h3 className="text-gray-900">
+                                        {service.title ?? service.name}
+                                      </h3>
+                                      <Badge
+                                        variant="secondary"
+                                        className="shrink-0"
+                                      >
+                                        {service.category ?? '—'}
+                                      </Badge>
                                     </div>
                                     <div className="flex items-center gap-3 text-gray-600">
                                       <span className="flex items-center gap-1">
                                         <Clock className="w-3.5 h-3.5" />
-                                        {service.duration ? `${service.duration} мин` : '—'}
+                                        {service.duration
+                                          ? `${service.duration} мин`
+                                          : '—'}
                                       </span>
-                                      <span>{new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(service.price ?? 0)}</span>
+                                      <span>
+                                        {new Intl.NumberFormat('ru-RU', {
+                                          style: 'currency',
+                                          currency: 'RUB',
+                                          maximumFractionDigits: 0,
+                                        }).format(service.price ?? 0)}
+                                      </span>
                                     </div>
                                   </div>
                                   {isAdded && (
@@ -325,15 +379,27 @@ export const EditRecordModal = () => {
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <h3 className="text-gray-900">{service.title ?? service.name}</h3>
-                            <Badge variant="outline" className="shrink-0">{service.category ?? '—'}</Badge>
+                            <h3 className="text-gray-900">
+                              {service.title ?? service.name}
+                            </h3>
+                            <Badge variant="outline" className="shrink-0">
+                              {service.category ?? '—'}
+                            </Badge>
                           </div>
                           <div className="flex items-center gap-3 text-gray-600">
                             <span className="flex items-center gap-1">
                               <Clock className="w-3.5 h-3.5" />
-                              {service.duration ? `${service.duration} мин` : '—'}
+                              {service.duration
+                                ? `${service.duration} мин`
+                                : '—'}
                             </span>
-                            <span>{new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(service.price ?? 0)}</span>
+                            <span>
+                              {new Intl.NumberFormat('ru-RU', {
+                                style: 'currency',
+                                currency: 'RUB',
+                                maximumFractionDigits: 0,
+                              }).format(service.price ?? 0)}
+                            </span>
                           </div>
                         </div>
 
@@ -351,14 +417,23 @@ export const EditRecordModal = () => {
                     {/* Summary */}
                     <div className="pt-3 mt-3 border-t space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Продолжительность:</span>
+                        <span className="text-gray-600">
+                          Продолжительность:
+                        </span>
                         <span className="text-gray-900">
-                          {Math.floor(totalDuration / 60)}ч {totalDuration % 60}мин
+                          {Math.floor(totalDuration / 60)}ч {totalDuration % 60}
+                          мин
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">Стоимость:</span>
-                        <span className="text-gray-900">{new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(totalPrice)}</span>
+                        <span className="text-gray-900">
+                          {new Intl.NumberFormat('ru-RU', {
+                            style: 'currency',
+                            currency: 'RUB',
+                            maximumFractionDigits: 0,
+                          }).format(totalPrice)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -374,9 +449,8 @@ export const EditRecordModal = () => {
                   onChange={e =>
                     setSign(e.target.value.slice(0, maxSignLength))
                   }
-                  rows={4}
                   placeholder="Коротко опишите запись, примечания для мастера..."
-                  className="resize-y bg-[aliceblue]"
+                  className="h-[6lh] max-h-[6lh] resize-none bg-[aliceblue]"
                 />
                 <div className="text-xs text-muted-foreground text-right">
                   {sign.length}/{maxSignLength}

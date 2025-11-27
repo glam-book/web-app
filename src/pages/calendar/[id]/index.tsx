@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, memo } from 'react';
 import { Share } from 'lucide-react';
 import { shareURL } from '@tma.js/sdk-react';
-import { differenceInMonths, getDate, startOfMonth } from 'date-fns';
+import { differenceInMonths, getDate, getMonth, startOfMonth } from 'date-fns';
 import { toast } from 'sonner';
 
 import { useParams } from '@/router';
@@ -44,7 +44,7 @@ export const Detail = memo(
 
     const hostRef = useRef<HTMLSpanElement>(null);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       const host = hostRef.current;
       let timerId = 0;
       if (host) {
@@ -178,7 +178,9 @@ export default function Id() {
         </Carousel.Item>
       </Carousel.Host>
 
-      <footer className="">FOOTER::::MUT</footer>
+      <footer className="pb-[calc(env(safe-area-inset-bottom)+0.2em)] indent-3">
+        FOOTER::::MUTTER
+      </footer>
 
       <Toaster />
     </main>

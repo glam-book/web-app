@@ -63,31 +63,34 @@ export const useGetPreview = (
     queryKey: [`${resource}/preview`, userId, month],
     enabled: [userId, month].every(Boolean),
     queryFn: () =>
-      getPreview(userId as number | string, month).catch(() => ({
-        '1': [
-          {
-            day: 1,
-            ts: new Date(),
-            isOwner: true,
-            canPending: true,
-            hasPendings: false,
-          },
-          {
-            day: 1,
-            ts: new Date(),
-            isOwner: true,
-            canPending: true,
-            hasPendings: false,
-          },
-          {
-            day: 1,
-            ts: new Date(),
-            isOwner: true,
-            canPending: true,
-            hasPendings: false,
-          },
-        ],
-      })),
+      getPreview(userId as number | string, month).catch(
+        () =>
+          ({
+            '1': [
+              {
+                day: 1,
+                ts: new Date(),
+                isOwner: true,
+                canPending: true,
+                hasPendings: false,
+              },
+              {
+                day: 1,
+                ts: new Date(),
+                isOwner: true,
+                canPending: true,
+                hasPendings: false,
+              },
+              {
+                day: 1,
+                ts: new Date(),
+                isOwner: true,
+                canPending: true,
+                hasPendings: false,
+              },
+            ],
+          }) as typeof Preview.Type,
+      ),
   });
 
 export const invalidatePreview = () =>
@@ -115,6 +118,6 @@ export const finishEdit = flow(validateToDate, _finishEdit, x => {
 });
 
 export const deleteOne = flow(_deleteOne, x => {
-  x?.then(Exit.map(result => result.success && invalidatePreview));
+  x?.then(Exit.map(result => result.success && invalidatePreview()));
   return x;
 });
