@@ -1,3 +1,3 @@
-import { Record } from '@/schemas';
+import { Record } from './Record';
 
 export const RecordWitoutId = Record.omit('id');
