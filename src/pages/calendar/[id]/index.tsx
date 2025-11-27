@@ -178,7 +178,7 @@ export default function Id() {
         </Carousel.Item>
       </Carousel.Host>
 
-      <footer className="pb-[env(safe-area-inset-bottom)] indent-3">
+      <footer className="pb-[calc(env(safe-area-inset-bottom)+0.2em)] indent-3">
         FOOTER::::MUTTER
       </footer>
 

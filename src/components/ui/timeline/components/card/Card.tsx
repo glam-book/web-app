@@ -11,7 +11,6 @@ import {
   useContext,
   useEffect,
   useState,
-  Suspense,
 } from 'react';
 import { toast } from 'sonner';
 
@@ -120,21 +119,66 @@ const PendingButton = ({
   );
 };
 
-const PendingsContent = memo(() => {
+const PendingsContent = () => {
   const { fields } = useContext(CardContext);
-  const [pendingList, setPendingList] = useState<
-    Awaited<ReturnType<typeof records.getPendingDetails>>
-  >([]);
+  const { data: pendingList } = records.usePendingDetails(fields.id);
 
-  useEffect(() => {
-    records
-      .getPendingDetails(fields.id)
-      .then(setPendingList)
-      .catch(console.error);
-  }, []);
+  return (
+    <div>
+      {pendingList?.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          Нет запросов
+        </div>
+      )}
 
-  return <div>{pendingList?.[0]?.contact?.tgUserName}</div>;
-});
+      {pendingList?.length! > 0 && (
+        <ul className="space-y-4 max-h-96 overflow-y-auto">
+          {pendingList!.map((pending, idx) => (
+            <li key={idx} className="p-4 border rounded-lg space-y-2">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-semibold">
+                    {pending.contact.firstName} {pending.contact.lastName}
+                  </p>
+                  {pending.contact.tgUserName && (
+                    <a className="text-sm text-muted-foreground">
+                      @{pending.contact.tgUserName}
+                    </a>
+                  )}
+                </div>
+                <Badge variant={pending.confirmed ? 'default' : 'secondary'}>
+                  {pending.confirmed ? 'Подтверждено' : 'Ожидание'}
+                </Badge>
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                {format(pending.requestTime, 'dd MMMM HH:mm', { locale: ru })}
+              </p>
+
+              <div className="space-y-1">
+                {pending.services.map(service => (
+                  <div
+                    key={service.id}
+                    className="text-sm flex justify-between"
+                  >
+                    <span>{service.title}</span>
+                    <span className="font-mono">
+                      {new Intl.NumberFormat('ru-RU', {
+                        style: 'currency',
+                        currency: 'RUB',
+                        maximumFractionDigits: 0,
+                      }).format(service.price)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 const Pendings = () => {
   const { fields } = useContext(CardContext);
@@ -157,6 +201,7 @@ const Pendings = () => {
     >
       <DrawerTrigger asChild>
         <Button
+          variant="destructive"
           onClick={e => {
             e.stopPropagation();
             setOpen(true);
@@ -167,16 +212,17 @@ const Pendings = () => {
       </DrawerTrigger>
 
       <DrawerPortal>
-        <DrawerContent>
+        <DrawerContent
+          className="pb-[calc(env(safe-area-inset-bottom)+0.2em)]"
+          onClick={e => e.stopPropagation()}
+        >
           <DrawerHeader>
             <DrawerTitle>Запросы на услугу</DrawerTitle>
             <DrawerDescription className="hidden">
               info about clients
             </DrawerDescription>
           </DrawerHeader>
-          <Suspense fallback="hui">
-            <PendingsContent />
-          </Suspense>
+          <PendingsContent />
         </DrawerContent>
       </DrawerPortal>
     </Drawer>
