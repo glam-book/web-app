@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { queryClient, rest } from '@/services';
 import { Record as Itself } from '@/schemas/Record';
-import { tryDecodeInto, contramap } from '@/utils';
+import { tryDecodeInto } from '@/utils';
 import { invalidateQueries } from '@/lib/tanstackQuery';
 
 import { Preview } from './Preview';

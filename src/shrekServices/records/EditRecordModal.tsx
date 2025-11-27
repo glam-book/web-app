@@ -165,7 +165,7 @@ export const EditRecordModal = () => {
 
               <div className="flex-1 flex gap-2">
                 <Button
-                  onClick={records.finishEdit}
+                  onClick={records.store.editableRightNow.getState().reset}
                   variant="ghost"
                   size="icon"
                 >
