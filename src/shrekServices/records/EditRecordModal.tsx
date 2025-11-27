@@ -1,12 +1,5 @@
 import { produce } from 'immer';
-import {
-  Clock,
-  MessageSquare,
-  Plus,
-  SaveIcon,
-  TrashIcon,
-  X,
-} from 'lucide-react';
+import { Clock, MessageSquare, Plus, TrashIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -23,11 +16,9 @@ import {
 } from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-// context-menu not used anymore here
 import { records, services } from '@/shrekServices';
 
 const snapPoints = [0.5, 1];
-const iconSize = 25;
 
 export const EditRecordModal = () => {
   const { fields: recordFields } = records.store.editableRightNow();
@@ -69,7 +60,6 @@ export const EditRecordModal = () => {
     setServiceToggleFields(makeServiceToggleDefaultFields);
   }, [recordFields?.id]);
 
-  // If a new service appears in the service list (created elsewhere), auto-select it
   useEffect(() => {
     if (!serviceList) {
       prevServiceIdsRef.current = [];
@@ -105,11 +95,9 @@ export const EditRecordModal = () => {
     };
   }, [open]);
 
-  // Service selection drawers & UI state
   const [isServicesDrawerOpen, setIsServicesDrawerOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Convert the Map -> array of services (only those with title)
   const allServices =
     (serviceList &&
       Array.from(serviceList.values()).filter(i => Boolean(i.title))) ||
@@ -127,7 +115,6 @@ export const EditRecordModal = () => {
             (s.category ?? 'Без категории') === selectedCategory,
         );
 
-  // Helpers to treat the currently selected service ids as full service objects
   const timeSlot = {
     services: serviceToggleFields
       .map(id => serviceList?.get(Number(id)))
@@ -169,52 +156,50 @@ export const EditRecordModal = () => {
         <DrawerContent className="pb-4 bg-blurable backdrop-blur-3xl">
           <DrawerHeader>
             <div className="flex items-center justify-between w-full">
-              <div>
+              <div className="hidden">
                 <DrawerTitle>Редактирование записи</DrawerTitle>
-                <DrawerDescription className="hidden">
+                <DrawerDescription>
                   Измените данные или удалите запись
                 </DrawerDescription>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex-1 flex gap-2">
+                <Button
+                  onClick={records.finishEdit}
+                  variant="ghost"
+                  size="icon"
+                >
+                  <X />
+                </Button>
+
                 <Button
                   variant="outline"
                   onClick={() => {
                     const form = formRef.current;
-                    if (!form) return;
-                    // modern browsers: requestSubmit
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    if (typeof form.requestSubmit === 'function')
-                      form.requestSubmit();
-                    else
-                      form.dispatchEvent(
-                        new Event('submit', {
-                          bubbles: true,
-                          cancelable: true,
-                        }),
-                      );
+                    form?.requestSubmit();
                   }}
+                  className="ml-auto"
                 >
-                  <SaveIcon size={iconSize} />
+                  Сохранить
                 </Button>
 
                 <Button
                   type="button"
                   variant="destructive"
+                  size="icon"
                   onClick={() => {
                     if (!recordFields?.id) return;
                     if (!confirm('Удалить запись?')) return;
                     records.deleteOne(recordFields.id);
                   }}
                 >
-                  <TrashIcon size={iconSize} />
+                  <TrashIcon />
                 </Button>
               </div>
             </div>
           </DrawerHeader>
 
-          <div className="flex-1 content-grid">
+          <div className="flex-1 overflow-auto content-grid">
             <form
               className="flex flex-col gap-4"
               id="edit-record-card"
@@ -237,7 +222,6 @@ export const EditRecordModal = () => {
                 records.finishEdit();
               }}
             >
-              {/* Services Card */}
               <Card className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
@@ -263,7 +247,6 @@ export const EditRecordModal = () => {
                         </DrawerDescription>
                       </DrawerHeader>
 
-                      {/* Category Filter */}
                       <div className="flex overflow-x-auto gap-2 px-4 pb-3 border-b">
                         <Button
                           variant={
@@ -292,14 +275,11 @@ export const EditRecordModal = () => {
                         ))}
                       </div>
 
-                      {/* Services List */}
                       <div className="overflow-y-auto flex-1 px-4 py-3">
-                        {/* Create New Service Button */}
                         <Button
                           variant="outline"
                           className="w-full mb-3 border-dashed"
                           onClick={() => {
-                            // open service editor (existing behavior)
                             setIsServicesDrawerOpen(false);
                             services.startEdit();
                           }}
@@ -414,7 +394,6 @@ export const EditRecordModal = () => {
                       </div>
                     ))}
 
-                    {/* Summary */}
                     <div className="pt-3 mt-3 border-t space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">

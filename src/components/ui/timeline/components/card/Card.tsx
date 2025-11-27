@@ -201,6 +201,7 @@ const Pendings = () => {
     >
       <DrawerTrigger asChild>
         <Button
+          className="font-mono"
           variant="destructive"
           onClick={e => {
             e.stopPropagation();
@@ -378,7 +379,7 @@ const Content = ({ className, children }: React.ComponentProps<'div'>) => {
           </div>
         )}
 
-        {!isSelected && <div className="text-xl">{children}</div>}
+        {!isSelected && <div className="text-xl py-1">{children}</div>}
       </div>
     </div>
   );
