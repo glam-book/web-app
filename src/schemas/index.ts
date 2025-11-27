@@ -1,6 +1,8 @@
-export { Service } from './Service';
+export { Me } from './Me';
 export { Record } from './Record';
+export { RecordList } from './RecordList';
 export { RecordWithOptionalId } from './RecordWithOptionalId';
 export { RecordWitoutId } from './RecordWithoutId';
-export { RecordList } from './RecordList';
-export { Me } from './Me';
+export { Service } from './Service';
+export { UserProfile } from './UserProfile';
+
