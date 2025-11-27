@@ -22,8 +22,5 @@ export default defineConfig(() => {
         '/api': 'http://localhost:4567',
       },
     },
-    build: {
-      sourcemap: true,
-    },
   };
 });
