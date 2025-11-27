@@ -18,11 +18,11 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
   return (
     <Drawer
       open={Boolean(fields)}
-      repositionInputs={false}
+      repositionInputs
       onClose={services.resetEdit}
       {...props}
     >
-      <DrawerContent className="min-h-[80dvh] pb-4 backdrop-blur-3xl">
+      <DrawerContent className="pb-4 backdrop-blur-3xl">
         <DrawerHeader>
           <DrawerTitle>Сервис</DrawerTitle>
           <DrawerDescription className="hidden">

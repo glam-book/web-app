@@ -144,7 +144,7 @@ const PendingsContent = () => {
                   {pending.contact.tgUserName && (
                     <Button
                       variant="link"
-                      className="text-sm text-muted-foreground p-0"
+                      className="text-sm text-sky-400 p-0"
                       onClick={() => {
                         openLink(`https://t.me/${pending.contact.tgUserName}`);
                       }}

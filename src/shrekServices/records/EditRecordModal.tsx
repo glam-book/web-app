@@ -235,7 +235,7 @@ export const EditRecordModal = () => {
                   >
                     <DrawerTrigger asChild>
                       <Button size="sm">
-                        <Plus className="w-4 h-4 mr-1" />
+                        <Plus />
                         Добавить
                       </Button>
                     </DrawerTrigger>
@@ -284,7 +284,7 @@ export const EditRecordModal = () => {
                             services.startEdit();
                           }}
                         >
-                          <Plus className="w-4 h-4 mr-2" />
+                          <Plus />
                           Создать новую услугу
                         </Button>
 
@@ -420,7 +420,9 @@ export const EditRecordModal = () => {
               </Card>
 
               <div className="flex flex-col gap-1">
-                <Label htmlFor="sign">Комментарий</Label>
+                <Label className="hidden" htmlFor="sign">
+                  Комментарий
+                </Label>
                 <Textarea
                   id="sign"
                   name="sign"
@@ -428,15 +430,13 @@ export const EditRecordModal = () => {
                   onChange={e =>
                     setSign(e.target.value.slice(0, maxSignLength))
                   }
-                  placeholder="Коротко опишите запись, примечания для мастера..."
-                  className="h-[6lh] max-h-[6lh] resize-none bg-[aliceblue]"
+                  placeholder="Заметка"
+                  className="h-[2lh] max-h-[6lh] resize-none"
                 />
                 <div className="text-xs text-muted-foreground text-right">
                   {sign.length}/{maxSignLength}
                 </div>
               </div>
-
-              <div className="mt-auto sticky bottom-0 pt-2 bg-gradient-to-t from-white/60"></div>
             </form>
           </div>
         </DrawerContent>
