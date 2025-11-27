@@ -1,7 +1,7 @@
 import { Schema, pipe } from 'effect';
 
-import { Service } from '@/schemas';
 import { DateFromStringCustom } from '@/transformers/DateFromStringCustom';
+import { Service } from './Service';
 
 export const Record = Schema.Struct({
   id: Schema.Number,

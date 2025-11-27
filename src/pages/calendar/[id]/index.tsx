@@ -1,18 +1,25 @@
-import { useState, useEffect, useLayoutEffect, useRef, memo } from 'react';
-import { Share } from 'lucide-react';
 import { shareURL } from '@tma.js/sdk-react';
-import { differenceInMonths, getDate, getMonth, startOfMonth } from 'date-fns';
+import { differenceInMonths, getDate, startOfMonth } from 'date-fns';
+import { Share } from 'lucide-react';
+import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { useParams } from '@/router';
-import { services, records, owner } from '@/shrekServices';
-import { Era } from '@/components/ui/era';
-import { Timeline } from '@/components/ui/timeline';
-import * as Carousel from '@/components/ui/carousel';
-import type { HostApi } from '@/components/ui/carousel';
-import { Toaster } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
+import type { HostApi } from '@/components/ui/carousel';
+import * as Carousel from '@/components/ui/carousel';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Era } from '@/components/ui/era';
+import { Toaster } from '@/components/ui/sonner';
+import { Timeline } from '@/components/ui/timeline';
 import { cn } from '@/lib/utils';
+import { useParams } from '@/router';
+import { owner, records, services } from '@/shrekServices';
 import { between } from '@/utils';
 
 export const Detail = memo(
@@ -79,6 +86,65 @@ export const Detail = memo(
   },
 );
 
+function ProfilePreview({ profile, loading }: { profile?: Record<string, unknown> | undefined; loading?: boolean }) {
+  // profile is a loosely-typed object coming from the server; handle defensively
+  const initials = profile
+    ? ((profile.name || profile.login || '') + ' ' + (profile.lastName || '')).trim()
+        .split(' ')
+        .map((s: string) => s[0])
+        .join('')
+        .slice(0, 2)
+    : '';
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="relative flex items-center">
+        {loading ? (
+          <div className="w-8 h-8 rounded-full bg-muted-foreground/40 animate-pulse" />
+        ) : profile?.profileIcon ? (
+          <img src={String(profile.profileIcon)} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-xs font-semibold text-muted-foreground">
+            {initials || 'U'}
+          </div>
+        )}
+      </div>
+
+      <div className="min-w-0">
+        <div className="text-sm font-semibold leading-none">
+          {loading ? '...' : profile ? `${profile.name ?? profile.login ?? 'User'}` : '—'}
+        </div>
+
+        {/* small details clickable - open dialog to see contacts */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <button className="text-xs text-muted-foreground opacity-80 hover:opacity-100">See contacts</button>
+          </DialogTrigger>
+
+          <DialogContent>
+            <DialogTitle>Contacts</DialogTitle>
+            <DialogDescription>
+              {Array.isArray(profile?.contacts) && (profile.contacts as unknown[]).length ? (
+                <ul className="mt-2 space-y-2">
+                  {Array.isArray(profile.contacts)
+                    ? (profile.contacts as unknown[]).map((c, idx) => (
+                    <li key={idx} className="text-sm">
+                      {typeof c === 'object' ? JSON.stringify(c) : String(c)}
+                    </li>
+                  ))
+                    : null}
+                </ul>
+              ) : (
+                <div className="text-sm text-muted-foreground mt-2">No contacts</div>
+              )}
+            </DialogDescription>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+}
+
 export default function Id() {
   const params = useParams('/calendar/:id');
 
@@ -124,13 +190,25 @@ export default function Id() {
 
   return (
     <main className="flex flex-col gap-0.5 max-h-dvh overscroll-none">
-      <header className="flex justify-between">
-        <span
+      <header className="flex justify-between items-center gap-2">
+        {/* compact profile area */}
+        <div
           className={cn(
-            'flex-1 flex items-center font-serif text-xl indent-2',
+            'flex-1 flex items-center gap-2 font-serif text-sm indent-2',
             isOwner && 'bg-card',
           )}
-        />
+        >
+          {/* profile fetch: me or user by id */}
+          {(() => {
+            const { data: profile, isLoading } = owner.useProfile();
+
+            return (
+              <div className="flex items-center gap-2">
+                <ProfilePreview profile={profile as Record<string, unknown> | undefined} loading={isLoading} />
+              </div>
+            );
+          })()}
+        </div>
 
         <Button
           aria-label="Share"

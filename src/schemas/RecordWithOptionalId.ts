@@ -1,6 +1,6 @@
 import { Schema } from 'effect';
 
-import { Record } from '@/schemas';
+import { Record } from './Record';
 
 export const RecordWithOptionalId = Schema.Struct({
   ...Record.fields,
