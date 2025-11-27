@@ -11,10 +11,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { Routes } from '@generouted/react-router';
-import 'scrollyfills';
-
 import { queryClient } from '@/lib/tanstackQuery';
-
+import 'scrollyfills';
 
 import './index.css';
 

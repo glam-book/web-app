@@ -13,6 +13,7 @@ import {
   useState,
 } from 'react';
 import { toast } from 'sonner';
+import { openLink } from '@tma.js/sdk-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -141,9 +142,15 @@ const PendingsContent = () => {
                     {pending.contact.firstName} {pending.contact.lastName}
                   </p>
                   {pending.contact.tgUserName && (
-                    <a className="text-sm text-muted-foreground">
+                    <Button
+                      variant="link"
+                      className="text-sm text-muted-foreground p-0"
+                      onClick={() => {
+                        openLink(`https://t.me/${pending.contact.tgUserName}`);
+                      }}
+                    >
                       @{pending.contact.tgUserName}
-                    </a>
+                    </Button>
                   )}
                 </div>
                 <Badge variant={pending.confirmed ? 'default' : 'secondary'}>
@@ -227,79 +234,6 @@ const Pendings = () => {
         </DrawerContent>
       </DrawerPortal>
     </Drawer>
-  );
-};
-
-const PendingDetails = () => {
-  const { fields } = useContext(CardContext);
-  const [open, setOpen] = useState(false);
-  const { data: pendingList, isLoading } = records.usePendingDetails(fields.id);
-
-  return (
-    <Dialog open={open && !isLoading} onOpenChange={setOpen}>
-      <PendingButton onOpenChange={setOpen} className="ml-auto" />
-      <DialogContent
-        onClick={e => e.stopPropagation()}
-        className="max-w-2xl"
-        onPointerDownOutside={e => e.preventDefault()}
-      >
-        <DialogHeader className="text-left">
-          <DialogTitle className="text-2xl">Запросы на услугу</DialogTitle>
-        </DialogHeader>
-
-        {(!pendingList || pendingList.length === 0) && (
-          <div className="text-center py-8 text-muted-foreground">
-            Нет запросов
-          </div>
-        )}
-
-        {pendingList && pendingList.length > 0 && (
-          <div className="space-y-4 max-h-96 overflow-y-auto">
-            {pendingList.map((pending, idx) => (
-              <div key={idx} className="p-4 border rounded-lg space-y-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold">
-                      {pending.contact.firstName} {pending.contact.lastName}
-                    </p>
-                    {pending.contact.tgUserName && (
-                      <p className="text-sm text-muted-foreground">
-                        @{pending.contact.tgUserName}
-                      </p>
-                    )}
-                  </div>
-                  <Badge variant={pending.confirmed ? 'default' : 'secondary'}>
-                    {pending.confirmed ? 'Подтверждено' : 'Ожидание'}
-                  </Badge>
-                </div>
-
-                <p className="text-sm text-muted-foreground">
-                  {format(pending.requestTime, 'dd MMMM HH:mm', { locale: ru })}
-                </p>
-
-                <div className="space-y-1">
-                  {pending.services.map(service => (
-                    <div
-                      key={service.id}
-                      className="text-sm flex justify-between"
-                    >
-                      <span>{service.title}</span>
-                      <span className="font-mono">
-                        {new Intl.NumberFormat('ru-RU', {
-                          style: 'currency',
-                          currency: 'RUB',
-                          maximumFractionDigits: 0,
-                        }).format(service.price)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
   );
 };
 
