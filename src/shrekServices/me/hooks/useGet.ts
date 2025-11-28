@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Duration } from 'effect';
 import { useQuery } from '@tanstack/react-query';
 
 import { get } from '@/shrekServices/me';
@@ -6,5 +6,13 @@ import { get } from '@/shrekServices/me';
 export const useGet = () =>
   useQuery({
     queryKey: ['me'],
-    queryFn: () => Effect.runPromise(get).catch(_error => ({ id: Date.now() })),
+    queryFn: () =>
+      Effect.runPromise(get).catch(error => {
+        if (import.meta.env.DEV) {
+          return { id: Date.now() };
+        }
+
+        throw error;
+      }),
+    staleTime: Duration.toMillis('15 minutes'),
   });

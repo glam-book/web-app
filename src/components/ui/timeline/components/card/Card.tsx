@@ -1,4 +1,3 @@
-import { TrashIcon } from '@radix-ui/react-icons';
 import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -17,13 +16,6 @@ import { openLink } from '@tma.js/sdk-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuPortal,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu';
 import {
   Dialog,
   DialogContent,
@@ -47,7 +39,6 @@ import { Menu, MenuItem } from '@/components/ui/menu';
 import { Sdometer } from '@/components/ui/sdometer';
 import { activeCard } from '@/components/ui/timeline/store';
 import { setMinutesToDate } from '@/components/ui/timeline/utils';
-import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
 import { records, services } from '@/shrekServices';
 
@@ -67,57 +58,6 @@ const Root = ({
   isSelected,
 }: PropsWithChildren<Pick<CardProps, 'isSelected' | 'fields'>>) => {
   return <CardContext value={{ fields, isSelected }}>{children}</CardContext>;
-};
-
-const LongpressMenu = ({ children }: PropsWithChildren) => {
-  const { fields } = useContext(CardContext);
-
-  return (
-    <ContextMenu>
-      <ContextMenuTrigger onKeyDown={e => e.preventDefault()}>
-        {children}
-      </ContextMenuTrigger>
-
-      <ContextMenuPortal>
-        <ContextMenuContent>
-          <ContextMenuItem
-            variant="destructive"
-            onClick={e => {
-              e.stopPropagation();
-              records.deleteOne(fields?.id);
-            }}
-          >
-            <TrashIcon />
-            Удалить
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenuPortal>
-    </ContextMenu>
-  );
-};
-
-const PendingButton = ({
-  className,
-  onOpenChange,
-}: React.ComponentProps<'div'> & {
-  onOpenChange?: (open: boolean) => void;
-}) => {
-  const { fields } = useContext(CardContext);
-
-  return (
-    <div className={cn('p-1', className)}>
-      <Toggle
-        variant="outline"
-        className="text-sm text-foreground font-mono font-bold border-destructive"
-        onPressedChange={pressed => {
-          onOpenChange?.(pressed);
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        {fields.pendings.active}/{fields.pendings.limits}
-      </Toggle>
-    </div>
-  );
 };
 
 const PendingsContent = () => {
@@ -189,8 +129,8 @@ const PendingsContent = () => {
 
 const Pendings = () => {
   const { fields } = useContext(CardContext);
-
   const [open, setOpen] = useState(false);
+
   return (
     <Drawer
       open={open}
@@ -555,25 +495,23 @@ export const ClientCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
 export const OwnerCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
   return (
     <Root fields={fields} isSelected={isSelected}>
-      <LongpressMenu>
-        <TheCard {...rest}>
-          <Content
-            className={cn(
-              'text-stands-out',
-              fields.pendings.limits === fields.pendings.active &&
-                'bg-emerald-200/50 text-[coral]',
-            )}
-          >
-            <div className="flex justify-between">
-              <div className="flex-col">
-                <Sign />
-                <Badges />
-              </div>
-              <Pendings />
+      <TheCard {...rest}>
+        <Content
+          className={cn(
+            'text-stands-out',
+            fields.pendings.limits === fields.pendings.active &&
+              'bg-emerald-200/50 text-[coral]',
+          )}
+        >
+          <div className="flex justify-between">
+            <div className="flex-col">
+              <Sign />
+              <Badges />
             </div>
-          </Content>
-        </TheCard>
-      </LongpressMenu>
+            <Pendings />
+          </div>
+        </Content>
+      </TheCard>
     </Root>
   );
 });
