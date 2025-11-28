@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { retrieveLaunchParams } from '@tma.js/sdk-react';
-import { Effect as E, Schema, pipe } from 'effect';
+import { Effect as E, Schema, Console, pipe } from 'effect';
 
 import { useNavigate } from '@/router';
 import * as services from '@/shrekServices';
@@ -21,6 +21,7 @@ export default function Home() {
         ),
       ),
       tryDecodeInto(Schema.Struct({ calendarId: Schema.String })),
+      E.tap(Console.debug),
       E.catchAll(() => E.succeed({ calendarId: me.data?.id })),
       E.andThen(x => E.fromNullable(x.calendarId)),
       E.tap(calendarId => {
