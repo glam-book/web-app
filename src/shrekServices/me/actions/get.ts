@@ -1,7 +1,7 @@
 import { pipe } from 'effect';
 
-import { Me } from '@/schemas';
 import { getMe } from '@/api';
+import { UserProfile } from '@/schemas';
 import { tryDecodeInto } from '@/utils';
 
-export const get = pipe(getMe, tryDecodeInto(Me));
+export const get = pipe(getMe, tryDecodeInto(UserProfile));

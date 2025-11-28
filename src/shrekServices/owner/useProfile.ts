@@ -6,15 +6,25 @@ import { useGet as useGetUser } from '@/shrekServices/users';
 import { useIsOwner } from './useIsOwner';
 
 export const useProfile = () => {
-  const { data: me } = useGetMe();
+  const meResult = useGetMe();
   const { isOwner } = useIsOwner();
 
   // calendarId is set from router when entering page
   const { calendarId } = ownerStore.getState();
 
-  const id = useMemo(() => (isOwner ? me?.id : Number(calendarId)), [isOwner, me, calendarId]);
+  const id = useMemo(() => {
+    if (isOwner) return meResult.data?.id;
 
-  const profileResult = useGetUser(id);
+    const n = Number(calendarId);
+    return Number.isFinite(n) ? n : undefined;
+  }, [isOwner, meResult, calendarId]);
 
-  return { id, ...profileResult };
+  // call both hooks unconditionally to obey hooks rules
+  const userResult = useGetUser(id as number | undefined);
+
+  if (isOwner) {
+    return { id, ...meResult };
+  }
+
+  return { id, ...userResult };
 };
