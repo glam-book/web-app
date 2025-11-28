@@ -11,6 +11,7 @@ export default function Home() {
   const me = services.me.useGet();
 
   useEffect(() => {
+    console.debug('meIsLoading:', me.isLoading);
     if (me.isLoading) return;
 
     pipe(
