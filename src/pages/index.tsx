@@ -8,9 +8,11 @@ import { tryDecodeInto } from '@/utils';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { data: me } = services.me.useGet();
+  const me = services.me.useGet();
 
   useEffect(() => {
+    if (me.isLoading) return;
+
     pipe(
       E.try(() =>
         JSON.parse(
@@ -18,8 +20,7 @@ export default function Home() {
         ),
       ),
       tryDecodeInto(Schema.Struct({ calendarId: Schema.String })),
-      E.catchAll(() => E.succeed({ calendarId: me?.id })),
-      E.tap(Console.debug),
+      E.catchAll(() => E.succeed({ calendarId: me.data?.id })),
       E.andThen(x => E.fromNullable(x.calendarId)),
       E.tap(calendarId => {
         console.debug({ calendarId });
@@ -27,5 +28,5 @@ export default function Home() {
       }),
       E.runSyncExit,
     );
-  }, [me]);
+  }, [me.data, me.isLoading]);
 }
