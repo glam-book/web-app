@@ -150,7 +150,7 @@ export const EditRecordModal = () => {
       snapPoints={snapPoints}
       activeSnapPoint={snap}
       setActiveSnapPoint={setSnap}
-      repositionInputs
+      repositionInputs={false}
     >
       <DrawerPortal>
         <DrawerContent className="pb-4 bg-blurable backdrop-blur-3xl">
@@ -222,6 +222,25 @@ export const EditRecordModal = () => {
                 records.finishEdit();
               }}
             >
+              <div className="flex flex-col gap-1">
+                <Label className="hidden" htmlFor="sign">
+                  Комментарий
+                </Label>
+                <Textarea
+                  id="sign"
+                  name="sign"
+                  value={sign}
+                  onChange={e =>
+                    setSign(e.target.value.slice(0, maxSignLength))
+                  }
+                  placeholder="Заметка"
+                  className="h-[2lh] resize-none bg-background border-none outline-none"
+                />
+                <div className="text-xs text-muted-foreground text-right">
+                  {sign.length}/{maxSignLength}
+                </div>
+              </div>
+
               <Card className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
@@ -418,25 +437,6 @@ export const EditRecordModal = () => {
                   </div>
                 )}
               </Card>
-
-              <div className="flex flex-col gap-1">
-                <Label className="hidden" htmlFor="sign">
-                  Комментарий
-                </Label>
-                <Textarea
-                  id="sign"
-                  name="sign"
-                  value={sign}
-                  onChange={e =>
-                    setSign(e.target.value.slice(0, maxSignLength))
-                  }
-                  placeholder="Заметка"
-                  className="h-[2lh] max-h-[6lh] resize-none"
-                />
-                <div className="text-xs text-muted-foreground text-right">
-                  {sign.length}/{maxSignLength}
-                </div>
-              </div>
             </form>
           </div>
         </DrawerContent>
