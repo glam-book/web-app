@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { retrieveLaunchParams } from '@tma.js/sdk-react';
-import { Effect as E, Schema, Console, pipe } from 'effect';
+import { Effect as E, Schema, pipe } from 'effect';
 
 import { useNavigate } from '@/router';
 import * as services from '@/shrekServices';
@@ -8,10 +8,10 @@ import { tryDecodeInto } from '@/utils';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { data: meData, isLoading: meIsLoading } = services.me.useGet();
+  const me = services.me.useGet();
 
   useEffect(() => {
-    if (meIsLoading) return;
+    if (me.isLoading) return;
 
     pipe(
       E.try(() =>
@@ -22,7 +22,7 @@ export default function Home() {
       tryDecodeInto(Schema.Struct({ calendarId: Schema.String })),
       E.catchAll(error => {
         console.debug(error);
-        return E.succeed({ calendarId: meData?.id });
+        return E.succeed({ calendarId: me.data?.id });
       }),
       E.andThen(x => E.fromNullable(x.calendarId)),
       E.tap(calendarId => {
@@ -31,5 +31,5 @@ export default function Home() {
       }),
       E.runSyncExit,
     );
-  }, [meData, meIsLoading]);
+  }, [me.data, me.isLoading]);
 }
