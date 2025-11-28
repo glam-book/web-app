@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { retrieveLaunchParams } from '@tma.js/sdk-react';
-import { Effect as E, Schema, Console, pipe } from 'effect';
+import { Effect as E, Schema, pipe } from 'effect';
 
 import { useNavigate } from '@/router';
 import * as services from '@/shrekServices';
