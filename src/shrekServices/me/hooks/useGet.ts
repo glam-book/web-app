@@ -1,4 +1,4 @@
-import { Effect, Duration } from 'effect';
+import { Effect } from 'effect';
 import { useQuery } from '@tanstack/react-query';
 
 import { get } from '@/shrekServices/me';
@@ -14,5 +14,5 @@ export const useGet = () =>
 
         throw error;
       }),
-    staleTime: Duration.toMillis('15 minutes'),
+    staleTime: Infinity,
   });
