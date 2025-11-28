@@ -2,11 +2,10 @@ import { Schema } from 'effect';
 
 export const UserProfile = Schema.Struct({
   id: Schema.Number,
-  name: Schema.optional(Schema.String),
-  lastName: Schema.optional(Schema.String),
-  middleName: Schema.optional(Schema.String),
-  login: Schema.optional(Schema.String),
-
-  profileIcon: Schema.optional(Schema.String),
-  contacts: Schema.optional(Schema.Array(Schema.Unknown)),
+  name: Schema.optional(Schema.NullOr(Schema.String)),
+  lastName: Schema.optional(Schema.NullOr(Schema.String)),
+  middleName: Schema.optional(Schema.NullOr(Schema.String)),
+  login: Schema.optional(Schema.NullOr(Schema.String)),
+  profileIcon: Schema.optional(Schema.NullOr(Schema.String)),
+  contacts: Schema.optional(Schema.NullOr(Schema.Array(Schema.Unknown))),
 });
