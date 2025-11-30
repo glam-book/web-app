@@ -56,31 +56,75 @@ export const Badges = () => {
 
     const measure = () => {
       const containerWidth = containerRef.current?.clientWidth ?? 0;
-      const btnW = buttonRef.current ? buttonRef.current.offsetWidth + gap : 0;
+      const containerHeight = containerRef.current?.clientHeight ?? 0;
 
+
+
+      // collect widths and also measure sample item height
       const widths: number[] = [];
+      let sampleHeight = 0;
       svcArray.forEach(svc => {
         const el = measureRef.current?.querySelector(`[data-svc="${svc.id}"]`) as HTMLElement | null;
-        widths.push(el ? el.offsetWidth : 0);
+        if (el) {
+          widths.push(el.offsetWidth);
+          if (!sampleHeight) sampleHeight = el.offsetHeight;
+        } else {
+          widths.push(0);
+        }
       });
 
+      // compute how many rows fit vertically (include gap between rows)
+      const rowGap = gap; // use same gap for vertical spacing
+      const rowHeight = sampleHeight || 24; // fallback
+      const maxRows = rowHeight > 0 ? Math.max(1, Math.floor((containerHeight + rowGap) / (rowHeight + rowGap))) : 1;
+
+      // simulate placing badges into rows of width `containerWidth`
+      let rowsUsed = 1;
       let sum = 0;
-      let fit = svcArray.length;
+      let fitCount = 0;
+      let lastRowUsedWidth = 0;
 
       for (let i = 0; i < widths.length; i++) {
         const w = widths[i];
-        const remaining = svcArray.length - (i + 1);
-        const required = sum + w + (remaining > 0 ? btnW : 0);
+        // if this is first in row, don't add leading gap
+        const spaceIfPlaced = sum === 0 ? w : sum + w + gap;
 
-        if (required <= containerWidth) {
-          sum += w + gap;
+        if (spaceIfPlaced <= containerWidth) {
+          // place in current row
+          sum = spaceIfPlaced;
+          fitCount++;
+          lastRowUsedWidth = sum;
         } else {
-          fit = i;
-          break;
+          // need new row
+          if (rowsUsed < maxRows) {
+            rowsUsed++;
+            // place on new row
+            sum = w;
+            // if the badge doesn't even fit a single row, still count it
+            if (w > containerWidth) {
+              // it'll overflow horizontally, but we count it as placed
+              sum = w;
+            }
+            fitCount++;
+            lastRowUsedWidth = sum;
+          } else {
+            // no more rows available
+            break;
+          }
         }
       }
 
-      setVisibleCount(fit);
+      // if not all badges fit, ensure there's room for the +n button in the last row;
+      if (fitCount < svcArray.length) {
+        const btnEl = measureRef.current?.querySelector('[data-measure-btn]') as HTMLElement | null;
+        const btnW = btnEl ? btnEl.offsetWidth + gap : 0;
+        if (lastRowUsedWidth + gap + btnW > containerWidth) {
+          // remove last badge to make room for button
+          fitCount = Math.max(0, fitCount - 1);
+        }
+      }
+
+      setVisibleCount(fitCount);
     };
 
     const ro = new ResizeObserver(measure);
@@ -109,7 +153,7 @@ export const Badges = () => {
           <div key={svc.id} className="inline-block">
             <Badge
               variant="destructive"
-              className="flex items-center gap-2 px-2 py-1 rounded-md bg-accent-secnd text-sm font-medium text-foreground"
+              className="flex items-center gap-2 px-2 py-1 rounded-md bg-badge-green text-sm font-medium text-foreground"
               title={`${svc.title} — ${price}`}
             >
               <div className="min-w-0 flex-1">
@@ -140,6 +184,10 @@ export const Badges = () => {
             </div>
           );
         })}
+          {/* hidden sample of the +n button for measurement (matches Button classes) */}
+          <div data-measure-btn className="inline-block">
+            <div className="font-mono text-sm px-2 inline-flex items-center">+99</div>
+          </div>
       </div>
     </div>
   );

@@ -30,6 +30,7 @@
 
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
+  --color-badge-green: var(--badge-green);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
@@ -151,6 +152,8 @@
   --stands-out: oklch(94.352% 0.12633 100.698);
 
   --destructive: oklch(66.214% 0.14886 18.922 / 0.691);
+
+  --badge-green: oklch(89.872% 0.15893 184.356 / 0.687);
 
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);

@@ -1,16 +1,16 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { pipe, flow } from 'effect';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
 import { format, getDate } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { flow, pipe } from 'effect';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { cn } from '@/lib/utils';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
-import type { MapValueType } from '@/types';
-import { records, owner } from '@/shrekServices';
-import { activeCard } from '@/components/ui/timeline/store';
 import { Sdometer } from '@/components/ui/sdometer';
+import { activeCard } from '@/components/ui/timeline/store';
+import { cn } from '@/lib/utils';
+import { owner, records } from '@/shrekServices';
+import type { MapValueType } from '@/types';
 import { between } from '@/utils';
 
 import { Container } from './components/container';
@@ -19,17 +19,17 @@ import {
   defaultSectionDisplaySize,
   defaultsSectionSizeInMinutes,
 } from './constants';
+import { dummy, timeLine } from './style';
 import type { TimelineProps } from './types';
 import {
-  getTimeList,
-  validateSectionSize,
   convertMinutesToUnits,
   convertUnitsToMinutes,
-  getNumberOfSections,
   getMinutesFromDate,
+  getNumberOfSections,
+  getTimeList,
   setMinutesToDate,
+  validateSectionSize,
 } from './utils';
-import { timeLine, dummy } from './style';
 
 type CardFields = MapValueType<
   React.ComponentProps<typeof Container>['fields']
