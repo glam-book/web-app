@@ -67,7 +67,7 @@ const Month = memo(
         className={cn('relative max-w-dvw h-full flex flex-col', className)}
         {...props}
       >
-        <thead className="absolute translate-y-[-1lh] text-2xl bg-blurable backdrop-blur-3xl">
+        <thead className="absolute translate-y-[-1lh] text-2xl bg-blurable backdrop-blur-3xl rounded-t-sm pr-3 bg-muted">
           <tr>
             <td className="indent-3">
               <span>{format(date, 'LLLL yyyy', { locale: ru })}</span>

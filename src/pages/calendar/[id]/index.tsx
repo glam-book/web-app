@@ -191,7 +191,7 @@ export default function Id() {
         <Carousel.Item className="flex-1 min-w-full">
           <section className="max-h-svh overflow-hidden">
             <Timeline
-              className="flex-1 relative bg-card border h-svh"
+              className="flex-1 rounded-sm relative bg-card h-svh"
               currentDate={date}
               cards={recordList}
             />

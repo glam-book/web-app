@@ -96,24 +96,26 @@ export const EditRecordModal = () => {
   }, [open]);
 
   const [isServicesDrawerOpen, setIsServicesDrawerOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  // const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const allServices =
     (serviceList &&
       Array.from(serviceList.values()).filter(i => Boolean(i.title))) ||
     ([] as ServiceLike[]);
 
-  const categories = Array.from(
-    new Set(allServices.map((s: ServiceLike) => s.category ?? 'Без категории')),
-  );
 
-  const filteredServices =
-    selectedCategory === null
-      ? allServices
-      : allServices.filter(
-          (s: ServiceLike) =>
-            (s.category ?? 'Без категории') === selectedCategory,
-        );
+  // TODO add service categories --- laterrrr
+  // const categories = Array.from(
+  //   new Set(allServices.map((s: ServiceLike) => s.category ?? 'Без категории')),
+  // );
+
+  // const filteredServices =
+  //   selectedCategory === null
+  //     ? allServices
+  //     : allServices.filter(
+  //         (s: ServiceLike) =>
+  //           (s.category ?? 'Без категории') === selectedCategory,
+  //       );
 
   const timeSlot = {
     services: serviceToggleFields
@@ -261,12 +263,12 @@ export const EditRecordModal = () => {
                     <DrawerContent>
                       <DrawerHeader>
                         <DrawerTitle>Выберите услугу</DrawerTitle>
-                        <DrawerDescription>
+                        {/* <DrawerDescription>
                           Добавьте услуги в окно календаря
-                        </DrawerDescription>
+                        </DrawerDescription> */}
                       </DrawerHeader>
 
-                      <div className="flex overflow-x-auto gap-2 px-4 pb-3 border-b">
+                      {/* <div className="flex overflow-x-auto gap-2 px-4 pb-3 border-b">
                         <Button
                           variant={
                             selectedCategory === null ? 'default' : 'outline'
@@ -292,7 +294,7 @@ export const EditRecordModal = () => {
                             {category}
                           </Button>
                         ))}
-                      </div>
+                      </div> */}
 
                       <div className="overflow-y-auto flex-1 px-4 py-3">
                         <Button
@@ -308,18 +310,17 @@ export const EditRecordModal = () => {
                         </Button>
 
                         <div className="space-y-2">
-                          {filteredServices.map((service: ServiceLike) => {
+                          {allServices.map((service: ServiceLike) => {
                             const isAdded = timeSlot.services.some(
                               s => s.id === service.id,
                             );
                             return (
                               <div
                                 key={service.id}
-                                className={`p-3 border rounded-lg active:scale-[0.98] transition-all ${
-                                  isAdded
+                                className={`p-3 border rounded-lg active:scale-[0.98] transition-all ${isAdded
                                     ? 'bg-gray-50 border-gray-300'
                                     : 'bg-white active:bg-gray-50'
-                                }`}
+                                  }`}
                                 onClick={() => !isAdded && addService(service)}
                               >
                                 <div className="flex items-start justify-between gap-2">
