@@ -90,7 +90,7 @@ const Month = memo(
                       className={cn(
                         'isolate relative w-full h-full pt-1 flex justify-center rounded-sm',
                         isEqual(startOfDay(dd), startOfDay(selected)) &&
-                          'bg-card',
+                          'bg-foreground/8',
                       )}
                     >
                       <span className="flex-1 max-w-full flex flex-col text-sm">

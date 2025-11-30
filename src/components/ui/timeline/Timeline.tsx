@@ -210,7 +210,7 @@ export const Timeline = ({
       onClick={ownerResult.isOwner ? onClick : undefined}
       {...props}
     >
-      <div className="absolute z-1 inset-0 flex flex-col justify-center pointer-events-none">
+      <div className="rounded-sm  absolute z-1 inset-0 flex flex-col justify-center pointer-events-none">
         <div className="aim flex-1 border-b" />
         <div className="flex h-[2px] bg-red-500"></div>
         <div className="flex-1" />
