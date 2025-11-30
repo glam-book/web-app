@@ -87,10 +87,10 @@ const ArrowSVG = ({
     direction === 'up'
       ? 'rotate(0deg)'
       : direction === 'down'
-      ? 'rotate(180deg)'
-      : direction === 'left'
-      ? 'rotate(-90deg)'
-      : 'rotate(90deg)';
+        ? 'rotate(180deg)'
+        : direction === 'left'
+          ? 'rotate(-90deg)'
+          : 'rotate(90deg)';
 
   return (
     <svg
@@ -122,30 +122,38 @@ const ArrowsIndicator = ({
   useInjectArrowStyles();
 
   if (isResizeMode) {
-    // vertical arrows: top and bottom indicating stretching
+    // ^ v
     return (
-      <>
-        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-2 flex items-center gap-1 text-foreground/80">
-          <span className="tl-arrow tl-arrow--y text-sm opacity-95">
+      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-2 flex items-center justify-center">
+        <span className="flex flex-col items-center gap-1 text-sm opacity-95">
+          <div className="flex items-center gap-3 bg-black/10 rounded-full px-3 py-1 backdrop-blur-sm text-xs font-mono whitespace-nowrap">
+            нажмите еще раз чтобы переместить
+          </div>
+          <span className="tl-arrow tl-arrow--y rev text-sm">
             <ArrowSVG direction="down" />
+          </span>
+          <span className="tl-arrow tl-arrow--y rev text-sm">
             <ArrowSVG direction="up" />
           </span>
-        </div>
-      </>
+        </span>
+      </div>
     );
   }
 
-  // horizontal arrows: indicate the card can be dragged along timeline
+  // < >
   return (
-    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      <div className="flex items-center gap-3 bg-black/10 rounded-full px-3 py-1 backdrop-blur-sm">
+    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3">
+      <div className="flex items-center gap-3">
         <span className="tl-arrow tl-arrow--y rev text-sm">
           <ArrowSVG direction="down" />
         </span>
-        <span className="text-xs font-mono">Переместить</span>
+        {/* <span className="text-xs font-mono">переместить</span> */}
         <span className="tl-arrow tl-arrow--y text-sm">
           <ArrowSVG direction="up" />
         </span>
+      </div>
+      <div className="flex items-center gap-3 bg-black/10 rounded-full px-3 py-1 backdrop-blur-sm">
+        <span className="text-xs font-mono">нажмите еще раз чтобы растянуть</span>
       </div>
     </div>
   );
@@ -179,7 +187,7 @@ const PendingsContent = () => {
         </div>
       )}
 
-      {pendingList?.length ! > 0 && (
+      {pendingList?.length! > 0 && (
         <ul className="space-y-4 max-h-96 overflow-y-auto">
           {pendingList!.map((pending, idx) => (
             <li key={idx} className="p-4 border rounded-lg space-y-2">
@@ -608,7 +616,7 @@ export const OwnerCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
           className={cn(
             'text-stands-out',
             fields.pendings.limits === fields.pendings.active &&
-              'bg-emerald-200/50 text-[coral]',
+            'bg-emerald-200/50 text-[coral]',
           )}
         >
           <div className="flex justify-between">
