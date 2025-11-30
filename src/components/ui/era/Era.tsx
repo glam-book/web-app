@@ -1,30 +1,29 @@
 import {
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  format,
+  getDate,
+  getDay,
+  getWeekOfMonth,
+  isEqual,
+  isValid,
+  startOfDay,
+  startOfMonth
+} from 'date-fns';
+import { ru } from 'date-fns/locale';
+import {
   memo,
-  useMemo,
-  useState,
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
+  useState,
 } from 'react';
-import {
-  format,
-  getDay,
-  getDate,
-  eachDayOfInterval,
-  startOfMonth,
-  endOfMonth,
-  getWeekOfMonth,
-  addMonths,
-  isValid,
-  startOfDay,
-  isEqual,
-  getMonth,
-} from 'date-fns';
-import { ru } from 'date-fns/locale';
 
-import { IntersectionTarget } from '@/components/ui/intersectionTarget';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import { cn } from '@/lib/utils';
 
 const isFinallySafari = () =>
@@ -70,7 +69,7 @@ const Month = memo(
       >
         <thead className="absolute translate-y-[-1lh] text-2xl bg-blurable backdrop-blur-3xl">
           <tr>
-            <td className="font-serif indent-3">
+            <td className="indent-3">
               <span>{format(date, 'LLLL yyyy', { locale: ru })}</span>
             </td>
           </tr>
@@ -83,13 +82,13 @@ const Month = memo(
               className="max-h-[calc(100dvh/5)] min-h-1 flex-1 text-center flex [&>*]:flex-1 snap-start"
             >
               {d.map((dd, ddindex) => (
-                <td className="h-full overflow-hidden" key={ddindex}>
+                <td className="border-t h-full overflow-hidden" key={ddindex}>
                   {dd && (
                     <button
                       onClick={() => onSelect(dd)}
                       type="button"
                       className={cn(
-                        'isolate relative w-full h-full pt-1 flex justify-center border-t',
+                        'isolate relative w-full h-full pt-1 flex justify-center rounded-sm',
                         isEqual(startOfDay(dd), startOfDay(selected)) &&
                           'bg-card',
                       )}
@@ -98,7 +97,7 @@ const Month = memo(
                         <Badge
                           variant={
                             isEqual(startOfDay(dd), startOfDay(new Date()))
-                              ? 'destructive'
+                              ? 'default'
                               : 'outline'
                           }
                           className="h-min self-center font-mono rounded-2xl border-none text-base"
@@ -196,14 +195,14 @@ export const Era = ({
     >
       <div className="flex flex-col border-b">
         <div className="flex justify-between pr-0.5">
-          <h2 className="font-serif text-2xl indent-3">
+          <h2 className="text-2xl indent-3">
             {format(visibleDate, 'LLLL yyyy', { locale: ru })}
           </h2>
 
           <Button
             type="button"
             size="sm"
-            variant="destructive"
+            variant="default"
             onClick={() => {
               setMonths(makeNMonths(new Date()));
               scrollToCenter();
