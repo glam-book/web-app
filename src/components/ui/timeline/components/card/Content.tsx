@@ -46,7 +46,7 @@ export const Content = ({ className, children }: React.ComponentProps<'div'>) =>
               <div className="text-lg font-semibold truncate">
                 <Sign />
               </div>
-              <div className="mt-1 text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground">
                 <Badges />
               </div>
               {(() => {

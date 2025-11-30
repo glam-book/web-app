@@ -90,7 +90,7 @@ export const Badges = () => {
       )}
 
       <ServicesDialog>
-        <Button variant="outline" size="sm" className="font-mono text-sm px-2 py-1">{restCount > 0 ? `+${restCount}` : 'Услуги'}</Button>
+        <Button variant="default" size="sm" className="font-mono text-sm px-2">{restCount > 0 ? `+${restCount}` : 'услуги'}</Button>
       </ServicesDialog>
     </div>
   );
