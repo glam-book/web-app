@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { openLink } from '@tma.js/sdk-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { pipe } from 'effect';
@@ -12,7 +13,6 @@ import {
   useState,
 } from 'react';
 import { toast } from 'sonner';
-import { openLink } from '@tma.js/sdk-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,12 +27,12 @@ import {
 } from '@/components/ui/dialog';
 import {
   Drawer,
-  DrawerTrigger,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
   DrawerPortal,
   DrawerTitle,
-  DrawerHeader,
-  DrawerDescription,
-  DrawerContent,
+  DrawerTrigger,
 } from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Menu, MenuItem } from '@/components/ui/menu';
@@ -149,7 +149,7 @@ const Pendings = () => {
       <DrawerTrigger asChild>
         <Button
           className="font-mono"
-          variant="destructive"
+          variant="secondary"
           onClick={e => {
             e.stopPropagation();
             setOpen(true);
@@ -220,7 +220,7 @@ const Content = ({ className, children }: React.ComponentProps<'div'>) => {
     <div
       className={cn(
         'min-w-full min-h-[2.5lh] text-2xs select-none transition-foo bg-card text-foreground',
-        isSelected && 'bg-[coral]',
+        isSelected && 'bg-accent-strong',
         className,
       )}
     >
@@ -384,7 +384,7 @@ export const ClientCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
                 onPointerDownOutside={e => e.preventDefault()}
               >
                 <DialogHeader className="text-left">
-                  <DialogTitle className="text-2xl font-serif font-normal">
+                  <DialogTitle className="text-2xl font-normal">
                     <span className="inline-flex flex-col">
                       <time>
                         {format(fields.from, 'dd MMMM', { locale: ru })}

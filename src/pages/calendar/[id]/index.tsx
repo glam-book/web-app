@@ -7,19 +7,14 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import type { HostApi } from '@/components/ui/carousel';
 import * as Carousel from '@/components/ui/carousel';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+
 import { Era } from '@/components/ui/era';
 import { Toaster } from '@/components/ui/sonner';
 import { Timeline } from '@/components/ui/timeline';
 import { cn } from '@/lib/utils';
 import { useParams } from '@/router';
 import { owner, records, services } from '@/shrekServices';
+import ProfilePreview from '@/shrekServices/components/ProfilePreview';
 import { between } from '@/utils';
 
 export const Detail = memo(
@@ -76,7 +71,7 @@ export const Detail = memo(
             <span
               key={idx}
               className={cn(
-                'min-h-[0.5lh] h-[0.5lh] bg-card',
+                'min-h-[0.8lh] h-[0.5lh] bg-card rounded-sm',
                 item.hasPendings && 'bg-teal-200',
               )}
             />
@@ -85,65 +80,6 @@ export const Detail = memo(
     );
   },
 );
-
-function ProfilePreview({ profile, loading }: { profile?: Record<string, unknown> | undefined; loading?: boolean }) {
-  // profile is a loosely-typed object coming from the server; handle defensively
-  const initials = profile
-    ? ((profile.name || profile.login || '') + ' ' + (profile.lastName || '')).trim()
-        .split(' ')
-        .map((s: string) => s[0])
-        .join('')
-        .slice(0, 2)
-    : '';
-
-  return (
-    <div className="flex items-center gap-2">
-      <div className="relative flex items-center">
-        {loading ? (
-          <div className="w-8 h-8 rounded-full bg-muted-foreground/40 animate-pulse" />
-        ) : profile?.profileIcon ? (
-          <img src={String(profile.profileIcon)} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-xs font-semibold text-muted-foreground">
-            {initials || 'U'}
-          </div>
-        )}
-      </div>
-
-      <div className="min-w-0">
-        <div className="text-sm font-semibold leading-none">
-          {loading ? '...' : profile ? `${profile.name ?? profile.login ?? 'User'}` : '—'}
-        </div>
-
-        {/* small details clickable - open dialog to see contacts */}
-        <Dialog>
-          <DialogTrigger asChild>
-            <button className="text-xs text-muted-foreground opacity-80 hover:opacity-100">See contacts</button>
-          </DialogTrigger>
-
-          <DialogContent>
-            <DialogTitle>Contacts</DialogTitle>
-            <DialogDescription>
-              {Array.isArray(profile?.contacts) && (profile.contacts as unknown[]).length ? (
-                <ul className="mt-2 space-y-2">
-                  {Array.isArray(profile.contacts)
-                    ? (profile.contacts as unknown[]).map((c, idx) => (
-                    <li key={idx} className="text-sm">
-                      {typeof c === 'object' ? JSON.stringify(c) : String(c)}
-                    </li>
-                  ))
-                    : null}
-                </ul>
-              ) : (
-                <div className="text-sm text-muted-foreground mt-2">No contacts</div>
-              )}
-            </DialogDescription>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
-  );
-}
 
 export default function Id() {
   const params = useParams('/calendar/:id');
@@ -189,22 +125,33 @@ export default function Id() {
   const { isOwner } = owner.useIsOwner();
 
   return (
-    <main className="flex flex-col gap-0.5 max-h-dvh overscroll-none">
-      <header className="flex justify-between items-center gap-2">
+    <main className="flex flex-col gap-0.5 max-h-dvh overscroll-none pl-2 pr-2">
+      <header className="pt-2 pb-2 rounded-sm flex justify-between items-center">
         {/* compact profile area */}
         <div
           className={cn(
-            'flex-1 flex items-center gap-2 font-serif text-sm indent-2',
-            isOwner && 'bg-card',
+            'flex-1 items-center gap-2 text-sm indent-2 rounded-3xl',
+            isOwner && 'bg-secondary',
           )}
         >
           {/* profile fetch: me or user by id */}
           {(() => {
-            const { data: profile, isLoading } = owner.useProfile();
 
+            const { data: profile, isLoading } = owner.useProfile();
+            const hasPersonalFields = (p: unknown): p is { name?: string | null; lastName?: string | null; login?: string | null } =>
+              typeof p === 'object' && p !== null && ('name' in p || 'lastName' in p || 'login' in p);
+            const displayFullName = hasPersonalFields(profile)
+              ? `${String(profile.name ?? '')} ${String(profile.lastName ?? '')}`.trim()
+              : '';
+
+            const displayLogin = hasPersonalFields(profile) ? String(profile.login ?? '') : '';
             return (
-              <div className="flex items-center gap-2">
-                <ProfilePreview profile={profile as Record<string, unknown> | undefined} loading={isLoading} />
+              <div className="flex items-center gap-2 text-sm font-bold indent-2 text-white">
+                <ProfilePreview profile={profile} loading={isLoading} />
+                {displayFullName}
+                <div>
+                  {displayLogin}
+                </div>
               </div>
             );
           })()}
@@ -215,7 +162,7 @@ export default function Id() {
           type="button"
           variant="ghost"
           size="icon"
-          className="ml-auto"
+          className="min-w-[2.5lh] !size-12"
           onClick={() => {
             const startAppParam = { calendarId: params.id };
             shareURL(
@@ -223,11 +170,11 @@ export default function Id() {
             );
           }}
         >
-          <Share />
+          <Share className="size-6" />
         </Button>
       </header>
 
-      <Carousel.Host className="flex-1 overflow-y-hidden" ref={carouselApi}>
+      <Carousel.Host className="flex-1 overflow-y-hidden rounded-sm" ref={carouselApi}>
         <Carousel.Item className="flex-1 min-w-full flex">
           <article className="flex-1 flex flex-col">
             <div className="overflow-hidden">

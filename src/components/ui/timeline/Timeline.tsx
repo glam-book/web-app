@@ -231,7 +231,7 @@ export const Timeline = ({
           }
         }}
       >
-        <h2 className="sticky z-10 top-0 flex items-end-safe font-serif bg-blurable backdrop-blur-3xl">
+        <h2 className="sticky z-10 top-0 flex items-end-safe bg-blurable backdrop-blur-3xl">
           <time className="text-2xl">
             {format(currentDate, 'dd MMMM', { locale: ru })}
           </time>
