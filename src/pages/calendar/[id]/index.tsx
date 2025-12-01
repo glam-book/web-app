@@ -134,24 +134,30 @@ export default function Id() {
             isOwner && 'bg-secondary',
           )}
         >
-          {/* profile fetch: me or user by id */}
           {(() => {
-
             const { data: profile, isLoading } = owner.useProfile();
-            const hasPersonalFields = (p: unknown): p is { name?: string | null; lastName?: string | null; login?: string | null } =>
-              typeof p === 'object' && p !== null && ('name' in p || 'lastName' in p || 'login' in p);
+            const hasPersonalFields = (
+              p: unknown,
+            ): p is {
+              name?: string | null;
+              lastName?: string | null;
+              login?: string | null;
+            } =>
+              typeof p === 'object' &&
+              p !== null &&
+              ('name' in p || 'lastName' in p || 'login' in p);
             const displayFullName = hasPersonalFields(profile)
               ? `${String(profile.name ?? '')} ${String(profile.lastName ?? '')}`.trim()
               : '';
 
-            const displayLogin = hasPersonalFields(profile) ? String(profile.login ?? '') : '';
+            const displayLogin = hasPersonalFields(profile)
+              ? String(profile.login ?? '')
+              : '';
             return (
               <div className="flex items-center gap-2 text-sm font-bold indent-2 text-white">
                 <ProfilePreview profile={profile} loading={isLoading} />
                 {displayFullName}
-                <div>
-                  {displayLogin}
-                </div>
+                <div>{displayLogin}</div>
               </div>
             );
           })()}
@@ -174,7 +180,10 @@ export default function Id() {
         </Button>
       </header>
 
-      <Carousel.Host className="flex-1 overflow-y-hidden rounded-sm" ref={carouselApi}>
+      <Carousel.Host
+        className="flex-1 overflow-y-hidden rounded-sm"
+        ref={carouselApi}
+      >
         <Carousel.Item className="flex-1 min-w-full flex">
           <article className="flex-1 flex flex-col">
             <div className="overflow-hidden">
