@@ -18,8 +18,9 @@ export const Content = ({ className, children }: React.ComponentProps<'div'>) =>
 	return (
 		<div
 			className={cn(
-				'min-w-full min-h-[2.5lh] text-2xs select-none transition-foo bg-card text-foreground',
-				isSelected && 'bg-accent-strong rounded-bl-lg',
+				'border-dashed border-foreground/20 bg-blurable backdrop-blur-[2px] bg-card/90 relative min-w-full min-h-[2.5lh] text-2xs select-none transition-foo text-foreground',
+				isSelected && 'bg-accent-strong/80 ' + (isResizeMode ? 'rounded-tl-lg' : 'rounded-bl-lg'),
+				!isSelected && 'border-t-1',
 				className,
 			)}
 		>

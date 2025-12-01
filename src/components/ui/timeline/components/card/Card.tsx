@@ -33,8 +33,6 @@ import type { CardProps } from './types';
 import { CardContext, Root } from './CardContext';
 import { Content } from './Content';
 
-// helper components have been moved to separate files
-
 export const TheCard = ({
   aimPosition,
   minCardSize = 2.5,
@@ -156,7 +154,7 @@ export const ClientCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
                 onClick={e => {
                   e.stopPropagation();
                 }}
-                className="h-dvh min-w-full p-0 flex flex-col gap-8 rounded-none bg-transparent backdrop-blur-xl"
+                className="h-dvh min-w-full p-0 flex flex-col gap-8 bg-transparent backdrop-blur-xl"
                 onPointerDownOutside={e => e.preventDefault()}
               >
                 <DialogHeader className="text-left">

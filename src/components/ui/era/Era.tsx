@@ -88,9 +88,9 @@ const Month = memo(
                       onClick={() => onSelect(dd)}
                       type="button"
                       className={cn(
-                        'isolate relative w-full h-full pt-1 flex justify-center rounded-sm',
+                        'isolate relative w-full h-full pt-1 flex justify-center rounded-b-md',
                         isEqual(startOfDay(dd), startOfDay(selected)) &&
-                          'bg-foreground/8',
+                          'bg-blurable backdrop-blur-3x bg-muted',
                       )}
                     >
                       <span className="flex-1 max-w-full flex flex-col text-sm">
