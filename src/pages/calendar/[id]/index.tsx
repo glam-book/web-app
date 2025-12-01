@@ -1,6 +1,6 @@
 import { shareURL } from '@tma.js/sdk-react';
 import { differenceInMonths, getDate, startOfMonth } from 'date-fns';
-import { ChevronLeft, Share } from 'lucide-react';
+import { Share } from 'lucide-react';
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -117,14 +117,6 @@ export default function Id() {
   }, [isCardSelected]);
 
   const carouselApi = useRef<HostApi>(null);
-  const [carouselIndex, setCarouselIndex] = useState<number>(0);
-
-  const onHostScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const host = e.currentTarget;
-    const rect = host.getBoundingClientRect();
-    const idx = Math.round(host.scrollLeft / rect.width);
-    setCarouselIndex(idx);
-  };
 
   useEffect(() => {
     return () => carouselApi.current?.next(1);
@@ -135,44 +127,37 @@ export default function Id() {
   return (
     <main className="flex flex-col gap-0.5 max-h-dvh overscroll-none pl-2 pr-2">
       <header className="pt-2 pb-2 rounded-sm flex justify-between items-center">
-        {/* compact profile area */}
         <div
           className={cn(
             'flex-1 items-center gap-2 text-sm indent-2 rounded-3xl',
             isOwner && 'bg-secondary',
           )}
         >
-          {/* profile fetch: me or user by id */}
           {(() => {
-
             const { data: profile, isLoading } = owner.useProfile();
-            const hasPersonalFields = (p: unknown): p is { name?: string | null; lastName?: string | null; login?: string | null } =>
-              typeof p === 'object' && p !== null && ('name' in p || 'lastName' in p || 'login' in p);
+            const hasPersonalFields = (
+              p: unknown,
+            ): p is {
+              name?: string | null;
+              lastName?: string | null;
+              login?: string | null;
+            } =>
+              typeof p === 'object' &&
+              p !== null &&
+              ('name' in p || 'lastName' in p || 'login' in p);
             const displayFullName = hasPersonalFields(profile)
               ? `${String(profile.name ?? '')} ${String(profile.lastName ?? '')}`.trim()
               : '';
 
-            const displayLogin = hasPersonalFields(profile) ? String(profile.login ?? '') : '';
+            const displayLogin = hasPersonalFields(profile)
+              ? String(profile.login ?? '')
+              : '';
             return (
               <div
                 className={cn(
                   'flex items-center gap-2 text-sm font-bold indent-2 text-white',
-                  carouselIndex === 1 && 'has-back',
                 )}
               >
-                  {carouselIndex === 1 && (
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    aria-label="Back to calendar"
-                    onClick={() => carouselApi.current?.next(0)}
-                    className="min-w-[2.5lh] animate-wobble-in origin-left"
-                  >
-                    <ChevronLeft className="size-6 text-white" />
-                  </Button>
-                )}
-
                 <span className="followable animate-follow">
                   <ProfilePreview profile={profile} loading={isLoading} />
                 </span>
@@ -180,7 +165,10 @@ export default function Id() {
                 {displayFullName ? (
                   <span
                     className="followable animate-follow"
-                    style={{ transitionDelay: '120ms', animationDelay: '120ms' }}
+                    style={{
+                      transitionDelay: '120ms',
+                      animationDelay: '120ms',
+                    }}
                   >
                     {displayFullName}
                   </span>
@@ -217,7 +205,6 @@ export default function Id() {
       <Carousel.Host
         className="flex-1 overflow-y-hidden rounded-sm"
         ref={carouselApi}
-        onScroll={onHostScroll}
       >
         <Carousel.Item className="flex-1 min-w-full flex">
           <article className="flex-1 flex flex-col">
