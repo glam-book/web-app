@@ -1,6 +1,6 @@
 import { shareURL } from '@tma.js/sdk-react';
 import { differenceInMonths, getDate, startOfMonth } from 'date-fns';
-import { Share } from 'lucide-react';
+import { ChevronLeft, Share } from 'lucide-react';
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -117,6 +117,14 @@ export default function Id() {
   }, [isCardSelected]);
 
   const carouselApi = useRef<HostApi>(null);
+  const [carouselIndex, setCarouselIndex] = useState<number>(0);
+
+  const onHostScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const host = e.currentTarget;
+    const rect = host.getBoundingClientRect();
+    const idx = Math.round(host.scrollLeft / rect.width);
+    setCarouselIndex(idx);
+  };
 
   useEffect(() => {
     return () => carouselApi.current?.next(1);
@@ -147,6 +155,18 @@ export default function Id() {
             const displayLogin = hasPersonalFields(profile) ? String(profile.login ?? '') : '';
             return (
               <div className="flex items-center gap-2 text-sm font-bold indent-2 text-white">
+                {carouselIndex === 1 && (
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Back to calendar"
+                    onClick={() => carouselApi.current?.next(0)}
+                    className="min-w-[2.5lh]"
+                  >
+                    <ChevronLeft className="size-6 text-white" />
+                  </Button>
+                )}
                 <ProfilePreview profile={profile} loading={isLoading} />
                 {displayFullName}
                 <div>
@@ -174,7 +194,11 @@ export default function Id() {
         </Button>
       </header>
 
-      <Carousel.Host className="flex-1 overflow-y-hidden rounded-sm" ref={carouselApi}>
+      <Carousel.Host
+        className="flex-1 overflow-y-hidden rounded-sm"
+        ref={carouselApi}
+        onScroll={onHostScroll}
+      >
         <Carousel.Item className="flex-1 min-w-full flex">
           <article className="flex-1 flex flex-col">
             <div className="overflow-hidden">
