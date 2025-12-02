@@ -154,22 +154,42 @@ export default function Id() {
 
             const displayLogin = hasPersonalFields(profile) ? String(profile.login ?? '') : '';
             return (
-              <div className="flex items-center gap-2 text-sm font-bold indent-2 text-white">
-                {carouselIndex === 1 && (
+              <div
+                className={cn(
+                  'flex items-center gap-2 text-sm font-bold indent-2 text-white',
+                  carouselIndex === 1 && 'has-back',
+                )}
+              >
+                  {carouselIndex === 1 && (
                   <Button
                     type="button"
                     size="icon"
                     variant="ghost"
                     aria-label="Back to calendar"
                     onClick={() => carouselApi.current?.next(0)}
-                    className="min-w-[2.5lh]"
+                    className="min-w-[2.5lh] animate-wobble-in origin-left"
                   >
                     <ChevronLeft className="size-6 text-white" />
                   </Button>
                 )}
-                <ProfilePreview profile={profile} loading={isLoading} />
-                {displayFullName}
-                <div>
+
+                <span className="followable animate-follow">
+                  <ProfilePreview profile={profile} loading={isLoading} />
+                </span>
+
+                {displayFullName ? (
+                  <span
+                    className="followable animate-follow"
+                    style={{ transitionDelay: '120ms', animationDelay: '120ms' }}
+                  >
+                    {displayFullName}
+                  </span>
+                ) : null}
+
+                <div
+                  className="followable animate-follow"
+                  style={{ transitionDelay: '160ms', animationDelay: '160ms' }}
+                >
                   {displayLogin}
                 </div>
               </div>
@@ -228,7 +248,7 @@ export default function Id() {
       </Carousel.Host>
 
       <footer className="pb-[calc(env(safe-area-inset-bottom)+0.2em)] indent-3">
-        FOOTER::::MUTTER
+        OPEN BETTA
       </footer>
 
       <Toaster />
