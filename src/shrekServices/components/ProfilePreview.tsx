@@ -83,7 +83,7 @@ export default function ProfilePreview({ profile, loading }: { profile?: Record<
 
                     <DrawerFooter className="border-t">
                         <Button variant="outline" onClick={() => setIsContactsOpen(false)} className="w-full">
-                            Закрыть
+                            закрыть
                         </Button>
                     </DrawerFooter>
                 </DrawerContent>

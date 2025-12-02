@@ -274,7 +274,7 @@ export const OwnerCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
           className={cn(
             'text-stands-out',
             fields.pendings.limits === fields.pendings.active &&
-              'bg-emerald-200/50 text-[coral]',
+              'bg-accent-second text-[coral]',
           )}
         />
       </TheCard>

@@ -1,6 +1,6 @@
 import { shareURL } from '@tma.js/sdk-react';
 import { differenceInMonths, getDate, startOfMonth } from 'date-fns';
-import { Share } from 'lucide-react';
+import { ChevronLeft, Share } from 'lucide-react';
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -117,6 +117,14 @@ export default function Id() {
   }, [isCardSelected]);
 
   const carouselApi = useRef<HostApi>(null);
+  const [carouselIndex, setCarouselIndex] = useState<number>(0);
+
+  const onHostScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const host = e.currentTarget;
+    const rect = host.getBoundingClientRect();
+    const idx = Math.round(host.scrollLeft / rect.width);
+    setCarouselIndex(idx);
+  };
 
   useEffect(() => {
     return () => carouselApi.current?.next(1);
@@ -146,10 +154,42 @@ export default function Id() {
 
             const displayLogin = hasPersonalFields(profile) ? String(profile.login ?? '') : '';
             return (
-              <div className="flex items-center gap-2 text-sm font-bold indent-2 text-white">
-                <ProfilePreview profile={profile} loading={isLoading} />
-                {displayFullName}
-                <div>
+              <div
+                className={cn(
+                  'flex items-center gap-2 text-sm font-bold indent-2 text-white',
+                  carouselIndex === 1 && 'has-back',
+                )}
+              >
+                  {carouselIndex === 1 && (
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Back to calendar"
+                    onClick={() => carouselApi.current?.next(0)}
+                    className="min-w-[2.5lh] animate-wobble-in origin-left"
+                  >
+                    <ChevronLeft className="size-6 text-white" />
+                  </Button>
+                )}
+
+                <span className="followable animate-follow">
+                  <ProfilePreview profile={profile} loading={isLoading} />
+                </span>
+
+                {displayFullName ? (
+                  <span
+                    className="followable animate-follow"
+                    style={{ transitionDelay: '120ms', animationDelay: '120ms' }}
+                  >
+                    {displayFullName}
+                  </span>
+                ) : null}
+
+                <div
+                  className="followable animate-follow"
+                  style={{ transitionDelay: '160ms', animationDelay: '160ms' }}
+                >
                   {displayLogin}
                 </div>
               </div>
@@ -174,7 +214,11 @@ export default function Id() {
         </Button>
       </header>
 
-      <Carousel.Host className="flex-1 overflow-y-hidden rounded-sm" ref={carouselApi}>
+      <Carousel.Host
+        className="flex-1 overflow-y-hidden rounded-sm"
+        ref={carouselApi}
+        onScroll={onHostScroll}
+      >
         <Carousel.Item className="flex-1 min-w-full flex">
           <article className="flex-1 flex flex-col">
             <div className="overflow-hidden">
@@ -204,7 +248,7 @@ export default function Id() {
       </Carousel.Host>
 
       <footer className="pb-[calc(env(safe-area-inset-bottom)+0.2em)] indent-3">
-        FOOTER::::MUTTER
+        OPEN BETTA
       </footer>
 
       <Toaster />
