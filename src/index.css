@@ -193,7 +193,7 @@
 
   --accent: rgba(255, 204, 176, 0.803);
   --accent-strong: rgba(248, 134, 99, 0.874);
-  --accent-secnd: rgb(147, 232, 240);
+  --accent-second: rgb(147, 232, 240);
   --accent-muted: rgb(173, 148, 138);
   --card-foreground: oklch(27.275% 0.0205 43.695);
   --stands-out: oklch(94.352% 0.12633 100.698);
@@ -207,10 +207,10 @@
   --popover-foreground: oklch(0.141 0.005 285.823);
   --primary: oklch(26.858% 0.01044 60.943);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(78.594% 0.08163 133.002 / 0.721);
+  --secondary: oklch(60.278% 0.07422 133.717 / 0.721);
   --secondary-foreground: oklch(0.21 0.006 285.885);
 
-  --muted: oklch(96.792% 0.00104 11.366);
+  --muted: oklch(93.5% 0.01774 59.298 / 0.802);
   --muted-foreground: oklch(0.24 0.03 283.78 / 0.31);
   --border: oklch(94.309% 0.00011 271.152);
   --input: oklch(0.92 0.004 286.32);
@@ -258,4 +258,76 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* back-button enter animation: slide from left with a small wobble (inertia) */
+@keyframes wobble-in-left {
+  0% {
+    transform: translateX(-140%) rotate(-12deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(8%) rotate(6deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translateX(-4%) rotate(-3deg);
+  }
+  90% {
+    transform: translateX(2%) rotate(1deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+}
+
+@layer utilities {
+  .animate-wobble-in {
+    animation: wobble-in-left 320ms cubic-bezier(.22,.9,.22,.9) both;
+    will-change: transform, opacity;
+  }
+  /* header follow animation: other header items move/right with small overshoot and stagger */
+  @keyframes follow-in-right {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    60% {
+      transform: translateX(1.75rem);
+    }
+    80% {
+      transform: translateX(0.8rem);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .followable {
+    transition: transform 100ms cubic-bezier(.22,.9,.23,1);
+    will-change: transform;
+  }
+
+  /* parent class toggled when back button visible */
+  .has-back .followable {
+    transform: translateX(0.9rem);
+  }
+
+  /* option to use an explicit animation wobble for stronger effect */
+  .has-back .followable.animate-follow {
+    animation: follow-in-right 220ms cubic-bezier(.22,.9,.23,1) both;
+  }
+
+  /* optional: leave stagger to inline delays on elements */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-wobble-in,
+  .has-back .followable,
+  .has-back .followable.animate-follow {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
 }

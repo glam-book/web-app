@@ -51,6 +51,14 @@ export default function Id() {
   }, [isCardSelected]);
 
   const carouselApi = useRef<HostApi>(null);
+  const [carouselIndex, setCarouselIndex] = useState<number>(0);
+
+  const onHostScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const host = e.currentTarget;
+    const rect = host.getBoundingClientRect();
+    const idx = Math.round(host.scrollLeft / rect.width);
+    setCarouselIndex(idx);
+  };
 
   useEffect(() => {
     return () => carouselApi.current?.next(1);

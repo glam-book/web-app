@@ -9,6 +9,7 @@ import {
   Drawer,
   DrawerContent,
   DrawerDescription,
+  DrawerFooter,
   DrawerHeader,
   DrawerPortal,
   DrawerTitle,
@@ -167,14 +168,6 @@ export const EditRecordModal = () => {
 
               <div className="flex-1 flex gap-2">
                 <Button
-                  onClick={records.store.editableRightNow.getState().reset}
-                  variant="ghost"
-                  size="icon"
-                >
-                  <X />
-                </Button>
-
-                <Button
                   variant="outline"
                   onClick={() => {
                     const form = formRef.current;
@@ -318,8 +311,8 @@ export const EditRecordModal = () => {
                               <div
                                 key={service.id}
                                 className={`p-3 border rounded-lg active:scale-[0.98] transition-all ${isAdded
-                                    ? 'bg-gray-50 border-gray-300'
-                                    : 'bg-white active:bg-gray-50'
+                                  ? 'bg-gray-50 border-gray-300'
+                                  : 'bg-white active:bg-gray-50'
                                   }`}
                                 onClick={() => !isAdded && addService(service)}
                               >
@@ -440,6 +433,13 @@ export const EditRecordModal = () => {
               </Card>
             </form>
           </div>
+
+          <DrawerFooter className="border-t">
+              <Button variant="outline" 
+                  onClick={records.store.editableRightNow.getState().reset} >
+                закрыть
+              </Button>
+          </DrawerFooter>
         </DrawerContent>
       </DrawerPortal>
     </Drawer>
