@@ -70,19 +70,20 @@ const Month = memo(
         <thead className="flex w-full absolute translate-y-[-1lh] text-2xl">
           <tr className="flex-1 h-[1lh] flex [&>*]:flex-1 [&>*+*]:border-l [&>*+*]:border-test">
             <td className="flex items-center">
-              <span className="w-max bg-background uppercase indent-3 pr-3">
+              <span className="rounded-tr-sm w-max bg-background uppercase indent-3 pr-3">
                 {format(date, 'LLLL yyyy', { locale: ru })}
               </span>
-              <span className="flex-1 h-full border-l border-test" />
+              <span className="flex-1 h-full border-test" />
             </td>
           </tr>
         </thead>
 
-        <tbody className="flex-1 flex flex-col [&>*]:flex-1 [&>tr]:border-b [&>tr:first-child]:border-t text-2xl pb-[1lh] [&>tr:last-child>td:not(:empty)+td:empty]:visible  [&>tr:last-child>td:not(:empty)+td:empty]:border-l">
+        <tbody className="flex-1 flex flex-col [&>*]:flex-1 [&>tr]:border-b [&>tr:first-child]:border-t text-2xl pb-[1lh] [&>tr:last-child>td:not(:empty)+td:empty]:visible  [&>tr:last-child>td:not(:empty)+td:empty]:border-l-2">
           {daysGroupedByWeek.map((d, idx) => (
             <tr
               key={idx}
-              className="flex-1 text-center flex [&>*]:flex-1 border-test [&>td+td]:border-l "
+              // className="flex-1 text-center flex [&>*]:flex-1 border-test [&>td+td]:border-l "
+              className="flex-1 text-center flex [&>*]:flex-1"
             >
               {d.map((dd, ddindex) => (
                 <td
@@ -93,34 +94,34 @@ const Month = memo(
                   }
                 >
                   {dd && (
-                    <button
-                      onClick={() => onSelect(dd)}
-                      type="button"
-                      className={cn(
-                        'isolate relative w-full h-full pt-1 flex justify-center',
-                        isEqual(startOfDay(dd), startOfDay(selected)) &&
+                      <button
+                        onClick={() => onSelect(dd)}
+                        type="button"
+                        className={cn(
+                          'isolate relative w-full h-full pt-1 flex justify-center',
+                          isEqual(startOfDay(dd), startOfDay(selected)) &&
                           'bg-muted',
-                      )}
-                    >
-                      <span className="flex-1 max-w-full flex flex-col text-sm">
-                        <Badge
-                          variant={
-                            isEqual(startOfDay(dd), startOfDay(new Date()))
-                              ? 'default'
-                              : 'outline'
-                          }
-                          className="h-min self-center font-mono rounded-2xl border-none text-base"
-                        >
-                          {getDate(dd)}
-                        </Badge>
+                        )}
+                      >
+                        <span className="flex-1 max-w-full flex flex-col text-sm">
+                          <Badge
+                            variant={
+                              isEqual(startOfDay(dd), startOfDay(new Date()))
+                                ? 'default'
+                                : 'outline'
+                            }
+                            className="h-min self-center font-mono rounded-2xl border-none text-base"
+                          >
+                            {getDate(dd)}
+                          </Badge>
 
-                        <span className="empty:hidden w-full flex-1 p-0.5">
-                          {Detail && (
-                            <Detail epoch={dd} currentDate={visibleDate} />
-                          )}
+                          <span className="empty:hidden w-full flex-1 p-0.5">
+                            {Detail && (
+                              <Detail epoch={dd} currentDate={visibleDate} />
+                            )}
+                          </span>
                         </span>
-                      </span>
-                    </button>
+                      </button>
                   )}
                 </td>
               ))}
@@ -192,8 +193,8 @@ export const Era = ({
     const y = isScrollToTheTop
       ? firstHalf.reduce((sum, elem) => sum + elem.offsetHeight, 0)
       : scrollView.scrollHeight -
-        secondHalf.reduce((sum, elem) => sum + elem.offsetHeight, 0) +
-        Math.abs(secondHalf[0].offsetHeight - rect.height);
+      secondHalf.reduce((sum, elem) => sum + elem.offsetHeight, 0) +
+      Math.abs(secondHalf[0].offsetHeight - rect.height);
 
     scrollView.scrollTo(0, y);
   };
@@ -249,7 +250,7 @@ export const Era = ({
           </Button>
         </div>
 
-        <ul className="flex justify-around text-sm lowercase border-test [&>li+li]:border-test [&>li+li]:border-l [&>li]:flex-1 [&>li]:text-center">
+        <ul className="flex justify-around text-sm lowercase border-test [&>li+li]:border-test [&>li+li]:border-l-2 [&>li]:flex-1 [&>li]:text-center">
           <li>ПН</li>
           <li>ВТ</li>
           <li>СР</li>

@@ -6,13 +6,14 @@ import { useContext, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-    Drawer,
-    DrawerContent,
-    DrawerDescription,
-    DrawerHeader,
-    DrawerPortal,
-    DrawerTitle,
-    DrawerTrigger,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerPortal,
+  DrawerTitle,
+  DrawerTrigger,
 } from '@/components/ui/drawer';
 import { records } from '@/shrekServices';
 import { CardContext } from './CardContext';
@@ -121,6 +122,11 @@ export const Pendings = () => {
             <DrawerDescription className="hidden">info about clients</DrawerDescription>
           </DrawerHeader>
           <PendingsContent />
+          <DrawerFooter className="border-t">
+            <Button variant="outline" onClick={() => setOpen(false)} className="w-full">
+              закрыть
+            </Button>
+          </DrawerFooter>
         </DrawerContent>
       </DrawerPortal>
     </Drawer>
