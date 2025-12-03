@@ -70,23 +70,19 @@ const Month = memo(
         <thead className="flex w-full absolute translate-y-[-1lh] text-2xl">
           <tr className="flex-1 h-[1lh] flex [&>*]:flex-1 [&>*+*]:border-l [&>*+*]:border-test">
             <td className="flex items-center">
-              <span className="w-max bg-background uppercase indent-3 pr-3">
+              <span className="w-max bg-background uppercase indent-3">
                 {format(date, 'LLLL yyyy', { locale: ru })}
               </span>
-              <span className="flex-1 h-full border-l border-test" />
             </td>
           </tr>
         </thead>
 
-        <tbody className="flex-1 flex flex-col [&>*]:flex-1 [&>tr]:border-b [&>tr:first-child]:border-t text-2xl pb-[1lh] [&>tr:last-child>td:not(:empty)+td:empty]:visible  [&>tr:last-child>td:not(:empty)+td:empty]:border-l">
+        <tbody className="flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh] [&>tr>td]:border-l [&>tr>td:first-child:empty]:border-l-transparent [&>tr>td:last-child]:border-r [&>tr>td:last-child:empty]:border-r-transparent [&>tr>td:empty+td:empty]:border-l-transparent [&>tr>td:empty+td:last-child:empty]:border-r-transparent [&_td]:border-t [&>tr:first-child>td:empty]:border-t-transparent [&>tr:last-child>td:not(:empty)]:border-b">
           {daysGroupedByWeek.map((d, idx) => (
-            <tr
-              key={idx}
-              className="flex-1 text-center flex [&>*]:flex-1 border-test [&>td+td]:border-l "
-            >
+            <tr key={idx} className="flex-1 text-center flex [&>*]:flex-1">
               {d.map((dd, ddindex) => (
                 <td
-                  className="aspect-[1/1.75] empty:invisible overflow-hidden border-test"
+                  className="aspect-[1/1.75] overflow-hidden border-test"
                   key={ddindex}
                   data-today={
                     dd && isEqual(startOfDay(dd), startOfDay(new Date()))
@@ -102,14 +98,14 @@ const Month = memo(
                           'bg-muted',
                       )}
                     >
-                      <span className="flex-1 max-w-full flex flex-col text-sm">
+                      <span className="flex-1 max-w-full flex flex-col text-xs">
                         <Badge
                           variant={
                             isEqual(startOfDay(dd), startOfDay(new Date()))
                               ? 'default'
                               : 'outline'
                           }
-                          className="h-min self-center font-mono rounded-2xl border-none text-base"
+                          className="h-min self-center font-mono rounded-2xl border-none"
                         >
                           {getDate(dd)}
                         </Badge>
@@ -249,7 +245,7 @@ export const Era = ({
           </Button>
         </div>
 
-        <ul className="flex justify-around text-sm lowercase border-test [&>li+li]:border-test [&>li+li]:border-l [&>li]:flex-1 [&>li]:text-center">
+        <ul className="flex justify-around text-sm lowercase border-test border-b [&>li]:border-test [&>li]:border-l [&>li:last-child]:border-r [&>li]:flex-1 [&>li]:text-center">
           <li>ПН</li>
           <li>ВТ</li>
           <li>СР</li>

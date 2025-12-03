@@ -138,8 +138,6 @@ export const Timeline = ({
       setMinutesToDate(currentDate),
     );
 
-    console.debug({ from, to, currentDate });
-
     records.startEdit({
       sign: 'new +',
       from,
@@ -147,7 +145,6 @@ export const Timeline = ({
     });
 
     activeCardState.toggle('isResizeMode', true);
-    // activeCardState.toggle('isUnfreezed', true);
   };
 
   const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -197,63 +194,40 @@ export const Timeline = ({
     () => ({
       root: scrollView,
       rootMargin: '-50% 0px -50% 0px',
-      threshold: [0, 1],
+      threshold: [0, 0.1, 0.2, 0.3, 1],
     }),
     [scrollView],
   );
 
   useEffect(() => {
-    if (!activeCardState.isUnfreezed && !isCardSelected) return;
-    const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
-    setAimPosition(newAimPosition);
-    aimPositionRef.current = newAimPosition;
-    console.debug({ newAimPosition });
+    let timerId = 0;
+
+    const f = () => {
+      if (!activeCardState.isUnfreezed && !isCardSelected) return;
+      const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
+      setAimPosition(newAimPosition);
+      aimPositionRef.current = newAimPosition;
+    };
+
+    timerId = requestAnimationFrame(f);
+
+    return () => cancelAnimationFrame(timerId);
   }, [intersectionTimeIndex, isCardSelected, activeCardState]);
 
   return (
     <Comp
-      className={cn(
-        className,
-        'overflow-y-hidden relative text-xl isolate bg-white',
-      )}
+      className={cn(className, 'flex px-1')}
       onClick={ownerResult.isOwner ? onClick : undefined}
       {...props}
     >
-      <div className="rounded-sm absolute z-1 inset-0 flex flex-col justify-center pointer-events-none">
-        <div className="aim flex-1 border-b" />
-        <div className="flex h-[2px] bg-red-500"></div>
-        <div className="flex-1" />
-      </div>
-
-      <div
-        ref={setScrollView}
-        className={cn(
-          'relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal scroll-smooth',
-        )}
-        onScrollEnd={() => {
-          if (isCardSelected) {
-            activeCardState.toggle('isUnfreezed', true);
-          } else {
-            const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
-            setAimPosition(newAimPosition);
-            aimPositionRef.current = newAimPosition;
-          }
-          // const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
-          // setAimPosition(newAimPosition);
-          // aimPositionRef.current = newAimPosition;
-          // console.debug({ newAimPosition });
-          // if (isCardSelected) {
-          //   activeCardState.toggle('isUnfreezed', true);
-          // }
-        }}
-      >
-        <h2 className="sticky z-10 top-0 flex items-end-safe bg-blurable backdrop-blur-3xl">
-          <time className="text-2xl">
+      <div className="flex-1 flex flex-col border border-test">
+        <h2 className="w-full bg-background">
+          <time className="text-2xl uppercase">
             {format(currentDate, 'dd MMMM', { locale: ru })}
+            {'  '}
           </time>
-
-          <span className="text-2xl">/</span>
           <Sdometer
+            className="text-2xl"
             value={format(
               pipe(
                 aimPosition,
@@ -265,90 +239,115 @@ export const Timeline = ({
           />
         </h2>
 
-        <div className="h-[calc(50%-1.25lh+2px)] flex items-end bg-gray-100 overflow-hidden">
-          <div className="flex-1">
-            {timeList.map(time => (
-              <div key={time} className="flex">
-                <TimeLabel label={time} />
-                <div className="flex-1 flex flex-col">
-                  <div className="flex-1 border-b border-dashed" />
-                  <div className="flex-1" />
-                </div>
-              </div>
-            ))}
-            <div className={cn(dummy({ size }))} />
-          </div>
+        <div className="absolute w-dvw z-1 bg-red inset-0 flex flex-col justify-center pointer-events-none">
+          <div className="aim flex-1" />
+          <div className="flex h-[2px] bg-red-500" />
+          <div className="flex-1" />
         </div>
 
-        <div className={cn('flex-1 flex flex-col relative')}>
-          {timeList.map((time, idx) => (
-            <div
-              key={time}
-              className={cn(
-                'flex snap-center basis-full',
-                idx === 0 && 'basis-1/2 snap-end',
-              )}
-            >
-              <TimeLabel
-                label={time}
-                isIntersecting={idx === intersectionTimeIndex}
-                className={cn(idx === 0 && `-translate-y-2/4 h-[1.25lh]`)}
-              />
-
-              <IntersectionTarget
-                intersectionOpts={intersectionObserverOpts}
-                callback={({ isIntersecting }) => {
-                  if (isIntersecting) {
-                    setIntersecionTimeIndex(idx);
-                  }
-                }}
-                className={cn('flex-1 flex flex-col w-full')}
-              >
-                {idx === 0 && (
-                  <div className="w-full flex-1 border-t border-dashed"></div>
-                )}
-                {idx !== 0 && (
-                  <>
-                    <div className="w-full flex-1 border-b border-dashed"></div>
-                    <div className="w-full flex-1"></div>
-                  </>
-                )}
-              </IntersectionTarget>
+        <div className="flex-1 max-w-full overflow-y-hidden overflow-x-visible text-xl bg-white">
+          <div
+            ref={setScrollView}
+            className={cn(
+              'relative overflow-y-auto overflow-x-visible snap-mandatory snap-y max-h-full h-full snap-normal scroll-smooth isolate',
+            )}
+            onScrollEnd={() => {
+              if (isCardSelected) {
+                activeCardState.toggle('isUnfreezed', true);
+              } else {
+                const newAimPosition =
+                  intersectionTimeIndex * sectionDisplaySize;
+                setAimPosition(newAimPosition);
+                aimPositionRef.current = newAimPosition;
+              }
+            }}
+          >
+            <div className="h-1/2 flex items-end bg-gray-100 overflow-y-hidden overflow-x-visible">
+              <div className="flex-1">
+                {timeList.map(time => (
+                  <div key={time} className="flex">
+                    <TimeLabel label={time} />
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex-1 border-b border-dashed" />
+                      <div className="flex-1" />
+                    </div>
+                  </div>
+                ))}
+                <div className={cn(dummy({ size }))} />
+              </div>
             </div>
-          ))}
 
-          <Container
-            fields={cards}
-            aimPosition={aimPosition}
-            convertToSpecificDisplayUnits={toDisplayUnits}
-            dateToDisplayUnits={dateToDisplayUnits}
-            displayUnitsToMinutes={displayUnitsToMinutes}
-            clickHandler={onTheCardClick}
-          />
-        </div>
-
-        <div className="h-[50%] flex bg-gray-100 overflow-hidden">
-          <div className="flex-1">
-            {timeList.map((time, idx) => (
-              <div key={time} className="flex">
-                <TimeLabel
+            <div className={cn('flex-1 flex flex-col relative')}>
+              {timeList.map((time, idx) => (
+                <div
+                  key={time}
                   className={cn(
-                    idx === 0 &&
-                      'bg-[linear-gradient(180deg,var(--background),transparent)]',
+                    'flex snap-center basis-full',
+                    idx === 0 && 'basis-1/2 snap-end',
                   )}
-                  label={time}
-                />
-                <div className="flex-1 flex flex-col">
-                  <div
-                    className={cn(
-                      'flex-1 border-b border-dashed',
-                      idx === 0 && 'bg-background',
-                    )}
+                >
+                  <TimeLabel
+                    label={time}
+                    isIntersecting={idx === intersectionTimeIndex}
+                    className={cn(idx === 0 && `-translate-y-2/4 h-[1.25lh]`)}
                   />
-                  <div className="flex-1" />
+
+                  <IntersectionTarget
+                    intersectionOpts={intersectionObserverOpts}
+                    callback={entry => {
+                      if (entry.isIntersecting) {
+                        setIntersecionTimeIndex(idx);
+                      }
+                    }}
+                    className={cn('flex-1 flex flex-col w-full')}
+                  >
+                    {idx === 0 && (
+                      <div className="w-full flex-1 border-t border-dashed"></div>
+                    )}
+                    {idx !== 0 && (
+                      <>
+                        <div className="w-full flex-1 border-b border-dashed"></div>
+                        <div className="w-full flex-1"></div>
+                      </>
+                    )}
+                  </IntersectionTarget>
                 </div>
+              ))}
+
+              <Container
+                fields={cards}
+                aimPosition={aimPosition}
+                convertToSpecificDisplayUnits={toDisplayUnits}
+                dateToDisplayUnits={dateToDisplayUnits}
+                displayUnitsToMinutes={displayUnitsToMinutes}
+                clickHandler={onTheCardClick}
+              />
+            </div>
+
+            <div className="h-[50%] flex bg-gray-100 overflow-hidden">
+              <div className="flex-1">
+                {timeList.map((time, idx) => (
+                  <div key={time} className="flex">
+                    <TimeLabel
+                      className={cn(
+                        idx === 0 &&
+                          'bg-[linear-gradient(180deg,var(--background),transparent)]',
+                      )}
+                      label={time}
+                    />
+                    <div className="flex-1 flex flex-col">
+                      <div
+                        className={cn(
+                          'flex-1 border-b border-dashed',
+                          idx === 0 && 'bg-background',
+                        )}
+                      />
+                      <div className="flex-1" />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>

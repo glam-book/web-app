@@ -150,7 +150,7 @@
 
 /* timelinecard */
 @utility transition-foo {
-  transition: all 0.2s ease-in;
+  transition: all 0.18s ease-in;
 }
 
 @utility hatching {
