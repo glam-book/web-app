@@ -147,7 +147,7 @@ export const Timeline = ({
     });
 
     activeCardState.toggle('isResizeMode', true);
-    activeCardState.toggle('isUnfreezed', true);
+    // activeCardState.toggle('isUnfreezed', true);
   };
 
   const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -170,12 +170,13 @@ export const Timeline = ({
       const isThatCardSelected =
         fields.id === records.store.editableRightNow.getState().fields?.id;
 
+      activeCardState.toggle('isUnfreezed', false);
+
       if (isThatCardSelected) {
         activeCardState.toggle('isResizeMode');
         return;
       }
 
-      records.finishEdit();
       records.startEdit(fields);
 
       const from = dateToDisplayUnits(fields.from);
@@ -201,6 +202,14 @@ export const Timeline = ({
     [scrollView],
   );
 
+  useEffect(() => {
+    if (!activeCardState.isUnfreezed && !isCardSelected) return;
+    const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
+    setAimPosition(newAimPosition);
+    aimPositionRef.current = newAimPosition;
+    console.debug({ newAimPosition });
+  }, [intersectionTimeIndex, isCardSelected, activeCardState]);
+
   return (
     <Comp
       className={cn(
@@ -210,7 +219,7 @@ export const Timeline = ({
       onClick={ownerResult.isOwner ? onClick : undefined}
       {...props}
     >
-      <div className="rounded-sm  absolute z-1 inset-0 flex flex-col justify-center pointer-events-none">
+      <div className="rounded-sm absolute z-1 inset-0 flex flex-col justify-center pointer-events-none">
         <div className="aim flex-1 border-b" />
         <div className="flex h-[2px] bg-red-500"></div>
         <div className="flex-1" />
@@ -222,21 +231,27 @@ export const Timeline = ({
           'relative overflow-y-auto snap-mandatory snap-y overflow-x-hidden max-h-full h-full snap-normal scroll-smooth',
         )}
         onScrollEnd={() => {
-          const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
-          setAimPosition(newAimPosition);
-          aimPositionRef.current = newAimPosition;
-          console.debug({ newAimPosition });
           if (isCardSelected) {
             activeCardState.toggle('isUnfreezed', true);
+          } else {
+            const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
+            setAimPosition(newAimPosition);
+            aimPositionRef.current = newAimPosition;
           }
+          // const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
+          // setAimPosition(newAimPosition);
+          // aimPositionRef.current = newAimPosition;
+          // console.debug({ newAimPosition });
+          // if (isCardSelected) {
+          //   activeCardState.toggle('isUnfreezed', true);
+          // }
         }}
       >
         <h2 className="sticky z-10 top-0 flex items-end-safe bg-blurable backdrop-blur-3xl">
           <time className="text-2xl">
             {format(currentDate, 'dd MMMM', { locale: ru })}
           </time>
-          {/*
-           */}
+
           <span className="text-2xl">/</span>
           <Sdometer
             value={format(
@@ -250,7 +265,7 @@ export const Timeline = ({
           />
         </h2>
 
-        <div className="h-[calc(50%-1.25lh)] flex items-end bg-gray-100 overflow-hidden">
+        <div className="h-[calc(50%-1.25lh+2px)] flex items-end bg-gray-100 overflow-hidden">
           <div className="flex-1">
             {timeList.map(time => (
               <div key={time} className="flex">
