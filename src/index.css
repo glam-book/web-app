@@ -2,11 +2,19 @@
 @import 'tw-animate-css';
 
 @font-face {
-  font-family: monofur;
+  font-family: 'IBM Plex';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/monof55.ttf');
+  src: url('/fonts/IBMPlexSans_Condensed-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Manrope-Regular.ttf');
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -21,12 +29,18 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
+  --color-test: var(--test);
+
   --color-card: var(--accent);
   --color-accent: var(--accent);
   --color-accent-secnd: var(--accent-secnd);
-  --color-accent-muted:  color-mix(in hsl, var(--accent), transparent 50%);
+  --color-accent-muted: color-mix(in hsl, var(--accent), transparent 50%);
   --color-accent-strong: var(--accent-strong);
-  --color-accent-strong-muted: color-mix(in hsl, var(--accent-strong), transparent 50%);
+  --color-accent-strong-muted: color-mix(
+    in hsl,
+    var(--accent-strong),
+    transparent 50%
+  );
 
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -136,13 +150,46 @@
 
 /* timelinecard */
 @utility transition-foo {
-  transition: all 0.1s ease-in;
+  transition: all 0.2s ease-in;
+}
+
+@utility hatching {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--test),
+    var(--test) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+@utility polka {
+  --dot-size: 0.1rem;
+  --bg-size: 0.4rem;
+  --bg-position: calc(var(--bg-size) / 2);
+
+  background-image:
+    radial-gradient(
+      circle at center,
+      var(--foreground) var(--dot-size),
+      transparent 0
+    ),
+    radial-gradient(
+      circle at center,
+      var(--foreground) var(--dot-size),
+      transparent 0
+    );
+  background-repeat: round;
+  background-size: var(--bg-size) var(--bg-size);
+  background-position:
+    0 0,
+    var(--bg-position) var(--bg-position);
 }
 
 :root {
   --radius: 0.725rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.9675 0.0098 87.47);
   --foreground: oklch(26.448% 0.00003 271.152 / 0.916);
+  /* --foreground: oklch(0.59 0.08 156.46 / 1); */
 
   --accent: rgba(255, 204, 176, 0.803);
   --accent-strong: rgba(248, 134, 99, 0.874);
@@ -154,6 +201,7 @@
   --destructive: oklch(66.214% 0.14886 18.922 / 0.691);
 
   --badge-green: oklch(89.872% 0.15893 184.356 / 0.687);
+  --test: oklch(0.31 0.1 246.67 / 0.74);
 
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
@@ -190,8 +238,16 @@
   --fs-4: clamp(2.3328rem, 2.0387rem + 1.3072vw, 3.0518rem);
   --fs-5: clamp(2.7994rem, 2.384rem + 1.8461vw, 3.8147rem);
 
-  /* --font-mono: monofur, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --text-base: 1.1rem;
+  --font-mono:
+    'Manrope', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  --font-serif:
+    'Manrope', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  --default-font-family:
+    'Manrope', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  /* --text-base: 1.1rem;
   --text-sm: 1rem; */
 }
 

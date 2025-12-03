@@ -9,7 +9,7 @@ import {
   isEqual,
   isValid,
   startOfDay,
-  startOfMonth
+  startOfMonth,
 } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
@@ -64,33 +64,42 @@ const Month = memo(
     return (
       <table
         aria-label={`${format(date, 'yyyy MMMM')}`}
-        className={cn('relative max-w-dvw h-full flex flex-col', className)}
+        className={cn('relative max-w-dvw flex flex-col', className)}
         {...props}
       >
-        <thead className="absolute translate-y-[-1lh] text-2xl bg-blurable backdrop-blur-3xl rounded-t-sm pr-3 bg-muted">
-          <tr>
-            <td className="indent-3">
-              <span>{format(date, 'LLLL yyyy', { locale: ru })}</span>
+        <thead className="flex w-full absolute translate-y-[-1lh] text-2xl">
+          <tr className="flex-1 h-[1lh] flex [&>*]:flex-1 [&>*+*]:border-l [&>*+*]:border-test">
+            <td className="flex items-center">
+              <span className="w-max bg-background uppercase indent-3 pr-3">
+                {format(date, 'LLLL yyyy', { locale: ru })}
+              </span>
+              <span className="flex-1 h-full border-l border-test" />
             </td>
           </tr>
         </thead>
 
-        <tbody className="max-h-dvh min-h-1 flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh]">
+        <tbody className="flex-1 flex flex-col [&>*]:flex-1 [&>tr]:border-b [&>tr:first-child]:border-t text-2xl pb-[1lh] [&>tr:last-child>td:not(:empty)+td:empty]:visible  [&>tr:last-child>td:not(:empty)+td:empty]:border-l">
           {daysGroupedByWeek.map((d, idx) => (
             <tr
               key={idx}
-              className="max-h-[calc(100dvh/5)] min-h-1 flex-1 text-center flex [&>*]:flex-1 snap-start"
+              className="flex-1 text-center flex [&>*]:flex-1 border-test [&>td+td]:border-l "
             >
               {d.map((dd, ddindex) => (
-                <td className="border-t h-full overflow-hidden" key={ddindex}>
+                <td
+                  className="aspect-[1/1.75] empty:invisible overflow-hidden border-test"
+                  key={ddindex}
+                  data-today={
+                    dd && isEqual(startOfDay(dd), startOfDay(new Date()))
+                  }
+                >
                   {dd && (
                     <button
                       onClick={() => onSelect(dd)}
                       type="button"
                       className={cn(
-                        'isolate relative w-full h-full pt-1 flex justify-center rounded-b-md',
+                        'isolate relative w-full h-full pt-1 flex justify-center',
                         isEqual(startOfDay(dd), startOfDay(selected)) &&
-                          'bg-blurable backdrop-blur-3x bg-muted',
+                          'bg-muted',
                       )}
                     >
                       <span className="flex-1 max-w-full flex flex-col text-sm">
@@ -139,6 +148,7 @@ export const Era = ({
   ...props
 }: Props) => {
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
+  const [isTodayClicked, setIsTodayClicked] = useState(false);
 
   const intersectionObserverOpts = useMemo(
     () => ({
@@ -158,14 +168,38 @@ export const Era = ({
 
   const [months, setMonths] = useState(makeNMonths(selected));
 
-  const scrollToCenter = () => {
+  const scrollToToday = () => {
     if (!scrollView) return;
     const rect = scrollView.getBoundingClientRect();
-    scrollView.scroll(0, rect.height * Math.floor(n / 2));
+    const today = scrollView.querySelector('[data-today="true"]');
+    if (!today) return;
+    const todayRect = today?.getBoundingClientRect();
+    scrollView.scroll(
+      0,
+      scrollView.scrollTop - rect.top + todayRect.top - todayRect.height / 2,
+    );
+  };
+
+  const scrollToCenter = () => {
+    if (!scrollView) return;
+    if (isTodayClicked) return;
+    const isScrollToTheTop = scrollView.scrollTop === 0;
+    const monthElems = Array.from(scrollView.querySelectorAll('table'));
+    const firstHalf = monthElems.slice(0, Math.floor(n / 2));
+    const secondHalf = monthElems.slice(Math.floor(n / 2));
+    const rect = scrollView.getBoundingClientRect();
+
+    const y = isScrollToTheTop
+      ? firstHalf.reduce((sum, elem) => sum + elem.offsetHeight, 0)
+      : scrollView.scrollHeight -
+        secondHalf.reduce((sum, elem) => sum + elem.offsetHeight, 0) +
+        Math.abs(secondHalf[0].offsetHeight - rect.height);
+
+    scrollView.scrollTo(0, y);
   };
 
   useEffect(() => {
-    scrollToCenter();
+    scrollToToday();
   }, [scrollView]);
 
   const [visibleDate, setVisibleDate] = useState(selected);
@@ -189,13 +223,15 @@ export const Era = ({
     requestAnimationFrame(scrollToCenter);
   }, [months]);
 
+  useLayoutEffect(() => {
+    if (isTodayClicked) setIsTodayClicked(false);
+  }, [isTodayClicked]);
+
   return (
-    <div
-      className={cn('relative h-full flex flex-col overflow-hidden', className)}
-    >
+    <div className={cn('relative flex flex-col overflow-hidden', className)}>
       <div className="flex flex-col border-b">
-        <div className="flex justify-between pr-0.5">
-          <h2 className="text-2xl indent-3">
+        <div className="flex justify-between py-2 pr-1">
+          <h2 className="text-2xl indent-3 uppercase">
             {format(visibleDate, 'LLLL yyyy', { locale: ru })}
           </h2>
 
@@ -205,14 +241,15 @@ export const Era = ({
             variant="default"
             onClick={() => {
               setMonths(makeNMonths(new Date()));
-              scrollToCenter();
+              setIsTodayClicked(true);
+              requestAnimationFrame(scrollToToday);
             }}
           >
             TODAY
           </Button>
         </div>
 
-        <ul className="flex justify-around text-sm lowercase">
+        <ul className="flex justify-around text-sm lowercase border-test [&>li+li]:border-test [&>li+li]:border-l [&>li]:flex-1 [&>li]:text-center">
           <li>ПН</li>
           <li>ВТ</li>
           <li>СР</li>
@@ -229,10 +266,11 @@ export const Era = ({
         className={cn('overflow-y-auto flex-1')}
         onScrollEnd={e => {
           if (!isFinallySafari()) return;
+
           const target = e.currentTarget;
           const depth = target.scrollHeight - target.scrollTop;
 
-          if (depth <= target.clientHeight) {
+          if (depth <= target.clientHeight + 1) {
             setMonths(makeNMonths(months.at(-1) as Date));
           }
 
@@ -242,6 +280,7 @@ export const Era = ({
         }}
         onScroll={e => {
           if (isFinallySafari()) return;
+
           const target = e.currentTarget;
           const depth = target.scrollHeight - target.scrollTop;
 
@@ -254,25 +293,22 @@ export const Era = ({
           }
         }}
       >
-        <div className="h-full">
-          {months.map(v => (
-            <IntersectionTarget
-              key={v.getTime()}
-              className="h-full"
-              intersectionOpts={intersectionObserverOpts}
-              callback={cb}
-            >
-              <Month
-                onSelect={onSelect}
-                selected={selected}
-                visibleDate={visibleDate}
-                date={v}
-                data-date={v.getTime()}
-                Detail={Detail}
-              />
-            </IntersectionTarget>
-          ))}
-        </div>
+        {months.map(v => (
+          <IntersectionTarget
+            key={v.getTime()}
+            intersectionOpts={intersectionObserverOpts}
+            callback={cb}
+          >
+            <Month
+              onSelect={onSelect}
+              selected={selected}
+              visibleDate={visibleDate}
+              date={v}
+              data-date={v.getTime()}
+              Detail={Detail}
+            />
+          </IntersectionTarget>
+        ))}
       </div>
     </div>
   );

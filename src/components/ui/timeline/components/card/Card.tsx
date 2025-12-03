@@ -2,13 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { pipe } from 'effect';
-import {
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -44,6 +38,7 @@ export const TheCard = ({
   children,
 }: Omit<CardProps, 'fields' | 'isSelected'>) => {
   const { fields, isSelected } = useContext(CardContext);
+  const { isUnfreezed } = activeCard();
 
   const calcDisplayedFields = useCallback(
     () => ({
@@ -59,7 +54,7 @@ export const TheCard = ({
   const [displayedFields, setDisplayedFields] = useState(calcDisplayedFields);
 
   useEffect(() => {
-    if (isSelected) {
+    if (isSelected && isUnfreezed) {
       setDisplayedFields(prev => ({
         top: activeCard.getState().isResizeMode
           ? Math.min(aimPosition, prev.top)
@@ -70,7 +65,7 @@ export const TheCard = ({
           : prev.size,
       }));
     }
-  }, [isSelected, aimPosition, minCardSize]);
+  }, [isSelected, isUnfreezed, aimPosition, minCardSize]);
 
   const displayUnitsToDate = useCallback(
     (units: number, base = new Date()) =>
