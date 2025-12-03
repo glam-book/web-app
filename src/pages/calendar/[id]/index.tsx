@@ -127,7 +127,7 @@ export default function Id() {
               <Era
                 onSelect={setDate}
                 selected={date}
-                className="without-gap border border-test"
+                className="without-gap"
                 Detail={records.components.RecordPreview}
               />
             </article>

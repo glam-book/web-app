@@ -187,7 +187,7 @@
 
 :root {
   --radius: 0.725rem;
-  --background: oklch(0.9675 0.0098 87.47);
+  --background: oklch(96.754% 0.00971 87.436 / 0.6);
   --foreground: oklch(26.448% 0.00003 271.152 / 0.916);
   /* --foreground: oklch(0.59 0.08 156.46 / 1); */
 
@@ -201,7 +201,7 @@
   --destructive: oklch(66.214% 0.14886 18.922 / 0.691);
 
   --badge-green: oklch(89.872% 0.15893 184.356 / 0.687);
-  --test: oklch(0.31 0.1 246.67 / 0.74);
+  --test: oklch(62.793% 0.25768 29.223 / 0.472);
 
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
