@@ -6,7 +6,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/IBMPlexSans_Condensed-Regular.ttf');
+  src: url('/fonts/IBMPlexSans_Condensed-MediumItalic.ttf');
 }
 
 @font-face {
@@ -29,7 +29,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --color-test: var(--test);
+  --color-test: color-mix(in oklch, var(--test) 60%, transparent);
 
   --color-card: var(--accent);
   --color-accent: var(--accent);
@@ -202,6 +202,7 @@
 
   --badge-green: oklch(89.872% 0.15893 184.356 / 0.687);
   --test: oklch(0.31 0.1 246.67 / 0.74);
+  --test-accent: oklch(0.89 0.18 122.55);
 
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);

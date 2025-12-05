@@ -68,16 +68,16 @@ const Month = memo(
         {...props}
       >
         <thead className="flex w-full absolute translate-y-[-1lh] text-2xl">
-          <tr className="flex-1 h-[1lh] flex [&>*]:flex-1 [&>*+*]:border-l [&>*+*]:border-test">
+          <tr className="flex-1 h-[1lh] flex [&>*]:flex-1">
             <td className="flex items-center">
-              <span className="w-max bg-background uppercase indent-3">
+              <span className="w-max bg-background uppercase indent-1 translate-y-1/3">
                 {format(date, 'LLLL yyyy', { locale: ru })}
               </span>
             </td>
           </tr>
         </thead>
 
-        <tbody className="flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh] [&>tr>td]:border-l [&>tr>td:first-child:empty]:border-l-transparent [&>tr>td:last-child]:border-r [&>tr>td:last-child:empty]:border-r-transparent [&>tr>td:empty+td:empty]:border-l-transparent [&>tr>td:empty+td:last-child:empty]:border-r-transparent [&_td]:border-t [&>tr:first-child>td:empty]:border-t-transparent [&>tr:last-child>td:not(:empty)]:border-b">
+        <tbody className="flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh] [&>tr>td]:border-l [&>tr>td:first-child:empty]:border-l-transparent [&>tr>td:last-child]:border-r [&>tr>td:last-child:empty]:border-r-transparent [&>tr>td:empty+td:empty]:border-l-transparent [&>tr>td]:border-b [&>tr:last-child>td]:border-b-[black] [&>tr:last-child>td:empty]:border-b-0 [&>tr:has(+tr:last-child)>td]:border-b-0 [&>tr:last-child>td]:border-t [&>tr:last-child>td:empty]:border-t-[black] [&>tr:first-child>td:not(:empty)]:border-t [&>tr:first-child>td]:border-t-[black] [&>tr:first-child>td:empty]:border-b-[black] [&>tr:not(:first-child)>td:first-child]:border-l-[black] [&>tr:first-child>td:empty+td:not(:empty)]:border-l-[black] [&>tr:first-child>td:first-child:not(:empty)]:border-l-[black] [&>tr>td:last-child:not(:empty)]:border-r-[black] [&>tr:last-child>td:not(:empty)+td:empty]:border-l-[black]">
           {daysGroupedByWeek.map((d, idx) => (
             <tr key={idx} className="flex-1 text-center flex [&>*]:flex-1">
               {d.map((dd, ddindex) => (
@@ -100,12 +100,12 @@ const Month = memo(
                     >
                       <span className="flex-1 max-w-full flex flex-col text-xs">
                         <Badge
+                          className="h-min font-mono rounded-2xl border-none"
                           variant={
                             isEqual(startOfDay(dd), startOfDay(new Date()))
                               ? 'default'
                               : 'outline'
                           }
-                          className="h-min self-center font-mono rounded-2xl border-none"
                         >
                           {getDate(dd)}
                         </Badge>
@@ -225,8 +225,8 @@ export const Era = ({
 
   return (
     <div className={cn('relative flex flex-col overflow-hidden', className)}>
-      <div className="flex flex-col border-b">
-        <div className="flex justify-between py-2 pr-1">
+      <div className="flex flex-col">
+        <header className="flex justify-between py-2 pr-1">
           <h2 className="text-2xl indent-3 uppercase">
             {format(visibleDate, 'LLLL yyyy', { locale: ru })}
           </h2>
@@ -234,7 +234,7 @@ export const Era = ({
           <Button
             type="button"
             size="sm"
-            variant="default"
+            variant="outline"
             onClick={() => {
               setMonths(makeNMonths(new Date()));
               setIsTodayClicked(true);
@@ -243,7 +243,7 @@ export const Era = ({
           >
             TODAY
           </Button>
-        </div>
+        </header>
 
         <ul className="flex justify-around text-sm lowercase border-test border-b [&>li]:border-test [&>li]:border-l [&>li:last-child]:border-r [&>li]:flex-1 [&>li]:text-center">
           <li>ПН</li>
