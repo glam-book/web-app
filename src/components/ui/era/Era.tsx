@@ -61,6 +61,9 @@ const Month = memo(
       [] as (Date | undefined)[][],
     );
 
+    // Math.atan(1.75/6) * 180 / Math.PI
+    // background-image: linear-gradient(164deg, transparent, transparent calc(50%), black, black 50%, transparent calc(50% + 1px));
+
     return (
       <table
         aria-label={`${format(date, 'yyyy MMMM')}`}
@@ -70,55 +73,68 @@ const Month = memo(
         <thead className="flex w-full absolute translate-y-[-1lh] text-2xl">
           <tr className="flex-1 h-[1lh] flex [&>*]:flex-1">
             <td className="flex items-center">
-              <span className="w-max bg-background uppercase indent-1 translate-y-1/3">
+              <span className="w-max bg-background uppercase indent-1">
                 {format(date, 'LLLL yyyy', { locale: ru })}
               </span>
             </td>
           </tr>
         </thead>
 
-        <tbody className="flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh] [&>tr>td]:border-l [&>tr>td:first-child:empty]:border-l-transparent [&>tr>td:last-child]:border-r [&>tr>td:last-child:empty]:border-r-transparent [&>tr>td:empty+td:empty]:border-l-transparent [&>tr>td]:border-b [&>tr:last-child>td]:border-b-[black] [&>tr:last-child>td:empty]:border-b-0 [&>tr:has(+tr:last-child)>td]:border-b-0 [&>tr:last-child>td]:border-t [&>tr:last-child>td:empty]:border-t-[black] [&>tr:first-child>td:not(:empty)]:border-t [&>tr:first-child>td]:border-t-[black] [&>tr:first-child>td:empty]:border-b-[black] [&>tr:not(:first-child)>td:first-child]:border-l-[black] [&>tr:first-child>td:empty+td:not(:empty)]:border-l-[black] [&>tr:first-child>td:first-child:not(:empty)]:border-l-[black] [&>tr>td:last-child:not(:empty)]:border-r-[black] [&>tr:last-child>td:not(:empty)+td:empty]:border-l-[black]">
+        <tbody className="flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh] [&>tr>td]:border-l [&>tr>td:last-child]:border-r [&>tr>td]:border-b [&>tr:has(+tr:last-child)>td]:border-b-0 [&>tr:last-child>td]:border-t [&>tr:first-child>td]:border-t [&>tr>td:first-child:empty]:after:block">
           {daysGroupedByWeek.map((d, idx) => (
-            <tr key={idx} className="flex-1 text-center flex [&>*]:flex-1">
+            <tr
+              key={idx}
+              className="flex-1 grid grid-cols-7"
+            >
               {d.map((dd, ddindex) => (
-                <td
-                  className="aspect-[1/1.75] overflow-hidden border-test"
-                  key={ddindex}
-                  data-today={
-                    dd && isEqual(startOfDay(dd), startOfDay(new Date()))
-                  }
-                >
-                  {dd && (
-                    <button
-                      onClick={() => onSelect(dd)}
-                      type="button"
-                      className={cn(
-                        'isolate relative w-full h-full pt-1 flex justify-center',
-                        isEqual(startOfDay(dd), startOfDay(selected)) &&
-                          'bg-muted',
-                      )}
-                    >
-                      <span className="flex-1 max-w-full flex flex-col text-xs">
-                        <Badge
-                          className="h-min font-mono rounded-2xl border-none"
-                          variant={
-                            isEqual(startOfDay(dd), startOfDay(new Date()))
-                              ? 'default'
-                              : 'outline'
-                          }
-                        >
-                          {getDate(dd)}
-                        </Badge>
-
-                        <span className="empty:hidden w-full flex-1 p-0.5">
-                          {Detail && (
-                            <Detail epoch={dd} currentDate={visibleDate} />
-                          )}
-                        </span>
-                      </span>
-                    </button>
+                <>
+                  {!dd && ddindex === 0 && (
+                    <td
+                      style={{ gridColumn: `span ${d.findIndex(Boolean)}` }}
+                      className="border-test"
+                    />
                   )}
-                </td>
+                  {dd && (
+                    <td
+                      className="aspect-[1/1.75] overflow-hidden border-test empty:after:w-full empty:after:h-full empty:after:bg-[tomato]"
+                      key={ddindex}
+                      data-today={
+                        dd && isEqual(startOfDay(dd), startOfDay(new Date()))
+                      }
+                    >
+                      {dd && (
+                        <button
+                          onClick={() => onSelect(dd)}
+                          type="button"
+                          className={cn(
+                            'isolate relative w-full h-full pt-1 flex justify-center',
+                            isEqual(startOfDay(dd), startOfDay(selected)) &&
+                              'bg-muted',
+                          )}
+                        >
+                          <span className="flex-1 max-w-full flex flex-col text-xs">
+                            <Badge
+                              className="h-min font-mono rounded-2xl border-none"
+                              variant={
+                                isEqual(startOfDay(dd), startOfDay(new Date()))
+                                  ? 'default'
+                                  : 'outline'
+                              }
+                            >
+                              {getDate(dd)}
+                            </Badge>
+
+                            <span className="empty:hidden w-full flex-1 p-0.5">
+                              {Detail && (
+                                <Detail epoch={dd} currentDate={visibleDate} />
+                              )}
+                            </span>
+                          </span>
+                        </button>
+                      )}
+                    </td>
+                  )}
+                </>
               ))}
             </tr>
           ))}
