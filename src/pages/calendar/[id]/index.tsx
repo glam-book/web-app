@@ -1,19 +1,19 @@
 import { shareURL } from '@tma.js/sdk-react';
 import { Share } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
 import type { HostApi } from '@/components/ui/carousel';
 import * as Carousel from '@/components/ui/carousel';
 
 import { Era } from '@/components/ui/era';
 import { Toaster } from '@/components/ui/sonner';
 import { Timeline } from '@/components/ui/timeline';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useParams } from '@/router';
-import { owner, records, services } from '@/shrekServices';
-import ProfilePreview from '@/shrekServices/components/ProfilePreview';
+import { owner, records, services, users } from '@/shrekServices';
 
 export default function Id() {
   const params = useParams('/calendar/:id');
@@ -56,102 +56,83 @@ export default function Id() {
     return () => carouselApi.current?.next(1);
   }, [date]);
 
-  const { isOwner } = owner.useIsOwner();
+  const [carouselIndicatorWrapper, setCarouselIndicatorWrapper] =
+    useState<HTMLElement | null>(null);
 
   return (
-    <main className="flex flex-col gap-0.5 max-h-dvh overscroll-none pl-2 pr-2">
-      <header className="pt-2 pb-2 rounded-sm flex justify-between items-center">
-        <div
-          className={cn(
-            'flex-1 items-center gap-2 text-sm indent-2 rounded-3xl',
-            isOwner && 'bg-secondary',
-          )}
+    <>
+      <main className="content-grid grid-rows-[1fr_auto_1fr] gap-y-2 max-h-dvh overscroll-none">
+        <header
+          ref={() => {}}
+          className="breakout flex justify-between items-center rounded-sm"
         >
-          {(() => {
-            const { data: profile, isLoading } = owner.useProfile();
-            const hasPersonalFields = (
-              p: unknown,
-            ): p is {
-              name?: string | null;
-              lastName?: string | null;
-              login?: string | null;
-            } =>
-              typeof p === 'object' &&
-              p !== null &&
-              ('name' in p || 'lastName' in p || 'login' in p);
-            const displayFullName = hasPersonalFields(profile)
-              ? `${String(profile.name ?? '')} ${String(profile.lastName ?? '')}`.trim()
-              : '';
+          <div className={cn('py-1 items-center rounded-3xl')}>
+            <users.components.ProfileView />
+          </div>
 
-            const displayLogin = hasPersonalFields(profile)
-              ? String(profile.login ?? '')
-              : '';
-            return (
-              <div
-                className={cn(
-                  'flex items-center gap-2 text-sm font-bold indent-2 text-white',
-                )}
-              >
-                <span className="followable animate-follow">
-                  <ProfilePreview profile={profile} loading={isLoading} />
-                </span>
+          <Button
+            aria-label="Share"
+            type="button"
+            fashion="glassy"
+            variant="ghost"
+            size="icon"
+            className="rounded-[50%]"
+            onClick={() => {
+              const startAppParam = { calendarId: params.id };
+              shareURL(
+                `https://t.me/glambookbot/slapdash?startapp=${btoa(JSON.stringify(startAppParam))}`,
+              );
+            }}
+          >
+            <Share />
+          </Button>
+        </header>
 
-                {displayFullName ? (
-                  <span
-                    className="followable animate-follow"
-                    style={{
-                      transitionDelay: '120ms',
-                      animationDelay: '120ms',
-                    }}
-                  >
-                    {displayFullName}
-                  </span>
-                ) : null}
+        <Carousel.Host
+          className="full-bleed max-h-full overflow-y-hidden"
+          ref={carouselApi}
+        >
+          <Carousel.ItemsContainer className="max-h-full">
+            <Carousel.Item className="flex-1 min-w-full flex">
+              <article className="flex-1 content-grid">
+                <Era
+                  onSelect={setDate}
+                  selected={date}
+                  className="breakout card"
+                  Detail={records.components.RecordPreview}
+                />
+              </article>
+            </Carousel.Item>
 
-                <div
-                  className="followable animate-follow"
-                  style={{ transitionDelay: '160ms', animationDelay: '160ms' }}
-                >
-                  {displayLogin}
-                </div>
-              </div>
-            );
-          })()}
-        </div>
-      </header>
+            <Carousel.Item className="flex-1 min-w-full max-w-full flex">
+              <section className="flex-1 flex overflow-hidden">
+                <Timeline
+                  className="flex-1"
+                  currentDate={date}
+                  cards={recordList}
+                />
+              </section>
 
-      <Carousel.Host className="flex-1 overflow-y-hidden" ref={carouselApi}>
-        <Carousel.Item className="flex-1 min-w-full flex">
-          <article className="flex-1 flex flex-col">
-            <Era
-              onSelect={setDate}
-              selected={date}
-              className="without-gap border border-test"
-              Detail={records.components.RecordPreview}
-            />
-          </article>
-        </Carousel.Item>
+              <records.EditRecordModal />
 
-        <Carousel.Item className="flex-1 min-w-full">
-          <section className="max-h-svh overflow-hidden">
-            <Timeline
-              className="flex-1 rounded-sm relative bg-card h-svh"
-              currentDate={date}
-              cards={recordList}
-            />
-          </section>
+              <services.components.EditService />
+            </Carousel.Item>
+          </Carousel.ItemsContainer>
 
-          <records.EditRecordModal />
+          {carouselIndicatorWrapper &&
+            createPortal(<Carousel.Indicator />, carouselIndicatorWrapper)}
+        </Carousel.Host>
 
-          <services.components.EditService />
-        </Carousel.Item>
-      </Carousel.Host>
-
-      <footer className="pb-[calc(env(safe-area-inset-bottom)+0.2em)] indent-3">
-        OPEN BETTA
-      </footer>
+        <footer className="full-bleed content-grid pb-[calc(env(safe-area-inset-bottom,var(--tg-safe-area-inset-bottom))+0.2rem)] indent-3">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center">
+            <span />
+            <div ref={setCarouselIndicatorWrapper} />
+            <span className="font-mono justify-self-end-safe">v0.0.0</span>
+          </div>
+        </footer>
+      </main>
 
       <Toaster />
-    </main>
+    </>
   );
 }

@@ -3,8 +3,8 @@ import {
   emitEvent,
   init,
   mockTelegramEnv,
-  retrieveLaunchParams,
   swipeBehavior,
+  viewport,
 } from '@tma.js/sdk-react';
 import { enableMapSet } from 'immer';
 import { StrictMode } from 'react';
@@ -84,10 +84,18 @@ if (import.meta.env.DEV) {
 
 init();
 
-console.debug(retrieveLaunchParams().tgWebAppPlatform);
-
 swipeBehavior.mount();
 swipeBehavior.disableVertical();
+
+const { top, bottom } = viewport.safeAreaInsets();
+document.documentElement.style.setProperty(
+  '--tg-safe-area-inset-bottom',
+  `${bottom}px`,
+);
+document.documentElement.style.setProperty(
+  '--tg-safe-area-inset-top',
+  `${top}px`,
+);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

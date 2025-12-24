@@ -6,10 +6,9 @@ import {
   getDate,
   getDay,
   getWeekOfMonth,
-  isEqual,
   isValid,
-  startOfDay,
   startOfMonth,
+  isToday,
 } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
@@ -19,6 +18,7 @@ import {
   useLayoutEffect,
   useMemo,
   useState,
+  Fragment,
 } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -73,34 +73,37 @@ const Month = memo(
         <thead className="flex w-full absolute translate-y-[-1lh] text-2xl">
           <tr className="flex-1 h-[1lh] flex [&>*]:flex-1">
             <td className="flex items-center">
-              <span className="w-max bg-background uppercase indent-1">
+              <span className="w-max uppercase indent-3">
                 {format(date, 'LLLL yyyy', { locale: ru })}
               </span>
             </td>
           </tr>
         </thead>
 
-        <tbody className="flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh] [&>tr>td]:border-l [&>tr>td:last-child]:border-r [&>tr>td]:border-b [&>tr:has(+tr:last-child)>td]:border-b-0 [&>tr:last-child>td]:border-t [&>tr:first-child>td]:border-t [&>tr>td:first-child:empty]:after:block">
+        <tbody className="flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh] /*[&>tr>td]:border-l [&>tr>td:last-child]:border-r [&>tr>td]:border-b [&>tr:has(+tr:last-child)>td]:border-b-0 [&>tr:last-child>td]:border-t [&>tr:first-child>td]:border-t [&>tr:last-child>td]:border-b-transparent [&>tr>td]:border-0! [&>tr]:border-t */ [&_td]:rounded-md">
           {daysGroupedByWeek.map((d, idx) => (
-            <tr
-              key={idx}
-              className="flex-1 grid grid-cols-7"
-            >
+            <tr key={idx} className="flex-1 grid grid-cols-7 py-1">
               {d.map((dd, ddindex) => (
-                <>
+                <Fragment key={ddindex}>
                   {!dd && ddindex === 0 && (
                     <td
                       style={{ gridColumn: `span ${d.findIndex(Boolean)}` }}
-                      className="border-test"
+                      className="border-y border-x-transparent"
+                    />
+                  )}
+                  {!dd && ddindex === d.length - 1 && (
+                    <td
+                      style={{
+                        gridColumn: `span ${d.reduce((acc, i) => acc + Number(!i), 0)} / -1`,
+                      }}
+                      className="border-y border-x-transparent"
                     />
                   )}
                   {dd && (
                     <td
-                      className="aspect-[1/1.75] overflow-hidden border-test empty:after:w-full empty:after:h-full empty:after:bg-[tomato]"
+                      className="aspect-[1/1.88] overflow-hidden border-y border-x-transparent text-xs"
                       key={ddindex}
-                      data-today={
-                        dd && isEqual(startOfDay(dd), startOfDay(new Date()))
-                      }
+                      data-today={dd && isToday(dd)}
                     >
                       {dd && (
                         <button
@@ -108,23 +111,21 @@ const Month = memo(
                           type="button"
                           className={cn(
                             'isolate relative w-full h-full pt-1 flex justify-center',
-                            isEqual(startOfDay(dd), startOfDay(selected)) &&
-                              'bg-muted',
+                            isToday(dd) && 'bg-muted',
                           )}
                         >
-                          <span className="flex-1 max-w-full flex flex-col text-xs">
+                          <span className="flex-1 max-w-full p-1 flex flex-col items-center">
                             <Badge
-                              className="h-min font-mono rounded-2xl border-none"
-                              variant={
-                                isEqual(startOfDay(dd), startOfDay(new Date()))
-                                  ? 'default'
-                                  : 'outline'
-                              }
+                              className={cn(
+                                'h-min border-none',
+                                isToday(dd) && 'bg-red-600/80',
+                              )}
+                              variant={isToday(dd) ? 'default' : 'outline'}
                             >
                               {getDate(dd)}
                             </Badge>
 
-                            <span className="empty:hidden w-full flex-1 p-0.5">
+                            <span className="empty:hidden w-full flex-1">
                               {Detail && (
                                 <Detail epoch={dd} currentDate={visibleDate} />
                               )}
@@ -134,7 +135,7 @@ const Month = memo(
                       )}
                     </td>
                   )}
-                </>
+                </Fragment>
               ))}
             </tr>
           ))}
@@ -242,26 +243,27 @@ export const Era = ({
   return (
     <div className={cn('relative flex flex-col overflow-hidden', className)}>
       <div className="flex flex-col">
-        <header className="flex justify-between py-2 pr-1">
-          <h2 className="text-2xl indent-3 uppercase">
+        <header className="flex justify-between py-2">
+          <h2 className="flex items-center text-2xl indent-3 uppercase">
             {format(visibleDate, 'LLLL yyyy', { locale: ru })}
           </h2>
 
           <Button
             type="button"
             size="sm"
-            variant="outline"
+            fashion="fancy"
+            className="bg-red-600/80"
             onClick={() => {
               setMonths(makeNMonths(new Date()));
               setIsTodayClicked(true);
               requestAnimationFrame(scrollToToday);
             }}
           >
-            TODAY
+            Сегодня
           </Button>
         </header>
 
-        <ul className="flex justify-around text-sm lowercase border-test border-b [&>li]:border-test [&>li]:border-l [&>li:last-child]:border-r [&>li]:flex-1 [&>li]:text-center">
+        <ul className="flex justify-around rounded-t-md text-sm lowercase border-transparent border-b [&>li]:border-y [&>li]:border-x-transparent [&>li]:border-l [&>li:last-child]:border-r [&>li]:flex-1 [&>li]:text-center">
           <li>ПН</li>
           <li>ВТ</li>
           <li>СР</li>
@@ -275,7 +277,7 @@ export const Era = ({
       <div
         ref={setScrollView}
         {...props}
-        className={cn('overflow-y-auto flex-1')}
+        className={cn('overflow-y-auto flex-1 rounded-md')}
         onScrollEnd={e => {
           if (!isFinallySafari()) return;
 

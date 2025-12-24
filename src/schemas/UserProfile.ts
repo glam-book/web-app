@@ -8,4 +8,6 @@ export const UserProfile = Schema.Struct({
   login: Schema.optional(Schema.NullOr(Schema.String)),
   profileIcon: Schema.optional(Schema.NullOr(Schema.String)),
   contacts: Schema.optional(Schema.NullOr(Schema.Array(Schema.Unknown))),
+  email: Schema.optional(Schema.NullOr(Schema.String)),
+  phone: Schema.optional(Schema.NullOr(Schema.String)),
 });

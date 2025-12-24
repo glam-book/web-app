@@ -6,7 +6,6 @@ import { flow, pipe } from 'effect';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
-import { Sdometer } from '@/components/ui/sdometer';
 import { activeCard } from '@/components/ui/timeline/store';
 import { cn } from '@/lib/utils';
 import { owner, records } from '@/shrekServices';
@@ -139,7 +138,6 @@ export const Timeline = ({
     );
 
     records.startEdit({
-      sign: 'new +',
       from,
       to,
     });
@@ -216,40 +214,30 @@ export const Timeline = ({
 
   return (
     <Comp
-      className={cn(className, 'flex px-1')}
+      className={cn(className, 'relative content-grid overflow-y-auto')}
       onClick={ownerResult.isOwner ? onClick : undefined}
       {...props}
     >
-      <div className="flex-1 flex flex-col border border-test">
-        <h2 className="w-full bg-background">
+      <div className="card-header backdrop-blur-none shadow-shadow">
+        <h2 className="indent-3">
           <time className="text-2xl uppercase">
             {format(currentDate, 'dd MMMM', { locale: ru })}
-            {'  '}
           </time>
-          <Sdometer
-            className="text-2xl"
-            value={format(
-              pipe(
-                aimPosition,
-                displayUnitsToMinutes,
-                setMinutesToDate(currentDate),
-              ),
-              'HH:mm',
-            )}
-          />
         </h2>
+      </div>
 
-        <div className="absolute w-dvw z-1 bg-red inset-0 flex flex-col justify-center pointer-events-none">
+      <div className="full-bleed relative flex flex-col overflow-y-auto">
+        <div className="absolute w-dvw z-1 inset-0 flex flex-col justify-center pointer-events-none">
           <div className="aim flex-1" />
           <div className="flex h-[2px] bg-red-500" />
           <div className="flex-1" />
         </div>
 
-        <div className="flex-1 max-w-full overflow-y-hidden overflow-x-visible text-xl bg-white">
+        <div className="relative flex-1 max-w-full overflow-y-hidden overflow-x-visible text-xl">
           <div
             ref={setScrollView}
             className={cn(
-              'relative overflow-y-auto overflow-x-visible snap-mandatory snap-y max-h-full h-full snap-normal scroll-smooth isolate',
+              'relative overflow-y-auto overflow-x-hidden snap-mandatory snap-y max-h-full h-full snap-normal scroll-smooth',
             )}
             onScrollEnd={() => {
               if (isCardSelected) {
@@ -262,95 +250,103 @@ export const Timeline = ({
               }
             }}
           >
-            <div className="h-1/2 flex items-end bg-gray-100 overflow-y-hidden overflow-x-visible">
-              <div className="flex-1">
-                {timeList.map(time => (
-                  <div key={time} className="flex">
-                    <TimeLabel label={time} />
-                    <div className="flex-1 flex flex-col">
-                      <div className="flex-1 border-b border-dashed" />
-                      <div className="flex-1" />
+            <div className="content-grid text-base h-1/2">
+              <div className="text-xl card bg-none bg-background-light pl-0 border-b-0 rounded-none shadow-none flex items-end overflow-y-hidden overflow-x-visible">
+                <div className="flex-1">
+                  {timeList.map(time => (
+                    <div key={time} className="flex">
+                      <TimeLabel
+                        className="[&>*]:-translate-y-1/2"
+                        label={time}
+                      />
+                      <div className="flex-1 flex flex-col">
+                        <div className="flex-1 border-b border-dashed" />
+                        <div className="flex-1" />
+                      </div>
                     </div>
-                  </div>
-                ))}
-                <div className={cn(dummy({ size }))} />
+                  ))}
+                  <div className={cn(dummy({ size }))} />
+                </div>
               </div>
             </div>
 
-            <div className={cn('flex-1 flex flex-col relative')}>
-              {timeList.map((time, idx) => (
-                <div
-                  key={time}
-                  className={cn(
-                    'flex snap-center basis-full',
-                    idx === 0 && 'basis-1/2 snap-end',
-                  )}
-                >
-                  <TimeLabel
-                    label={time}
-                    isIntersecting={idx === intersectionTimeIndex}
-                    className={cn(idx === 0 && `-translate-y-2/4 h-[1.25lh]`)}
-                  />
-
-                  <IntersectionTarget
-                    intersectionOpts={intersectionObserverOpts}
-                    callback={entry => {
-                      if (entry.isIntersecting) {
-                        setIntersecionTimeIndex(idx);
-                      }
-                    }}
-                    className={cn('flex-1 flex flex-col w-full')}
-                  >
-                    {idx === 0 && (
-                      <div className="w-full flex-1 border-t border-dashed"></div>
-                    )}
-                    {idx !== 0 && (
-                      <>
-                        <div className="w-full flex-1 border-b border-dashed"></div>
-                        <div className="w-full flex-1"></div>
-                      </>
-                    )}
-                  </IntersectionTarget>
-                </div>
-              ))}
-
-              <Container
-                fields={cards}
-                aimPosition={aimPosition}
-                convertToSpecificDisplayUnits={toDisplayUnits}
-                dateToDisplayUnits={dateToDisplayUnits}
-                displayUnitsToMinutes={displayUnitsToMinutes}
-                clickHandler={onTheCardClick}
-              />
-            </div>
-
-            <div className="h-[50%] flex bg-gray-100 overflow-hidden">
-              <div className="flex-1">
+            <div className="flex-1 content-grid text-base relative">
+              <div className="text-xl card pl-0 bg-none bg-background border-t-0 rounded-none shadow-none">
                 {timeList.map((time, idx) => (
-                  <div key={time} className="flex">
+                  <div
+                    key={time}
+                    className={cn(
+                      'flex snap-center basis-full',
+                      idx === 0 && 'basis-1/2 snap-end',
+                    )}
+                  >
                     <TimeLabel
-                      className={cn(
-                        idx === 0 &&
-                          'bg-[linear-gradient(180deg,var(--background),transparent)]',
-                      )}
                       label={time}
+                      isIntersecting={idx === intersectionTimeIndex}
+                      className={cn(
+                        '[&>*]:-translate-y-1/2',
+                        idx === 0 && `-translate-y-2/4 h-[1.25lh]`,
+                      )}
                     />
-                    <div className="flex-1 flex flex-col">
-                      <div
-                        className={cn(
-                          'flex-1 border-b border-dashed',
-                          idx === 0 && 'bg-background',
-                        )}
-                      />
-                      <div className="flex-1" />
-                    </div>
+
+                    <IntersectionTarget
+                      intersectionOpts={intersectionObserverOpts}
+                      callback={entry => {
+                        if (entry.isIntersecting) {
+                          setIntersecionTimeIndex(idx);
+                        }
+                      }}
+                      className={cn('flex-1 flex flex-col w-full')}
+                    >
+                      {idx === 0 && (
+                        <div className="w-full flex-1 border-t border-dashed"></div>
+                      )}
+                      {idx !== 0 && (
+                        <>
+                          <div className="w-full flex-1 border-b border-dashed"></div>
+                          <div className="w-full flex-1"></div>
+                        </>
+                      )}
+                    </IntersectionTarget>
                   </div>
                 ))}
+
+                <div className="content-grid">
+                  <Container
+                    fields={cards}
+                    aimPosition={aimPosition}
+                    convertToSpecificDisplayUnits={toDisplayUnits}
+                    dateToDisplayUnits={dateToDisplayUnits}
+                    displayUnitsToMinutes={displayUnitsToMinutes}
+                    clickHandler={onTheCardClick}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="h-1/2 content-grid text-base">
+              <div className="text-xl card pl-0 rounded-none bg-none bg-background flex overflow-hidden">
+                <div className="flex-1">
+                  {timeList.map(time => (
+                    <div key={time} className="flex">
+                      <TimeLabel
+                        className="[&>*]:-translate-y-1/2"
+                        label={time}
+                      />
+                      <div className="flex-1 flex flex-col">
+                        <div className="flex-1 border-b border-dashed" />
+                        <div className="flex-1" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <div className="min-h-lh text-2xl py-2 rounded-b-4xl bg-background-light" />
     </Comp>
   );
 };

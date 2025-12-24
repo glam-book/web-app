@@ -26,21 +26,19 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
+  --color-background: var(--background-light);
+  --color-background-light: var(--background-light);
+  --color-background-darker: var(--background);
+  --color-background-dark: var(--background-dark);
+  --color-highlight: var(--highlight);
   --color-foreground: var(--foreground);
-
-  --color-test: color-mix(in oklch, var(--test) 60%, transparent);
+  --color-brand: var(--brand);
 
   --color-card: var(--accent);
   --color-accent: var(--accent);
   --color-accent-second: var(--accent-second);
-  --color-accent-muted:  color-mix(in hsl, var(--accent), transparent 50%);
+  --color-accent-muted: color-mix(in hsl, var(--accent), transparent 50%);
   --color-accent-strong: var(--accent-strong);
-  --color-accent-strong-muted: color-mix(
-    in hsl,
-    var(--accent-strong),
-    transparent 50%
-  );
 
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -80,10 +78,12 @@
   --breakout-size: minmax(0, 7rem);
   --content-size-xl: minmax(0, calc(var(--prose-xl) - var(--prose)));
   --content-size: min(var(--prose), calc(100% - var(--gap) * 2));
+
+  --shadow-shadow: var(--shadow);
 }
 
 .dark {
-  --background: oklch(26.76% 0.01404 310.747);
+  --background: oklch(0.88 0 0 / 0.86);
   --foreground: oklch(0.985 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(22.323% 0.00729 345.782);
@@ -185,14 +185,28 @@
     var(--bg-position) var(--bg-position);
 }
 
+@utility bg-background-gradient {
+  background: var(--background-gradient);
+}
+
 :root {
   --radius: 0.725rem;
-  --background: oklch(0.9675 0.0098 87.47);
+  --background-dark: oklch(0.93 0 0);
+  --background: oklch(0.9619 0 0);
+  --background-light: oklch(1 0 0);
+  --background-gradient: linear-gradient(
+    0deg,
+    var(--background-light) 70%,
+    var(--background)
+  );
+  --highlight: oklch(1 0 0);
   --foreground: oklch(26.448% 0.00003 271.152 / 0.916);
-  /* --foreground: oklch(0.59 0.08 156.46 / 1); */
+  --brand: oklch(0.5998 0.14119 241.5546);
+
+  --shadow: 0 2px 2px oklch(0 0 0 / 7%);
 
   --accent: rgba(255, 204, 176, 0.803);
-  --accent-strong: rgba(248, 134, 99, 0.874);
+  --accent-strong: oklch(0.75 0.14 37.84);
   --accent-second: rgb(147, 232, 240);
   --accent-muted: rgb(173, 148, 138);
   --card-foreground: oklch(27.275% 0.0205 43.695);
@@ -201,8 +215,6 @@
   --destructive: oklch(66.214% 0.14886 18.922 / 0.691);
 
   --badge-green: oklch(89.872% 0.15893 184.356 / 0.687);
-  --test: oklch(0.31 0.1 246.67 / 0.74);
-  --test-accent: oklch(0.89 0.18 122.55);
 
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
@@ -212,7 +224,7 @@
   --secondary-foreground: oklch(0.21 0.006 285.885);
 
   --muted: oklch(93.5% 0.01774 59.298 / 0.802);
-  --muted-foreground: oklch(0.24 0.03 283.78 / 0.31);
+  --muted-foreground: oklch(0.73 0.01 285.89);
   --border: oklch(94.309% 0.00011 271.152);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
@@ -239,17 +251,9 @@
   --fs-4: clamp(2.3328rem, 2.0387rem + 1.3072vw, 3.0518rem);
   --fs-5: clamp(2.7994rem, 2.384rem + 1.8461vw, 3.8147rem);
 
-  --font-mono:
-    'Manrope', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
-  --font-serif:
-    'Manrope', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
   --default-font-family:
     'Manrope', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     'Liberation Mono', 'Courier New', monospace;
-  /* --text-base: 1.1rem;
-  --text-sm: 1rem; */
 }
 
 @layer base {
@@ -257,78 +261,12 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background-dark text-foreground;
   }
-}
-
-/* back-button enter animation: slide from left with a small wobble (inertia) */
-@keyframes wobble-in-left {
-  0% {
-    transform: translateX(-140%) rotate(-12deg);
-    opacity: 0;
+  .card {
+    @apply bg-background-gradient px-2 rounded-4xl border border-background border-t-highlight shadow-shadow;
   }
-  60% {
-    transform: translateX(8%) rotate(6deg);
-    opacity: 1;
+  .card-header {
+    @apply py-2 bg-background-darker/30 backdrop-blur-2xl rounded-t-4xl border-t border-t-highlight;
   }
-  75% {
-    transform: translateX(-4%) rotate(-3deg);
-  }
-  90% {
-    transform: translateX(2%) rotate(1deg);
-  }
-  100% {
-    transform: translateX(0) rotate(0);
-  }
-}
-
-@layer utilities {
-  .animate-wobble-in {
-    animation: wobble-in-left 320ms cubic-bezier(.22,.9,.22,.9) both;
-    will-change: transform, opacity;
-  }
-  /* header follow animation: other header items move/right with small overshoot and stagger */
-  @keyframes follow-in-right {
-    0% {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    60% {
-      transform: translateX(1.75rem);
-    }
-    80% {
-      transform: translateX(0.8rem);
-    }
-    100% {
-      transform: translateX(0);
-    }
-  }
-
-  .followable {
-    transition: transform 100ms cubic-bezier(.22,.9,.23,1);
-    will-change: transform;
-  }
-
-  /* parent class toggled when back button visible */
-  .has-back .followable {
-    transform: translateX(0.9rem);
-  }
-
-  /* option to use an explicit animation wobble for stronger effect */
-  .has-back .followable.animate-follow {
-    animation: follow-in-right 220ms cubic-bezier(.22,.9,.23,1) both;
-  }
-
-  /* optional: leave stagger to inline delays on elements */
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-wobble-in,
-  .has-back .followable,
-  .has-back .followable.animate-follow {
-    animation: none !important;
-    transition: none !important;
-    transform: none !important;
-  }
-
 }

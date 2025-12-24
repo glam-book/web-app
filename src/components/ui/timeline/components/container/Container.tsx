@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import { records, owner } from '@/shrekServices';
-import { activeCard } from '@/components/ui/timeline/store';
 
 import type { ContainerProps } from './types';
 

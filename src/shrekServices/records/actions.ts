@@ -1,4 +1,4 @@
-import { Effect, Exit, Schema, flow, pipe } from 'effect';
+import { Effect, Duration, Exit, Schema, flow, pipe } from 'effect';
 import { format, getDate, startOfDay } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 
@@ -60,6 +60,7 @@ export const useGetPreview = (
   month: Date,
 ) =>
   useQuery({
+    staleTime: Duration.toMillis('15 minutes'),
     queryKey: [`${resource}/preview`, userId, month],
     enabled: [userId, month].every(Boolean),
     queryFn: () =>
@@ -67,6 +68,13 @@ export const useGetPreview = (
         () =>
           ({
             '1': [
+              {
+                day: 1,
+                ts: new Date(),
+                isOwner: true,
+                canPending: true,
+                hasPendings: false,
+              },
               {
                 day: 1,
                 ts: new Date(),

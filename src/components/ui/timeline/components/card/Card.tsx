@@ -100,8 +100,8 @@ export const TheCard = ({
       tabIndex={0}
       onClick={disabled ? undefined : onClick}
       className={cn(
-        'flex absolute w-full',
-        isSelected && 'shadow-2xl z-1 translate-y-0 translate-x-5',
+        'flex absolute left-0 w-full rounded-md',
+        isSelected && 'z-1 translate-x-[3ch]',
         'transition-foo',
       )}
       style={{
