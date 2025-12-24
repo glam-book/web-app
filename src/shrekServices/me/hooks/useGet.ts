@@ -6,6 +6,7 @@ import { get } from '@/shrekServices/me';
 export const useGet = () =>
   useQuery({
     queryKey: ['me'],
+    staleTime: Infinity,
     queryFn: () =>
       Effect.runPromise(get).catch(error => {
         if (import.meta.env.DEV) {
@@ -14,5 +15,4 @@ export const useGet = () =>
 
         throw error;
       }),
-    staleTime: Infinity,
   });

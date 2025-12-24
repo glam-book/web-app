@@ -14,5 +14,9 @@ export const Root = ({
   fields,
   isSelected,
 }: PropsWithChildren<Pick<CardProps, 'isSelected' | 'fields'>>) => {
-  return <CardContext.Provider value={{ fields, isSelected }}>{children}</CardContext.Provider>;
+  return (
+    <CardContext.Provider value={{ fields, isSelected }}>
+      {children}
+    </CardContext.Provider>
+  );
 };

@@ -18,7 +18,7 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
   return (
     <Drawer
       open={Boolean(fields)}
-      repositionInputs
+      repositionInputs={false}
       onClose={services.resetEdit}
       {...props}
     >

@@ -8,9 +8,6 @@ const query = 'user';
 export const useGet = (...[userId]: Partial<Parameters<typeof get>>) =>
   useQuery({
     queryKey: [query, { userId }],
-    queryFn: () => {
-      if (userId) {
-        return Effect.runPromise(get(userId)).catch(() => undefined);
-      }
-    },
+    enabled: Boolean(userId),
+    queryFn: () => Effect.runPromise(get(userId as string | number)),
   });

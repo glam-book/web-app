@@ -11,8 +11,6 @@ export default function Home() {
   const me = services.me.useGet();
 
   useEffect(() => {
-    if (me.isLoading) return;
-
     pipe(
       E.try(() =>
         JSON.parse(
@@ -21,7 +19,7 @@ export default function Home() {
       ),
       tryDecodeInto(Schema.Struct({ calendarId: Schema.String })),
       E.catchAll(error => {
-        console.debug(error);
+        console.error(error);
         return E.succeed({ calendarId: me.data?.id });
       }),
       E.andThen(x => E.fromNullable(x.calendarId)),
@@ -31,5 +29,5 @@ export default function Home() {
       }),
       E.runSyncExit,
     );
-  }, [me.data, me.isLoading]);
+  }, [me.data]);
 }

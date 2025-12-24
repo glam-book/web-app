@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import { records, owner } from '@/shrekServices';
-import { activeCard } from '@/components/ui/timeline/store';
 
 import type { ContainerProps } from './types';
 
@@ -13,7 +12,6 @@ export const Container = ({
   ...rest
 }: ContainerProps) => {
   const selectedCardState = records.store.editableRightNow();
-  const activeCardState = activeCard();
 
   const fieldList = useMemo(() => Array.from(fields, ([_, v]) => v), [fields]);
 
@@ -23,9 +21,7 @@ export const Container = ({
   return (
     ownerResult.isFetched &&
     fieldList.map(cardFields => {
-      const isSelected =
-        cardFields.id === selectedCardState.fields?.id &&
-        activeCardState.isUnfreezed;
+      const isSelected = cardFields.id === selectedCardState.fields?.id;
 
       return (
         <Comp

@@ -19,7 +19,7 @@ export const TimeLabel = ({
       )}
       dateTime={label}
     >
-      <span className="text-sm font-mono">{label}</span>
+      <span className="text-xs indent-1">{label}</span>
     </time>
   );
 };
