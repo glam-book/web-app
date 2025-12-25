@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { memo, useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import { differenceInMonths, startOfMonth, getDate } from 'date-fns';
 import { Circle as Dot } from 'lucide-react';
 
@@ -45,6 +45,17 @@ export const RecordPreview = memo(
       }
       return () => cancelAnimationFrame(timerId);
     }, [details, host]);
+
+    // const detailItemsFitsCount = useMemo(() => {
+    //   if (!host) return 0;
+    //   const height = host.offsetHeight;
+    //   const computedStyles = window.getComputedStyle(host);
+    //   const itemHeight = parseFloat(computedStyles.lineHeight);
+    //   const gap =
+    //     parseFloat(computedStyles.getPropertyValue('--spacing')) * 0.5;
+
+    //   const itemsCount = Math.floor(height / itemHeight;
+    // }, [detailsForTheDay?.length, host]);
 
     const isFitsInHeight = (): boolean => {
       if (!host) return false;

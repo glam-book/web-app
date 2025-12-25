@@ -275,7 +275,7 @@ export const OwnerCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
               'bg-accent-second text-[coral]',
           )}
         >
-          <span className="text-base text-foreground">{String(fields?.sign)}</span>
+          <span className="text-base text-foreground">{fields?.sign}</span>
           <Badges />
           <Pendings />
         </Content>

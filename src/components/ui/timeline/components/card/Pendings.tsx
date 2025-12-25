@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useContext, useState } from 'react';
 
+import { records, owner } from '@/shrekServices';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,16 +12,19 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
-  DrawerPortal,
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
-import { records } from '@/shrekServices';
+
 import { CardContext } from './CardContext';
 
 export const PendingsContent = () => {
   const { fields } = useContext(CardContext);
-  const { data: pendingList } = records.usePendingDetails(fields.id);
+  const { calendarId } = owner.store();
+  const { data: pendingList } = records.usePendingDetails(
+    calendarId,
+    fields.id,
+  );
 
   return (
     <div>
@@ -97,7 +101,6 @@ export const Pendings = () => {
         requestAnimationFrame(() => {
           const overlay = document.querySelector('[data-vaul-overlay]');
           overlay?.addEventListener('click', e => {
-            console.log('overlay click!');
             e.stopPropagation();
             setOpen(false);
           });
@@ -117,28 +120,26 @@ export const Pendings = () => {
         </Button>
       </DrawerTrigger>
 
-      <DrawerPortal>
-        <DrawerContent onClick={e => e.stopPropagation()}>
-          <DrawerHeader>
-            <DrawerTitle>Запросы на услугу</DrawerTitle>
-            <DrawerDescription className="hidden">
-              info about clients
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="content-grid">
-            <PendingsContent />
-            <DrawerFooter className="pb-unified-safe">
-              <Button
-                variant="outline"
-                onClick={() => setOpen(false)}
-                className="w-full"
-              >
-                закрыть
-              </Button>
-            </DrawerFooter>
-          </div>
-        </DrawerContent>
-      </DrawerPortal>
+      <DrawerContent onClick={e => e.stopPropagation()}>
+        <DrawerHeader>
+          <DrawerTitle>Запросы на услугу</DrawerTitle>
+          <DrawerDescription className="hidden">
+            info about clients
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className="content-grid">
+          <PendingsContent />
+          <DrawerFooter className="pb-unified-safe">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="w-full"
+            >
+              закрыть
+            </Button>
+          </DrawerFooter>
+        </div>
+      </DrawerContent>
     </Drawer>
   );
 };
