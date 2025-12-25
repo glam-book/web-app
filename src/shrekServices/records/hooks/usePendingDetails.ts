@@ -9,24 +9,26 @@ import { PendingDetails } from '../PendingDetails';
 const resource = 'record';
 
 export const getPendingDetails = (
+  recordOwnerId: number | string,
   recordId: number | string,
   contactTarget = 'TG',
 ) =>
   pipe(
-    `${resource}/pending/${recordId}?contactTarget=${contactTarget}`,
+    `${resource}/pending/${recordOwnerId}/${recordId}?contactTarget=${contactTarget}`,
     rest.client,
     tryDecodeInto(PendingDetails),
     Effect.runPromise,
   );
 
 export const usePendingDetails = (
-  recordId?: number | string,
+  recordOwnerId: number | string | undefined,
+  recordId: number | string | undefined,
   contactTarget = 'TG',
   ...rest: Partial<Parameters<typeof useQuery>>
 ) =>
   useQuery({
     queryKey: [`${resource}/pending`, recordId, contactTarget],
-    enabled: Boolean(recordId),
+    enabled: recordOwnerId !== undefined && recordId !== undefined,
     queryFn: () =>
       getPendingDetails(recordId as number | string, contactTarget).catch(
         error => {
