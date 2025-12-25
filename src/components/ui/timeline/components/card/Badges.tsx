@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { services } from '@/shrekServices';

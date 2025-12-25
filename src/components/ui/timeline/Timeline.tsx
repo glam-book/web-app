@@ -346,7 +346,7 @@ export const Timeline = ({
         </div>
       </div>
 
-      <div className="min-h-lh text-2xl py-2 rounded-b-4xl bg-background-light shadow-shadow" />
+      <div className="min-h-lh text-2xl py-2 rounded-b-4xl bg-background-darker" />
     </Comp>
   );
 };
