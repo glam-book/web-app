@@ -46,8 +46,7 @@ export const EditRecordModal = () => {
     makeServiceToggleDefaultFields,
   );
 
-  const [sign, setSign] = useState<string>(String(recordFields?.sign || ''));
-  const maxSignLength = 800;
+  const [sign, setSign] = useState(String(recordFields?.sign || ''));
   const formRef = useRef<HTMLFormElement | null>(null);
   const prevServiceIdsRef = useRef<number[]>([]);
 
@@ -97,26 +96,11 @@ export const EditRecordModal = () => {
   }, [open]);
 
   const [isServicesDrawerOpen, setIsServicesDrawerOpen] = useState(false);
-  // const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const allServices =
     (serviceList &&
       Array.from(serviceList.values()).filter(i => Boolean(i.title))) ||
     ([] as ServiceLike[]);
-
-
-  // TODO add service categories --- laterrrr
-  // const categories = Array.from(
-  //   new Set(allServices.map((s: ServiceLike) => s.category ?? 'Без категории')),
-  // );
-
-  // const filteredServices =
-  //   selectedCategory === null
-  //     ? allServices
-  //     : allServices.filter(
-  //         (s: ServiceLike) =>
-  //           (s.category ?? 'Без категории') === selectedCategory,
-  //       );
 
   const timeSlot = {
     services: serviceToggleFields
@@ -134,15 +118,6 @@ export const EditRecordModal = () => {
   const removeService = (id: number) => {
     setServiceToggleFields(prev => prev.filter(x => x !== String(id)));
   };
-
-  const totalDuration = timeSlot.services.reduce(
-    (sum, s) => sum + (Number(s.duration) || 0),
-    0,
-  );
-  const totalPrice = timeSlot.services.reduce(
-    (sum, s) => sum + (Number(s.price) || 0),
-    0,
-  );
 
   return (
     <Drawer
@@ -225,15 +200,10 @@ export const EditRecordModal = () => {
                   id="sign"
                   name="sign"
                   value={sign}
-                  onChange={e =>
-                    setSign(e.target.value.slice(0, maxSignLength))
-                  }
+                  onChange={e => setSign(e.target.value)}
                   placeholder="Заметка"
                   className="h-[2lh] resize-none bg-background border-none outline-none"
                 />
-                <div className="text-xs text-muted-foreground text-right">
-                  {sign.length}/{maxSignLength}
-                </div>
               </div>
 
               <Card className="p-4">
@@ -310,10 +280,11 @@ export const EditRecordModal = () => {
                             return (
                               <div
                                 key={service.id}
-                                className={`p-3 border rounded-lg active:scale-[0.98] transition-all ${isAdded
-                                  ? 'bg-gray-50 border-gray-300'
-                                  : 'bg-white active:bg-gray-50'
-                                  }`}
+                                className={`p-3 border rounded-lg active:scale-[0.98] transition-all ${
+                                  isAdded
+                                    ? 'bg-gray-50 border-gray-300'
+                                    : 'bg-white active:bg-gray-50'
+                                }`}
                                 onClick={() => !isAdded && addService(service)}
                               >
                                 <div className="flex items-start justify-between gap-2">
@@ -406,39 +377,19 @@ export const EditRecordModal = () => {
                         </Button>
                       </div>
                     ))}
-
-                    <div className="pt-3 mt-3 border-t space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">
-                          Продолжительность:
-                        </span>
-                        <span className="text-gray-900">
-                          {Math.floor(totalDuration / 60)}ч {totalDuration % 60}
-                          мин
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Стоимость:</span>
-                        <span className="text-gray-900">
-                          {new Intl.NumberFormat('ru-RU', {
-                            style: 'currency',
-                            currency: 'RUB',
-                            maximumFractionDigits: 0,
-                          }).format(totalPrice)}
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 )}
               </Card>
             </form>
           </div>
 
-          <DrawerFooter className="border-t">
-              <Button variant="outline" 
-                  onClick={records.store.editableRightNow.getState().reset} >
-                закрыть
-              </Button>
+          <DrawerFooter>
+            <Button
+              variant="outline"
+              onClick={records.store.editableRightNow.getState().reset}
+            >
+              закрыть
+            </Button>
           </DrawerFooter>
         </DrawerContent>
       </DrawerPortal>

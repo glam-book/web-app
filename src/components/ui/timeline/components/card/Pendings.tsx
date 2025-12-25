@@ -12,7 +12,6 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
-  DrawerPortal,
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
@@ -121,28 +120,26 @@ export const Pendings = () => {
         </Button>
       </DrawerTrigger>
 
-      <DrawerPortal>
-        <DrawerContent onClick={e => e.stopPropagation()}>
-          <DrawerHeader>
-            <DrawerTitle>Запросы на услугу</DrawerTitle>
-            <DrawerDescription className="hidden">
-              info about clients
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="content-grid">
-            <PendingsContent />
-            <DrawerFooter className="pb-unified-safe">
-              <Button
-                variant="outline"
-                onClick={() => setOpen(false)}
-                className="w-full"
-              >
-                закрыть
-              </Button>
-            </DrawerFooter>
-          </div>
-        </DrawerContent>
-      </DrawerPortal>
+      <DrawerContent onClick={e => e.stopPropagation()}>
+        <DrawerHeader>
+          <DrawerTitle>Запросы на услугу</DrawerTitle>
+          <DrawerDescription className="hidden">
+            info about clients
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className="content-grid">
+          <PendingsContent />
+          <DrawerFooter className="pb-unified-safe">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="w-full"
+            >
+              закрыть
+            </Button>
+          </DrawerFooter>
+        </div>
+      </DrawerContent>
     </Drawer>
   );
 };
