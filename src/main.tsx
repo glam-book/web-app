@@ -105,6 +105,17 @@ document.documentElement.style.setProperty(
   `${top}px`,
 );
 
+if (import.meta.env.PROD) {
+  alert(
+    JSON.stringify({
+      top,
+      left,
+      right,
+      bottom,
+    }),
+  );
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
