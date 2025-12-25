@@ -87,7 +87,15 @@ init();
 swipeBehavior.mount();
 swipeBehavior.disableVertical();
 
-const { top, bottom } = viewport.safeAreaInsets();
+const { top, left, right, bottom } = viewport.safeAreaInsets();
+document.documentElement.style.setProperty(
+  '--tg-safe-area-inset-left',
+  `${left}px`,
+);
+document.documentElement.style.setProperty(
+  '--tg-safe-area-inset-right',
+  `${right}px`,
+);
 document.documentElement.style.setProperty(
   '--tg-safe-area-inset-bottom',
   `${bottom}px`,

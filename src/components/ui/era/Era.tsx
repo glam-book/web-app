@@ -61,9 +61,6 @@ const Month = memo(
       [] as (Date | undefined)[][],
     );
 
-    // Math.atan(1.75/6) * 180 / Math.PI
-    // background-image: linear-gradient(164deg, transparent, transparent calc(50%), black, black 50%, transparent calc(50% + 1px));
-
     return (
       <table
         aria-label={`${format(date, 'yyyy MMMM')}`}
@@ -82,7 +79,7 @@ const Month = memo(
 
         <tbody className="flex-1 flex flex-col [&>*]:flex-1 text-2xl pb-[1lh] /*[&>tr>td]:border-l [&>tr>td:last-child]:border-r [&>tr>td]:border-b [&>tr:has(+tr:last-child)>td]:border-b-0 [&>tr:last-child>td]:border-t [&>tr:first-child>td]:border-t [&>tr:last-child>td]:border-b-transparent [&>tr>td]:border-0! [&>tr]:border-t */ [&_td]:rounded-md">
           {daysGroupedByWeek.map((d, idx) => (
-            <tr key={idx} className="flex-1 grid grid-cols-7 py-1">
+            <tr key={idx} className="flex-1 grid grid-cols-7 gap-x-0.5 py-1">
               {d.map((dd, ddindex) => (
                 <Fragment key={ddindex}>
                   {!dd && ddindex === 0 && (
@@ -111,10 +108,9 @@ const Month = memo(
                           type="button"
                           className={cn(
                             'isolate relative w-full h-full pt-1 flex justify-center',
-                            isToday(dd) && 'bg-muted',
                           )}
                         >
-                          <span className="flex-1 max-w-full p-1 flex flex-col items-center">
+                          <span className="flex-1 max-w-full p-1 flex flex-col gap-1 items-center">
                             <Badge
                               className={cn(
                                 'h-min border-none',

@@ -3,6 +3,7 @@ import { Share } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
+import { addHours } from 'date-fns';
 
 import type { HostApi } from '@/components/ui/carousel';
 import * as Carousel from '@/components/ui/carousel';
@@ -14,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useParams } from '@/router';
 import { owner, records, services, users } from '@/shrekServices';
+import { Record } from '@/schemas/Record';
 
 export default function Id() {
   const params = useParams('/calendar/:id');
@@ -92,8 +94,8 @@ export default function Id() {
           className="full-bleed max-h-full overflow-y-hidden"
           ref={carouselApi}
         >
-          <Carousel.ItemsContainer className="max-h-full">
-            <Carousel.Item className="flex-1 min-w-full flex">
+          <Carousel.ItemsContainer className="max-h-full scrollbar-hidden overscroll-none">
+            <Carousel.Item className="mb-1 flex-1 min-w-full flex">
               <article className="flex-1 content-grid">
                 <Era
                   onSelect={setDate}
@@ -104,7 +106,7 @@ export default function Id() {
               </article>
             </Carousel.Item>
 
-            <Carousel.Item className="flex-1 min-w-full max-w-full flex">
+            <Carousel.Item className="mb-1 flex-1 min-w-full max-w-full flex">
               <section className="flex-1 flex overflow-hidden">
                 <Timeline
                   className="flex-1"
@@ -123,11 +125,13 @@ export default function Id() {
             createPortal(<Carousel.Indicator />, carouselIndicatorWrapper)}
         </Carousel.Host>
 
-        <footer className="full-bleed content-grid pb-[calc(env(safe-area-inset-bottom,var(--tg-safe-area-inset-bottom))+0.2rem)] indent-3">
+        <footer className="full-bleed content-grid pb-unified-safe px-unified-safe indent-3">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center">
             <span />
             <div ref={setCarouselIndicatorWrapper} />
-            <span className="font-mono justify-self-end-safe">v0.0.0</span>
+            <span className="font-mono text-sm justify-self-end-safe">
+              v0.0.0
+            </span>
           </div>
         </footer>
       </main>
