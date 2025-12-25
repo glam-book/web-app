@@ -20,12 +20,14 @@ import { Menu, MenuItem } from '@/components/ui/menu';
 import { activeCard } from '@/components/ui/timeline/store';
 import { setMinutesToDate } from '@/components/ui/timeline/utils';
 import { cn } from '@/lib/utils';
-import { records, services } from '@/shrekServices';
+import { records, services, owner } from '@/shrekServices';
 
 import type { CardProps } from './types';
 
 import { CardContext, Root } from './CardContext';
 import { Content } from './Content';
+import { Badges } from './Badges';
+import { Pendings } from './Pendings';
 
 export const TheCard = ({
   aimPosition,
@@ -116,12 +118,13 @@ export const TheCard = ({
 
 export const ClientCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
   const { data: serviceList } = services.useGet();
+  const { calendarId } = owner.store();
 
   const [open, setOpen] = useState(false);
 
   const makeAppointment = useMutation({
     mutationFn: (serviceIdList: number[]) =>
-      records.makeAppointment(fields.id, serviceIdList),
+      records.makeAppointment(calendarId ?? '', fields.id, serviceIdList),
   });
 
   if (!fields.pendigable) return;
@@ -271,7 +274,11 @@ export const OwnerCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
             fields.pendings.limits === fields.pendings.active &&
               'bg-accent-second text-[coral]',
           )}
-        />
+        >
+          <span className="text-base text-foreground">{String(fields?.sign)}</span>
+          <Badges />
+          <Pendings />
+        </Content>
       </TheCard>
     </Root>
   );

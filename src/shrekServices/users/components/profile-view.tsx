@@ -28,11 +28,7 @@ export const ProfileView = () => {
 
   return (
     <>
-      <div
-        className={cn(
-          'flex items-center gap-2 text-sm font-bold indent-2 text-white',
-        )}
-      >
+      <div className={cn('flex items-center gap-2 text-sm font-bold indent-2')}>
         <span className="followable animate-follow">
           <div
             className="flex items-center gap-2"
@@ -53,12 +49,11 @@ export const ProfileView = () => {
             </div>
           </div>
         </span>
-        <span className="empty:hidden">{fullName}</span>
-        <div className="empty:hidden">{profile?.login}</div>
+        <div className="empty:hidden">{profile?.login ?? 'ggamabuntattt'}</div>
       </div>
 
       <Drawer open={isContactsOpen} onOpenChange={setIsContactsOpen}>
-        <DrawerContent>
+        <DrawerContent className="px-unified-safe">
           <DrawerHeader>
             <DrawerTitle>Контакты</DrawerTitle>
             <DrawerDescription>Информация о профиле</DrawerDescription>
@@ -97,7 +92,7 @@ export const ProfileView = () => {
             </div>
           </div>
 
-          <DrawerFooter>
+          <DrawerFooter className="pb-unified-safe">
             <Button
               variant="outline"
               onClick={() => setIsContactsOpen(false)}

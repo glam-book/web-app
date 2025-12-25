@@ -6,10 +6,7 @@ import { activeCard } from '@/components/ui/timeline/store';
 import { cn } from '@/lib/utils';
 import { records } from '@/shrekServices';
 
-import { Badges } from './Badges';
 import { CardContext } from './CardContext';
-import { CommentBox } from './CommentBox';
-import { Pendings } from './Pendings';
 
 export const Content = ({
   className,
@@ -56,19 +53,7 @@ export const Content = ({
           </div>
         ) : (
           <div className="flex items-center justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <CommentBox>{String(fields?.sign)}</CommentBox>
-              <div className="text-sm text-muted-foreground">
-                <Badges />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-3">{children}</div>
-              <div className="flex-shrink-0">
-                <Pendings />
-              </div>
-            </div>
+            {children}
           </div>
         )}
       </div>

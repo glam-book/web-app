@@ -49,7 +49,7 @@ export const RecordPreview = memo(
 
     const isFitsInHeight = (): boolean => {
       if (!hostRef.current) return false;
-      if (!detailsForTheDay?.length) return true;
+      if (!detailsForTheDay?.length) return false;
 
       const height = hostRef.current.offsetHeight;
       const computedStyles = window.getComputedStyle(hostRef.current);
@@ -84,7 +84,7 @@ export const RecordPreview = memo(
                 )}
               />
             ))}
-        {isOwner && !isFitsInHeight() && (
+        {isOwner && detailsForTheDay?.length && !isFitsInHeight() && (
           <span className="flex gap-1 pt-0.5 pl-0.5">
             {Array.from({ length: 3 }, () => (
               <Dot className="fill-muted-foreground stroke-0 h-2 w-2" />

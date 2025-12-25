@@ -83,7 +83,8 @@ export const Host = ({ ref, children, asChild, ...props }: HostProps) => {
   const [itemsAmount, setItemsAmount] = useState(0);
   const [scrollView, setScrollView] = useState<HTMLDivElement>();
 
-  const api = useMemo<HostApi>(
+  useImperativeHandle(
+    ref,
     () => ({
       next: (idx: number) => {
         const host = scrollView;
@@ -96,10 +97,8 @@ export const Host = ({ ref, children, asChild, ...props }: HostProps) => {
         });
       },
     }),
-    [currentIndex],
+    [scrollView],
   );
-
-  useImperativeHandle(ref, () => api, [api]);
 
   const contextValue = useMemo<React.ContextType<typeof CarouselContext>>(
     () => ({
@@ -170,19 +169,19 @@ export const Indicator = () => {
           <li
             key={idx}
             className={cn(
-              'relative rounded-full h-3 aspect-square bg-foreground/20',
+              'relative rounded-full h-2 aspect-square bg-foreground/20',
             )}
           >
             {idx === 0 && (
               <span
                 style={{
-                  left: `calc(var(--spacing) * 5 * ${carouselContext.currentIndex ?? 0} - (${Number(isScrolling && isScrollToTheLeft)} * var(--spacing) * 5))`,
+                  left: `max(0px, calc(var(--spacing) * 4 * ${carouselContext.currentIndex ?? 0} - (${Number(isScrolling && isScrollToTheLeft)} * var(--spacing) * 4)))`,
                 }}
                 className={cn(
                   'absolute top-0 z-1 left-0 h-full w-full flex content-between items-center bg-muted-foreground transition-all rounded-full',
                   isScrolling && 'w-[calc(200%+var(--spacing)*2)]',
                 )}
-              ></span>
+              />
             )}
           </li>
         ))}

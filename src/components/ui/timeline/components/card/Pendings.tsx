@@ -25,7 +25,9 @@ export const PendingsContent = () => {
   return (
     <div>
       {pendingList?.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">Нет запросов</div>
+        <div className="text-center py-8 text-muted-foreground">
+          Нет запросов
+        </div>
       )}
 
       {pendingList?.length! > 0 && (
@@ -60,7 +62,10 @@ export const PendingsContent = () => {
 
               <div className="space-y-1">
                 {pending.services.map(service => (
-                  <div key={service.id} className="text-sm flex justify-between">
+                  <div
+                    key={service.id}
+                    className="text-sm flex justify-between"
+                  >
                     <span>{service.title}</span>
                     <span className="font-mono">
                       {new Intl.NumberFormat('ru-RU', {
@@ -113,20 +118,25 @@ export const Pendings = () => {
       </DrawerTrigger>
 
       <DrawerPortal>
-        <DrawerContent
-          className="pb-[calc(env(safe-area-inset-bottom)+0.2em)]"
-          onClick={e => e.stopPropagation()}
-        >
+        <DrawerContent onClick={e => e.stopPropagation()}>
           <DrawerHeader>
             <DrawerTitle>Запросы на услугу</DrawerTitle>
-            <DrawerDescription className="hidden">info about clients</DrawerDescription>
+            <DrawerDescription className="hidden">
+              info about clients
+            </DrawerDescription>
           </DrawerHeader>
-          <PendingsContent />
-          <DrawerFooter className="border-t">
-            <Button variant="outline" onClick={() => setOpen(false)} className="w-full">
-              закрыть
-            </Button>
-          </DrawerFooter>
+          <div className="content-grid">
+            <PendingsContent />
+            <DrawerFooter className="pb-unified-safe">
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="w-full"
+              >
+                закрыть
+              </Button>
+            </DrawerFooter>
+          </div>
         </DrawerContent>
       </DrawerPortal>
     </Drawer>
