@@ -197,20 +197,20 @@ export const Timeline = ({
     [scrollView],
   );
 
-  useEffect(() => {
-    let timerId = 0;
+  // useEffect(() => {
+  //   let timerId = 0;
 
-    const f = () => {
-      if (!activeCardState.isUnfreezed && !isCardSelected) return;
-      const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
-      setAimPosition(newAimPosition);
-      aimPositionRef.current = newAimPosition;
-    };
+  //   const f = () => {
+  //     if (!activeCardState.isUnfreezed && !isCardSelected) return;
+  //     const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
+  //     setAimPosition(newAimPosition);
+  //     aimPositionRef.current = newAimPosition;
+  //   };
 
-    timerId = requestAnimationFrame(f);
+  //   timerId = requestAnimationFrame(f);
 
-    return () => cancelAnimationFrame(timerId);
-  }, [intersectionTimeIndex, isCardSelected, activeCardState]);
+  //   return () => cancelAnimationFrame(timerId);
+  // }, [intersectionTimeIndex, isCardSelected, activeCardState]);
 
   return (
     <Comp
@@ -239,15 +239,14 @@ export const Timeline = ({
             className={cn(
               'relative overflow-y-auto overflow-x-hidden snap-mandatory snap-y max-h-full h-full snap-normal scroll-smooth',
             )}
+            onScroll={() => {
+              activeCardState.toggle('isUnfreezed', false);
+            }}
             onScrollEnd={() => {
-              if (isCardSelected) {
-                activeCardState.toggle('isUnfreezed', true);
-              } else {
-                const newAimPosition =
-                  intersectionTimeIndex * sectionDisplaySize;
-                setAimPosition(newAimPosition);
-                aimPositionRef.current = newAimPosition;
-              }
+              const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
+              setAimPosition(newAimPosition);
+              aimPositionRef.current = newAimPosition;
+              if (isCardSelected) activeCardState.toggle('isUnfreezed', true);
             }}
           >
             <div className="content-grid text-base h-1/2">

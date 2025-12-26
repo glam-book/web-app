@@ -30,66 +30,68 @@ export const usePendingDetails = (
     queryKey: [`${resource}/pending`, recordId, contactTarget],
     enabled: recordOwnerId !== undefined && recordId !== undefined,
     queryFn: () =>
-      getPendingDetails(recordId as number | string, contactTarget).catch(
-        error => {
-          if (import.meta.env.DEV) {
-            return [
-              {
-                contact: {
-                  firstName: 'firstname',
-                  lastName: 'lastname',
-                  tgUserName: 'gamabunta',
-                },
-                requestTime: new Date(),
-                confirmed: true,
-                services: [
-                  {
-                    id: 1,
-                    title: 'Nova service',
-                    price: 1200,
-                    isHourlyPrice: false,
-                  },
-                ],
+      getPendingDetails(
+        recordOwnerId as number | string,
+        recordId as number | string,
+        contactTarget,
+      ).catch(error => {
+        if (import.meta.env.DEV) {
+          return [
+            {
+              contact: {
+                firstName: 'firstname',
+                lastName: 'lastname',
+                tgUserName: 'gamabunta',
               },
-              {
-                contact: {
-                  firstName: 'firstname',
-                  lastName: 'lastname',
-                  tgUserName: 'gamabunta',
+              requestTime: new Date(),
+              confirmed: true,
+              services: [
+                {
+                  id: 1,
+                  title: 'Nova service',
+                  price: 1200,
+                  isHourlyPrice: false,
                 },
-                requestTime: new Date(),
-                confirmed: true,
-                services: [
-                  {
-                    id: 1,
-                    title: 'Nova service',
-                    price: 1200,
-                    isHourlyPrice: false,
-                  },
-                ],
+              ],
+            },
+            {
+              contact: {
+                firstName: 'firstname',
+                lastName: 'lastname',
+                tgUserName: 'gamabunta',
               },
-              {
-                contact: {
-                  firstName: 'firstname',
-                  lastName: 'lastname',
-                  tgUserName: 'gamabunta',
+              requestTime: new Date(),
+              confirmed: true,
+              services: [
+                {
+                  id: 1,
+                  title: 'Nova service',
+                  price: 1200,
+                  isHourlyPrice: false,
                 },
-                requestTime: new Date(),
-                confirmed: true,
-                services: [
-                  {
-                    id: 1,
-                    title: 'Nova service',
-                    price: 1200,
-                    isHourlyPrice: false,
-                  },
-                ],
+              ],
+            },
+            {
+              contact: {
+                firstName: 'firstname',
+                lastName: 'lastname',
+                tgUserName: 'gamabunta',
               },
-            ] as typeof PendingDetails.Type;
-          }
+              requestTime: new Date(),
+              confirmed: true,
+              services: [
+                {
+                  id: 1,
+                  title: 'Nova service',
+                  price: 1200,
+                  isHourlyPrice: false,
+                },
+              ],
+            },
+          ] as typeof PendingDetails.Type;
+        }
 
-          throw error;
-        },
-      ),
+        throw error;
+      }),
     ...rest,
   });
