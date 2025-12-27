@@ -21,21 +21,21 @@ import { records, services } from '@/shrekServices';
 
 const snapPoints = [0.5, 1];
 
+type ServiceLike = {
+  id: number;
+  title?: string;
+  name?: string;
+  price?: number;
+  category?: string;
+  duration?: number;
+};
+
 export const EditRecordModal = () => {
   const { fields: recordFields } = records.store.editableRightNow();
   const isCardSelected = Boolean(recordFields);
   const open = isCardSelected;
 
   const { data: serviceList } = services.useGet();
-
-  type ServiceLike = {
-    id: number;
-    title?: string;
-    name?: string;
-    price?: number;
-    category?: string;
-    duration?: number;
-  };
 
   const makeServiceToggleDefaultFields = () =>
     recordFields?.serviceIdList
@@ -134,7 +134,8 @@ export const EditRecordModal = () => {
         <DrawerContent className="pb-4 bg-blurable backdrop-blur-3xl">
           <DrawerHeader>
             <div className="flex items-center justify-between w-full">
-              <div className="hidden">
+              <div className="">
+                <span>{recordFields?.id}</span>
                 <DrawerTitle>Редактирование записи</DrawerTitle>
                 <DrawerDescription>
                   Измените данные или удалите запись

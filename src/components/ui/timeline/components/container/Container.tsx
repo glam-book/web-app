@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { records, owner } from '@/shrekServices';
 
@@ -12,26 +12,23 @@ export const Container = ({
   ...rest
 }: ContainerProps) => {
   const selectedCardState = records.store.editableRightNow();
-
   const fieldList = useMemo(() => Array.from(fields, ([_, v]) => v), [fields]);
-
   const ownerResult = owner.useIsOwner();
   const Comp = ownerResult.isOwner ? OwnerCard : ClientCard;
 
   return (
-    ownerResult.isFetched &&
-    fieldList.map(cardFields => {
-      const isSelected = cardFields.id === selectedCardState.fields?.id;
-
-      return (
-        <Comp
-          key={cardFields.id}
-          fields={cardFields}
-          isSelected={isSelected}
-          aimPosition={isSelected ? aimPosition : 0}
-          {...rest}
-        />
-      );
-    })
+    <>
+      {ownerResult.isFetched &&
+        fieldList.map(cardFields => (
+          <Comp
+            key={cardFields.id}
+            fields={cardFields}
+            aimPosition={
+              selectedCardState.fields?.id === cardFields.id ? aimPosition : 0
+            }
+            {...rest}
+          />
+        ))}
+    </>
   );
 };

@@ -140,9 +140,11 @@ export const Timeline = ({
     records.startEdit({
       from,
       to,
+      sign: 'HUI',
     });
 
     activeCardState.toggle('isResizeMode', true);
+    activeCardState.toggle('isUnfreezed', true);
   };
 
   const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -219,10 +221,11 @@ export const Timeline = ({
       {...props}
     >
       <div className="card-header backdrop-blur-none shadow-shadow">
-        <h2 className="indent-3">
+        <h2 className="flex justify-between pr-3 indent-3">
           <time className="text-2xl uppercase">
             {format(currentDate, 'dd MMMM', { locale: ru })}
           </time>
+          <span className="text-2xl"> {cards.size}</span>
         </h2>
       </div>
 

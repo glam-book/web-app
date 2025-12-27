@@ -5,7 +5,11 @@ import { useQuery } from '@tanstack/react-query';
 import { makeQueriesStore } from '@/store';
 import { rest } from '@/services';
 import { contramap } from '@/utils';
-import { setQueryData, getQueryData } from '@/lib/tanstackQuery';
+import {
+  setQueryData,
+  getQueryData,
+  invalidateQueries,
+} from '@/lib/tanstackQuery';
 
 export const makeResourceListActionsTemplate = <
   T extends { id: number },
@@ -19,7 +23,9 @@ export const makeResourceListActionsTemplate = <
 ) => {
   const mutateList = (
     mutation: (old?: Map<number, typeof options.Itself.Type>) => unknown,
-  ) => setQueryData(queriesStore.getState().queries, mutation);
+  ) => {
+    setQueryData(queriesStore.getState().queries, mutation);
+  };
 
   const queriesStore = makeQueriesStore();
 

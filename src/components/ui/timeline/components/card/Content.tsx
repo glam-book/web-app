@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { format } from 'date-fns';
 
 import { Sdometer } from '@/components/ui/sdometer';
@@ -12,9 +12,10 @@ export const Content = ({
   className,
   children,
 }: React.ComponentProps<'div'>) => {
-  const { isSelected, fields } = useContext(CardContext);
+  const { fields } = useContext(CardContext);
   const { fields: editableRightNowFields } = records.store.editableRightNow();
   const { isResizeMode } = activeCard();
+  const isSelected = editableRightNowFields?.id === fields.id;
 
   return (
     <div
