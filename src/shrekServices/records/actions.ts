@@ -115,16 +115,7 @@ const validateToDate = () => {
 };
 
 export const finishEdit = flow(validateToDate, _finishEdit, x => {
-  x?.then(
-    Exit.map(
-      pipe(
-        tap(invalidatePreview),
-        tap(() => {
-          invalidateQueries(store.queriesStore.getState().queries);
-        }),
-      ),
-    ),
-  );
+  x?.then(Exit.map(pipe(tap(invalidatePreview))));
   return x;
 });
 
