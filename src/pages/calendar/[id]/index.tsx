@@ -3,7 +3,6 @@ import { Share } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
-import { addHours } from 'date-fns';
 import { produce } from 'immer';
 
 import type { HostApi } from '@/components/ui/carousel';
@@ -16,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useParams } from '@/router';
 import { owner, records, services, users } from '@/shrekServices';
-import { Record } from '@/schemas/Record';
 
 export default function Id() {
   const params = useParams('/calendar/:id');
@@ -35,7 +33,7 @@ export default function Id() {
   const { fields: recordFields } = records.store.editableRightNow();
   const isCardSelected = Boolean(recordFields);
 
-  // It's hack for tanstack query
+  // It's hack for tanstack query ??
   const recordsWithEditableRightNow = useMemo(() => {
     return produce(recordList, list => {
       if (recordFields) list?.set(recordFields.id, recordFields);
