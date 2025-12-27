@@ -34,11 +34,11 @@ export default function Id() {
   const isCardSelected = Boolean(recordFields);
 
   // It's hack for tanstack query ??
-  // const recordsWithEditableRightNow = useMemo(() => {
-  //   return produce(recordList, list => {
-  //     if (recordFields) list?.set(recordFields.id, recordFields);
-  //   });
-  // }, [recordList, recordFields]);
+  const recordsWithEditableRightNow = useMemo(() => {
+    return produce(recordList, list => {
+      if (recordFields) list?.set(recordFields.id, recordFields);
+    });
+  }, [recordList, recordFields]);
 
   // useEffect(() => {
   //   if (errorRecordList) {
@@ -117,7 +117,7 @@ export default function Id() {
                 <Timeline
                   className="flex-1"
                   currentDate={date}
-                  cards={recordList}
+                  cards={recordsWithEditableRightNow}
                 />
               </section>
 
