@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { queryClient, rest } from '@/services';
 import { Record as Itself } from '@/schemas/Record';
-import { tryDecodeInto } from '@/utils';
+import { tryDecodeInto, tap } from '@/utils';
 import { invalidateQueries } from '@/lib/tanstackQuery';
 
 import { Preview } from './Preview';
@@ -115,7 +115,14 @@ const validateToDate = () => {
 };
 
 export const finishEdit = flow(validateToDate, _finishEdit, x => {
-  x?.then(Exit.map(invalidatePreview));
+  x?.then(
+    Exit.map(
+      pipe(
+        tap(invalidatePreview),
+        tap(() => invalidateQueries(store.queriesStore.getState())),
+      ),
+    ),
+  );
   return x;
 });
 

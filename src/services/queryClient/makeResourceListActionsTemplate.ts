@@ -93,6 +93,7 @@ export const makeResourceListActionsTemplate = <
     store: {
       editableRightNow: actions.store.editableRightNow,
       listActions: queryActions,
+      queriesStore,
     },
   } as const;
 };
