@@ -1,9 +1,10 @@
 import { shareURL } from '@tma.js/sdk-react';
 import { Share } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { addHours } from 'date-fns';
+import { produce } from 'immer';
 
 import type { HostApi } from '@/components/ui/carousel';
 import * as Carousel from '@/components/ui/carousel';
@@ -31,14 +32,21 @@ export default function Id() {
     date,
   );
 
+  const { fields: recordFields } = records.store.editableRightNow();
+  const isCardSelected = Boolean(recordFields);
+
+  // It's hack for tanstack query
+  const recordsWithEditableRightNow = useMemo(() => {
+    return produce(recordList, list => {
+      if (recordFields) list?.set(recordFields.id, recordFields);
+    });
+  }, [recordList, recordFields]);
+
   // useEffect(() => {
   //   if (errorRecordList) {
   //     toast.error(JSON.stringify(errorRecordList));
   //   }
   // }, [errorRecordList]);
-
-  const { fields: recordFields } = records.store.editableRightNow();
-  const isCardSelected = Boolean(recordFields);
 
   useEffect(() => {
     let afid: number;
@@ -100,7 +108,7 @@ export default function Id() {
                 <Era
                   onSelect={setDate}
                   selected={date}
-                  className="breakout card"
+                  className="breakout card shadow-none"
                   Detail={records.components.RecordPreview}
                 />
               </article>
@@ -111,7 +119,7 @@ export default function Id() {
                 <Timeline
                   className="flex-1"
                   currentDate={date}
-                  cards={recordList}
+                  cards={recordsWithEditableRightNow}
                 />
               </section>
 

@@ -39,8 +39,10 @@ export const TheCard = ({
   disabled,
   children,
 }: Omit<CardProps, 'fields' | 'isSelected'>) => {
-  const { fields, isSelected } = useContext(CardContext);
+  const { fields } = useContext(CardContext);
   const { isUnfreezed } = activeCard();
+  const selectedCardState = records.store.editableRightNow();
+  const isSelected = selectedCardState.fields?.id === fields.id;
 
   const calcDisplayedFields = useCallback(
     () => ({
@@ -116,7 +118,7 @@ export const TheCard = ({
   );
 };
 
-export const ClientCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
+export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
   const { data: serviceList } = services.useGet();
   const { calendarId } = owner.store();
 
@@ -130,7 +132,7 @@ export const ClientCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
   if (!fields.pendigable) return;
 
   return (
-    <Root fields={fields} isSelected={isSelected}>
+    <Root fields={fields}>
       <TheCard {...rest} disabled>
         <Content>
           <div className="flex min-h-[2.5lh] items-center justify-center">
@@ -264,9 +266,9 @@ export const ClientCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
   );
 });
 
-export const OwnerCard = memo(({ fields, isSelected, ...rest }: CardProps) => {
+export const OwnerCard = memo(({ fields, ...rest }: CardProps) => {
   return (
-    <Root fields={fields} isSelected={isSelected}>
+    <Root fields={fields}>
       <TheCard {...rest}>
         <Content
           className={cn(

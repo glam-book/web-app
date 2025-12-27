@@ -106,14 +106,7 @@ document.documentElement.style.setProperty(
 );
 
 if (import.meta.env.PROD) {
-  alert(
-    JSON.stringify({
-      top,
-      left,
-      right,
-      bottom,
-    }),
-  );
+  alert(JSON.stringify(viewport.safeAreaInsetTop()));
 }
 
 createRoot(document.getElementById('root')!).render(

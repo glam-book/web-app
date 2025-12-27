@@ -9,6 +9,5 @@ export type CardProps = React.ComponentProps<'button'> & {
   clickHandler: (fields: Fields) => void;
   aimPosition: number;
   fields: Fields;
-  isSelected: boolean;
   minCardSize?: number;
 };

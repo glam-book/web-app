@@ -102,7 +102,9 @@ export const makeResourceListActions = function <
     const { id = Date.now(), ...withoutId } = item;
     const editableRightNowState = editableRightNow.getState();
 
-    if (editableRightNowState.fields?.id === id) return;
+    if (editableRightNowState.fields?.id === id) {
+      return;
+    }
 
     // fiber test
     const fiber = finishEdit()?.pipe(Effect.runFork);
