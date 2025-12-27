@@ -105,10 +105,6 @@ document.documentElement.style.setProperty(
   `${top}px`,
 );
 
-if (import.meta.env.PROD) {
-  alert(JSON.stringify(viewport.safeAreaInsetTop()));
-}
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

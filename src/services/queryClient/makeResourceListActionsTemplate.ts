@@ -25,6 +25,7 @@ export const makeResourceListActionsTemplate = <
     mutation: (old?: Map<number, typeof options.Itself.Type>) => unknown,
   ) => {
     setQueryData(queriesStore.getState().queries, mutation);
+    invalidateQueries(queriesStore.getState().queries);
   };
 
   const queriesStore = makeQueriesStore();
