@@ -119,7 +119,9 @@ export const finishEdit = flow(validateToDate, _finishEdit, x => {
     Exit.map(
       pipe(
         tap(invalidatePreview),
-        tap(() => invalidateQueries(store.queriesStore.getState())),
+        tap(() => {
+          invalidateQueries(store.queriesStore.getState().queries);
+        }),
       ),
     ),
   );
