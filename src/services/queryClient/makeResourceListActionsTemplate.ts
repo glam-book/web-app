@@ -25,7 +25,6 @@ export const makeResourceListActionsTemplate = <
     mutation: (old?: Map<number, typeof options.Itself.Type>) => unknown,
   ) => {
     setQueryData(queriesStore.getState().queries, mutation);
-    invalidateQueries(queriesStore.getState().queries);
   };
 
   const queriesStore = makeQueriesStore();
@@ -79,12 +78,18 @@ export const makeResourceListActionsTemplate = <
     if (x) return Effect.runPromiseExit(x);
   });
 
+  // It's hack for tanstack query ??
+  const startEdit = flow(actions.startEdit, x => {
+    invalidateQueries(queriesStore.getState().queries);
+    return x;
+  });
+
   return {
     useGet,
     deleteOne,
     finishEdit,
+    startEdit,
     resetEdit: actions.resetEdit,
-    startEdit: actions.startEdit,
     store: {
       editableRightNow: actions.store.editableRightNow,
       listActions: queryActions,
