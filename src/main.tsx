@@ -91,7 +91,7 @@ swipeBehavior.disableVertical();
 viewport.mount().then(() => {
   document.documentElement.style.setProperty(
     '--tg-safe-area-inset-bottom',
-    `${Math.max(viewport.contentSafeAreaInsets().bottom, viewport.safeAreaInsets().bottom)}px`,
+    `${(Math.max(viewport.contentSafeAreaInsets().bottom, viewport.safeAreaInsets().bottom))}px`,
   );
 
   if (import.meta.env.PROD) {
