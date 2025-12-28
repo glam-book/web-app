@@ -108,6 +108,7 @@ document.documentElement.style.setProperty(
 
 if (import.meta.env.PROD) {
   alert(JSON.stringify(viewport.contentSafeAreaInsets()));
+  alert(JSON.stringify(viewport.safeAreaInsets()));
 }
 
 on('safe_area_changed', e => {
