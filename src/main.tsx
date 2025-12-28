@@ -111,8 +111,23 @@ if (import.meta.env.PROD) {
   alert(JSON.stringify(viewport.safeAreaInsets()));
 }
 
-on('safe_area_changed', e => {
-  alert(`safe_area_changed:::, ${JSON.stringify(e)}`);
+on('safe_area_changed', ({ top, left, right, bottom }) => {
+  document.documentElement.style.setProperty(
+    '--tg-safe-area-inset-left',
+    `${left}px`,
+  );
+  document.documentElement.style.setProperty(
+    '--tg-safe-area-inset-right',
+    `${right}px`,
+  );
+  document.documentElement.style.setProperty(
+    '--tg-safe-area-inset-bottom',
+    `${bottom}px`,
+  );
+  document.documentElement.style.setProperty(
+    '--tg-safe-area-inset-top',
+    `${top}px`,
+  );
 });
 
 createRoot(document.getElementById('root')!).render(

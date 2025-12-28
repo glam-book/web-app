@@ -268,18 +268,20 @@
   padding-bottom: max(
     env(safe-area-inset-bottom),
     constant(safe-area-inset-bottom),
-    var(--tg-safe-area-inset-bottom),
+    var(--tg-safe-area-inset-bottom)
   );
 }
 
 @utility px-unified-safe {
   padding-left: max(
-    env(safe-area-inset-left, 0.2rem),
-    var(--tg-safe-area-inset-left, 0.2rem)
+    env(safe-area-inset-left),
+    constant(safe-area-inset-left),
+    var(--tg-safe-area-inset-left)
   );
   padding-right: max(
-    env(safe-area-inset-right, 0.2rem),
-    var(--tg-safe-area-inset-right, 0.2rem)
+    env(safe-area-inset-right),
+    constant(safe-area-inset-right),
+    var(--tg-safe-area-inset-right)
   );
 }
 
