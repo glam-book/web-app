@@ -88,25 +88,26 @@ init();
 swipeBehavior.mount();
 swipeBehavior.disableVertical();
 
-await viewport.mount();
-viewport.bindCssVars();
+viewport.mount().then(() => {
+  viewport.bindCssVars();
 
-if (import.meta.env.PROD) {
-  alert(JSON.stringify(viewport.contentSafeAreaInsets()));
-  alert(JSON.stringify(viewport.safeAreaInsets()));
-  alert(
-    JSON.stringify(
-      document.documentElement.style.getPropertyValue(
-        '--tg-safe-area-inset-bottom',
+  if (import.meta.env.PROD) {
+    alert(JSON.stringify(viewport.contentSafeAreaInsets()));
+    alert(JSON.stringify(viewport.safeAreaInsets()));
+    alert(
+      JSON.stringify(
+        document.documentElement.style.getPropertyValue(
+          '--tg-safe-area-inset-bottom',
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <Routes />
-    </QueryClientProvider>
-  </StrictMode>,
-);
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <Routes />
+      </QueryClientProvider>
+    </StrictMode>,
+  );
+});
