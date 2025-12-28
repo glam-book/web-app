@@ -5,6 +5,7 @@ import {
   mockTelegramEnv,
   swipeBehavior,
   viewport,
+  on,
 } from '@tma.js/sdk-react';
 import { enableMapSet } from 'immer';
 import { StrictMode } from 'react';
@@ -104,6 +105,14 @@ document.documentElement.style.setProperty(
   '--tg-safe-area-inset-top',
   `${top}px`,
 );
+
+if (import.meta.env.PROD) {
+  alert(JSON.stringify(viewport.contentSafeAreaInsets()));
+}
+
+on('safe_area_changed', e => {
+  alert(`safe_area_changed:::, ${JSON.stringify(e)}`);
+});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

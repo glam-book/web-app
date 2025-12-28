@@ -98,7 +98,7 @@ const Month = memo(
                   )}
                   {dd && (
                     <td
-                      className="aspect-[1/1.88] overflow-hidden border-y border-x-transparent text-xs"
+                      className="aspect-[1/2] overflow-hidden border-y border-x-transparent text-xs"
                       key={ddindex}
                       data-today={dd && isToday(dd)}
                     >

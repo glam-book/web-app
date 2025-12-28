@@ -46,56 +46,50 @@ export const RecordPreview = memo(
       return () => cancelAnimationFrame(timerId);
     }, [details, host]);
 
-    // const detailItemsFitsCount = useMemo(() => {
-    //   if (!host) return 0;
-    //   const height = host.offsetHeight;
-    //   const computedStyles = window.getComputedStyle(host);
-    //   const itemHeight = parseFloat(computedStyles.lineHeight);
-    //   const gap =
-    //     parseFloat(computedStyles.getPropertyValue('--spacing')) * 0.5;
-
-    //   const itemsCount = Math.floor(height / itemHeight;
-    // }, [detailsForTheDay?.length, host]);
-
-    const isFitsInHeight = (): boolean => {
-      if (!host) return false;
-      if (!detailsForTheDay?.length) return false;
-
+    const detailItemsFitsCount = useMemo(() => {
+      if (!host) return 0;
       const height = host.offsetHeight;
       const computedStyles = window.getComputedStyle(host);
       const itemHeight = parseFloat(computedStyles.lineHeight);
-      const gap =
-        parseFloat(computedStyles.getPropertyValue('--spacing')) * 0.5;
+      const gap = parseFloat(computedStyles.getPropertyValue('--spacing')) * 8;
 
-      const result =
-        height >
-        itemHeight * detailsForTheDay.length +
-          gap * (detailsForTheDay.length - 1);
+      const itemsCount = Math.max(
+        0,
+        Math.floor((height - itemHeight) / (itemHeight + gap)) + 1,
+      );
 
-      return result;
-    };
+      return itemsCount;
+    }, [detailsForTheDay?.length, host]);
+
+    const isAllDetailItemsFits =
+      detailItemsFitsCount >= detailsForTheDay?.length!;
 
     return (
       <span
         ref={setHost}
         className={cn(
-          'min-w-0.5 min-h-full h-full flex flex-col gap-0.5',
+          'min-w-0.5 min-h-full h-full flex flex-col gap-0.5 text-sm',
           isPreviewForClient && 'absolute z-[-1] inset-0 bg-teal-200/50',
         )}
       >
         {isOwner &&
           detailsForTheDay
-            ?.slice(0, isFitsInHeight() ? detailsForTheDay.length : 2)
+            ?.slice(
+              0,
+              isAllDetailItemsFits
+                ? detailsForTheDay.length
+                : detailItemsFitsCount - 1,
+            )
             .map((item, idx) => (
               <span
                 key={idx}
                 className={cn(
-                  'min-h-[1lh] bg-card rounded-sm',
+                  'min-h-[1lh] h-[1lh] bg-card rounded-sm',
                   item.hasPendings && 'bg-teal-200',
                 )}
               />
             ))}
-        {isOwner && detailsForTheDay?.length && !isFitsInHeight() && (
+        {isOwner && detailsForTheDay?.length && !isAllDetailItemsFits && (
           <span className="flex gap-1 pt-0.5 pl-0.5">
             {Array.from({ length: 3 }, () => (
               <Dot className="fill-muted-foreground stroke-0 h-2 w-2" />

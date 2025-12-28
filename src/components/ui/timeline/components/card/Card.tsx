@@ -20,7 +20,7 @@ import { Menu, MenuItem } from '@/components/ui/menu';
 import { activeCard } from '@/components/ui/timeline/store';
 import { setMinutesToDate } from '@/components/ui/timeline/utils';
 import { cn } from '@/lib/utils';
-import { records, services, owner } from '@/shrekServices';
+import { records, services } from '@/shrekServices';
 
 import type { CardProps } from './types';
 
@@ -120,13 +120,12 @@ export const TheCard = ({
 
 export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
   const { data: serviceList } = services.useGet();
-  const { calendarId } = owner.store();
 
   const [open, setOpen] = useState(false);
 
   const makeAppointment = useMutation({
     mutationFn: (serviceIdList: number[]) =>
-      records.makeAppointment(calendarId ?? '', fields.id, serviceIdList),
+      records.makeAppointment(fields.id, serviceIdList),
   });
 
   if (!fields.pendigable) return;

@@ -33,13 +33,12 @@ export const startEdit = flow(
 );
 
 export const makeAppointment = (
-  recordOwnerId: number | string,
   recordId: (typeof Itself.Type)['id'],
   serviceIdList: number[],
 ) =>
   pipe(
     [
-      `${resource}/pending/${recordOwnerId}/${recordId}`,
+      `${resource}/pending/${recordId}`,
       { method: 'PUT', body: JSON.stringify(serviceIdList) },
     ] as const,
     params => rest.client(...params),
