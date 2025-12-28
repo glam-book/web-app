@@ -225,7 +225,6 @@ export const Timeline = ({
           <time className="text-2xl uppercase">
             {format(currentDate, 'dd MMMM', { locale: ru })}
           </time>
-          <span className="text-2xl"> {cards.size}</span>
         </h2>
       </div>
 
