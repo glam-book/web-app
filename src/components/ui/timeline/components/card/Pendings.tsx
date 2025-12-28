@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useContext, useState } from 'react';
 
-import { records, owner } from '@/shrekServices';
+import { records } from '@/shrekServices';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,11 +20,7 @@ import { CardContext } from './CardContext';
 
 export const PendingsContent = () => {
   const { fields } = useContext(CardContext);
-  const { calendarId } = owner.store();
-  const { data: pendingList } = records.usePendingDetails(
-    calendarId,
-    fields.id,
-  );
+  const { data: pendingList } = records.usePendingDetails(fields.id);
 
   return (
     <div>
