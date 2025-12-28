@@ -89,7 +89,11 @@ swipeBehavior.mount();
 swipeBehavior.disableVertical();
 
 viewport.mount().then(() => {
-  viewport.bindCssVars();
+  const { bottom } = viewport.contentSafeAreaInsets();
+  document.documentElement.style.setProperty(
+    '--tg-safe-area-inset-bottom',
+    `${bottom}px`,
+  );
 
   if (import.meta.env.PROD) {
     alert(JSON.stringify(viewport.contentSafeAreaInsets()));
