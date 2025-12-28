@@ -106,9 +106,11 @@ document.documentElement.style.setProperty(
   `${top}px`,
 );
 
+viewport.bindCssVars();
 if (import.meta.env.PROD) {
   alert(JSON.stringify(viewport.contentSafeAreaInsets()));
   alert(JSON.stringify(viewport.safeAreaInsets()));
+  alert(JSON.stringify(document.documentElement.style.getPropertyValue('--tg-viewport-safe-area-inset-bottom')))
 }
 
 on('safe_area_changed', ({ top, left, right, bottom }) => {
