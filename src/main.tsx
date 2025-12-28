@@ -88,17 +88,20 @@ init();
 swipeBehavior.mount();
 swipeBehavior.disableVertical();
 
-const { top, left, right, bottom } = viewport.safeAreaInsets();
-
+await viewport.mount();
 viewport.bindCssVars();
+
 if (import.meta.env.PROD) {
   alert(JSON.stringify(viewport.contentSafeAreaInsets()));
   alert(JSON.stringify(viewport.safeAreaInsets()));
-  alert(JSON.stringify(document.documentElement.style.getPropertyValue('--tg-safe-area-inset-bottom')))
+  alert(
+    JSON.stringify(
+      document.documentElement.style.getPropertyValue(
+        '--tg-safe-area-inset-bottom',
+      ),
+    ),
+  );
 }
-
-on('safe_area_changed', ({ top, left, right, bottom }) => {
-});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
