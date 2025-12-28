@@ -34,6 +34,8 @@ export const RecordPreview = memo(
       !isOwner && detailsForTheDay?.some(i => i.canPending);
 
     const [host, setHost] = useState<HTMLSpanElement | null>(null);
+    const [detailsWrapper, setDetailsWrapper] =
+      useState<HTMLSpanElement | null>(null);
 
     useLayoutEffect(() => {
       let timerId = 0;
@@ -47,9 +49,9 @@ export const RecordPreview = memo(
     }, [details, host]);
 
     const detailItemsFitsCount = useMemo(() => {
-      if (!host) return 0;
-      const height = host.offsetHeight;
-      const computedStyles = window.getComputedStyle(host);
+      if (!detailsWrapper) return 0;
+      const height = detailsWrapper.offsetHeight;
+      const computedStyles = window.getComputedStyle(detailsWrapper);
       const itemHeight = parseFloat(computedStyles.lineHeight);
       const gap = parseFloat(computedStyles.getPropertyValue('--spacing')) * 8;
 
@@ -59,7 +61,7 @@ export const RecordPreview = memo(
       );
 
       return itemsCount;
-    }, [detailsForTheDay?.length, host]);
+    }, [detailsForTheDay?.length, detailsWrapper]);
 
     const isAllDetailItemsFits =
       detailItemsFitsCount >= detailsForTheDay?.length!;
@@ -68,34 +70,45 @@ export const RecordPreview = memo(
       <span
         ref={setHost}
         className={cn(
-          'min-w-0.5 min-h-full h-full flex flex-col gap-0.5 text-sm',
+          'min-w-0.5 min-h-full h-full flex flex-col gap-0.5',
           isPreviewForClient && 'absolute z-[-1] inset-0 bg-teal-200/50',
         )}
       >
-        {isOwner &&
-          detailsForTheDay
-            ?.slice(
-              0,
-              isAllDetailItemsFits
-                ? detailsForTheDay.length
-                : detailItemsFitsCount - 1,
-            )
-            .map((item, idx) => (
-              <span
-                key={idx}
-                className={cn(
-                  'min-h-[1lh] h-[1lh] bg-card rounded-sm',
-                  item.hasPendings && 'bg-teal-200',
-                )}
-              />
-            ))}
-        {isOwner && detailsForTheDay?.length && !isAllDetailItemsFits && (
-          <span className="flex gap-1 pt-0.5 pl-0.5">
-            {Array.from({ length: 3 }, () => (
-              <Dot className="fill-muted-foreground stroke-0 h-2 w-2" />
-            ))}
-          </span>
-        )}
+        <span
+          className="flex-1 flex flex-col gap-0.5 text-xs"
+          ref={setDetailsWrapper}
+        >
+          {isOwner &&
+            detailsForTheDay
+              ?.slice(
+                0,
+                isAllDetailItemsFits
+                  ? detailsForTheDay.length
+                  : detailItemsFitsCount,
+              )
+              .map((item, idx) => (
+                <span
+                  key={idx}
+                  className={cn(
+                    'min-h-[1lh] h-[1lh] bg-card rounded-sm',
+                    item.hasPendings && 'bg-teal-200',
+                  )}
+                />
+              ))}
+        </span>
+        <span
+          className={cn(
+            'flex gap-1 pt-0.5 pl-0.5 invisible',
+            isOwner &&
+              detailsForTheDay?.length &&
+              !isAllDetailItemsFits &&
+              'visible',
+          )}
+        >
+          {Array.from({ length: 3 }, () => (
+            <Dot className="fill-muted-foreground/60 stroke-0 h-2 w-2" />
+          ))}
+        </span>
       </span>
     );
   },
