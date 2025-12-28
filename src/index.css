@@ -266,8 +266,9 @@
 
 @utility pb-unified-safe {
   padding-bottom: max(
-    env(safe-area-inset-bottom, 0.2rem),
-    var(--tg-safe-area-inset-bottom, 0.2rem)
+    env(safe-area-inset-bottom),
+    constant(safe-area-inset-bottom),
+    var(--tg-safe-area-inset-bottom),
   );
 }
 
