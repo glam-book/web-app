@@ -90,8 +90,6 @@ swipeBehavior.disableVertical();
 viewport
   .mount()
   .then(() => {
-    alert(viewport.contentSafeAreaInsetBottom());
-    alert(viewport.safeAreaInsetBottom());
     document.documentElement.style.setProperty(
       '--tg-safe-area-inset-bottom',
       `${Math.max(viewport.contentSafeAreaInsetBottom(), viewport.safeAreaInsetBottom())}px`,
@@ -99,12 +97,13 @@ viewport
   })
   .catch(e => {
     alert(`tg viewport not initialized:::, ${JSON.stringify(e)}`);
+  })
+  .finally(() => {
+    createRoot(document.getElementById('root')!).render(
+      <StrictMode>
+        <QueryClientProvider client={queryClient}>
+          <Routes />
+        </QueryClientProvider>
+      </StrictMode>,
+    );
   });
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <Routes />
-    </QueryClientProvider>
-  </StrictMode>,
-);

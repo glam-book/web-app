@@ -115,8 +115,11 @@ export const RecordPreview = memo(
               'flex',
           )}
         >
-          {Array.from({ length: 3 }, () => (
-            <Dot className="fill-muted-foreground/60 stroke-0 h-2 w-2" />
+          {Array.from({ length: 3 }, (_, idx) => (
+            <Dot
+              key={idx}
+              className="fill-muted-foreground/60 stroke-0 h-2 w-2"
+            />
           ))}
         </span>
       </span>
