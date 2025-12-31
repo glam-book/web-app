@@ -97,13 +97,12 @@ viewport
   })
   .catch(e => {
     alert(`tg viewport not initialized:::, ${JSON.stringify(e)}`);
-  })
-  .finally(() => {
-    createRoot(document.getElementById('root')!).render(
-      <StrictMode>
-        <QueryClientProvider client={queryClient}>
-          <Routes />
-        </QueryClientProvider>
-      </StrictMode>,
-    );
   });
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <Routes />
+    </QueryClientProvider>
+  </StrictMode>,
+);
