@@ -89,13 +89,6 @@ export const useGetPreview = (
                 canPending: true,
                 hasPendings: false,
               },
-              {
-                day: 1,
-                ts: new Date(),
-                isOwner: true,
-                canPending: true,
-                hasPendings: false,
-              },
             ],
           }) as typeof Preview.Type,
       ),

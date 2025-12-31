@@ -49,18 +49,36 @@ export const RecordPreview = memo(
     }, [details, host]);
 
     const detailItemsFitsCount = useMemo(() => {
-      if (!detailsWrapper) return 0;
-      const height = detailsWrapper.offsetHeight;
-      const computedStyles = window.getComputedStyle(detailsWrapper);
-      const itemHeight = parseFloat(computedStyles.lineHeight);
-      const gap = parseFloat(computedStyles.getPropertyValue('--spacing')) * 8;
+      if (!host) return 0;
+      if (!detailsForTheDay?.length) return 0;
 
-      const itemsCount = Math.max(
+      const height = host.offsetHeight;
+      const computedStyles = window.getComputedStyle(host);
+      const itemHeight = parseFloat(computedStyles.lineHeight);
+      const remInPx = parseFloat(
+        window.getComputedStyle(document.documentElement).fontSize,
+      );
+      const spacing =
+        parseFloat(computedStyles.getPropertyValue('--spacing')) * remInPx;
+      const gap = spacing * 0.5;
+      const dotsHeight = spacing * 2;
+
+      const preItemsCount = Math.max(
         0,
         Math.floor((height - itemHeight) / (itemHeight + gap)) + 1,
       );
 
-      return itemsCount;
+      const result =
+        preItemsCount < detailsForTheDay.length
+          ? Math.max(
+              0,
+              Math.floor(
+                (height - itemHeight - (dotsHeight + gap)) / (itemHeight + gap),
+              ) + 1,
+            )
+          : preItemsCount;
+
+      return result;
     }, [detailsForTheDay?.length, detailsWrapper]);
 
     const isAllDetailItemsFits =
@@ -74,18 +92,10 @@ export const RecordPreview = memo(
           isPreviewForClient && 'absolute z-[-1] inset-0 bg-teal-200/50',
         )}
       >
-        <span
-          className="flex-1 flex flex-col gap-0.5 text-xs"
-          ref={setDetailsWrapper}
-        >
+        <span className="flex flex-col gap-0.5 text-xs" ref={setDetailsWrapper}>
           {isOwner &&
             detailsForTheDay
-              ?.slice(
-                0,
-                isAllDetailItemsFits
-                  ? detailsForTheDay.length
-                  : detailItemsFitsCount,
-              )
+              ?.slice(0, detailItemsFitsCount)
               .map((item, idx) => (
                 <span
                   key={idx}
@@ -98,11 +108,11 @@ export const RecordPreview = memo(
         </span>
         <span
           className={cn(
-            'flex gap-1 pt-0.5 pl-0.5 invisible',
+            'hidden gap-1 pt-0.5 pl-0.5',
             isOwner &&
               detailsForTheDay?.length &&
               !isAllDetailItemsFits &&
-              'visible',
+              'flex',
           )}
         >
           {Array.from({ length: 3 }, () => (
