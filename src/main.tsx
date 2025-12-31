@@ -5,7 +5,6 @@ import {
   mockTelegramEnv,
   swipeBehavior,
   viewport,
-  on,
 } from '@tma.js/sdk-react';
 import { enableMapSet } from 'immer';
 import { StrictMode } from 'react';
@@ -88,29 +87,22 @@ init();
 swipeBehavior.mount();
 swipeBehavior.disableVertical();
 
-viewport.mount().then(() => {
-  document.documentElement.style.setProperty(
-    '--tg-safe-area-inset-bottom',
-    `${(Math.max(viewport.contentSafeAreaInsets().bottom, viewport.safeAreaInsets().bottom))}px`,
-  );
-
-  if (import.meta.env.PROD) {
-    alert(JSON.stringify(viewport.contentSafeAreaInsets()));
-    alert(JSON.stringify(viewport.safeAreaInsets()));
-    alert(
-      JSON.stringify(
-        document.documentElement.style.getPropertyValue(
-          '--tg-safe-area-inset-bottom',
-        ),
-      ),
+viewport
+  .mount()
+  .then(() => {
+    document.documentElement.style.setProperty(
+      '--tg-safe-area-inset-bottom',
+      `${Math.max(viewport.contentSafeAreaInsetBottom(), viewport.safeAreaInsetBottom())}px`,
     );
-  }
 
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <Routes />
-      </QueryClientProvider>
-    </StrictMode>,
-  );
-});
+    createRoot(document.getElementById('root')!).render(
+      <StrictMode>
+        <QueryClientProvider client={queryClient}>
+          <Routes />
+        </QueryClientProvider>
+      </StrictMode>,
+    );
+  })
+  .catch(e => {
+    alert(`tg viewport not initialized:::, ${JSON.stringify(e)}`);
+  });
