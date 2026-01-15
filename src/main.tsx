@@ -92,16 +92,20 @@ viewport
   .then(() => {
     document.documentElement.style.setProperty(
       '--tg-safe-area-inset-top',
-      `${Math.max(
-        viewport.contentSafeAreaInsetTop(),
-        viewport.safeAreaInsetTop(),
+      `${Math.ceil(
+        Math.max(
+          viewport.contentSafeAreaInsetTop(),
+          viewport.safeAreaInsetTop(),
+        ),
       )}px`,
     );
 
     if (import.meta.env.PROD) {
-      JSON.stringify(
-        document.documentElement.style.getPropertyValue(
-          '--tg-safe-area-inset-top',
+      alert(
+        JSON.stringify(
+          document.documentElement.style.getPropertyValue(
+            '--tg-safe-area-inset-top',
+          ),
         ),
       );
     }
