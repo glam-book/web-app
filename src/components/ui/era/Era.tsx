@@ -67,7 +67,7 @@ const Month = memo(
         className={cn('relative max-w-dvw flex flex-col', className)}
         {...props}
       >
-        <thead className="flex w-full absolute translate-y-[-1lh] text-2xl">
+        <thead className="flex w-full absolute translate-y-[-1lh] text-xl">
           <tr className="flex-1 h-[1lh] flex [&>*]:flex-1">
             <td className="flex items-center">
               <span className="w-max uppercase indent-3">
@@ -98,7 +98,7 @@ const Month = memo(
                   )}
                   {dd && (
                     <td
-                      className="aspect-[1/2] overflow-hidden border-y border-x-transparent text-xs"
+                      className="min-h-[5lh] text-xs overflow-hidden border-y border-x-transparent"
                       key={ddindex}
                       data-today={dd && isToday(dd)}
                     >
@@ -121,7 +121,7 @@ const Month = memo(
                               {getDate(dd)}
                             </Badge>
 
-                            <span className="empty:hidden w-full flex-1 overflow-hidden">
+                            <span className="empty:hidden w-full flex-1">
                               {Detail && (
                                 <Detail epoch={dd} currentDate={visibleDate} />
                               )}
@@ -240,7 +240,7 @@ export const Era = ({
     <div className={cn('relative flex flex-col overflow-hidden', className)}>
       <div className="flex flex-col">
         <header className="flex justify-between py-2">
-          <h2 className="flex items-center text-2xl indent-3 uppercase">
+          <h2 className="flex items-center text-xl indent-3 uppercase">
             {format(visibleDate, 'LLLL yyyy', { locale: ru })}
           </h2>
 

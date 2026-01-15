@@ -94,6 +94,16 @@ viewport
       '--tg-safe-area-inset-bottom',
       `${Math.max(viewport.contentSafeAreaInsetBottom(), viewport.safeAreaInsetBottom())}px`,
     );
+    if (import.meta.env.PROD) {
+      alert(
+        JSON.stringify(
+          Math.max(
+            viewport.contentSafeAreaInsetTop(),
+            viewport.safeAreaInsetTop(),
+          ),
+        ),
+      );
+    }
   })
   .catch(e => {
     alert(`tg viewport not initialized:::, ${JSON.stringify(e)}`);

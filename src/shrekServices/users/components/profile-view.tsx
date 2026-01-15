@@ -49,7 +49,11 @@ export const ProfileView = () => {
             </div>
           </div>
         </span>
-        <div className="empty:hidden">{profile?.login ?? 'ggamabuntattt'}</div>
+        <div className="empty:hidden">
+          {profile?.login ??
+            profile?.name ??
+            (import.meta.env.DEV && 'ggamabuntattt')}
+        </div>
       </div>
 
       <Drawer open={isContactsOpen} onOpenChange={setIsContactsOpen}>
