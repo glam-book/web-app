@@ -130,272 +130,268 @@ export const EditRecordModal = () => {
       setActiveSnapPoint={setSnap}
       repositionInputs={false}
     >
-      <DrawerPortal>
-        <DrawerContent className="pb-unified-safe bg-blurable backdrop-blur-3xl">
-          <DrawerHeader>
-            <div className="flex items-center justify-between w-full">
-              <div className="">
-                <DrawerTitle className="hidden">
-                  Редактирование записи
-                </DrawerTitle>
-                <DrawerDescription className="hidden">
-                  Измените данные или удалите запись
-                </DrawerDescription>
-              </div>
-
-              <div className="flex-1 flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const form = formRef.current;
-                    form?.requestSubmit();
-                  }}
-                  className="ml-auto"
-                >
-                  Сохранить
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => {
-                    if (!recordFields?.id) return;
-                    if (!confirm('Удалить запись?')) return;
-                    records.deleteOne(recordFields.id);
-                  }}
-                >
-                  <TrashIcon />
-                </Button>
-              </div>
+      <DrawerContent className="pb-unified-safe bg-blurable backdrop-blur-3xl">
+        <DrawerHeader>
+          <div className="flex items-center justify-between w-full">
+            <div className="">
+              <DrawerTitle className="hidden">
+                Редактирование записи
+              </DrawerTitle>
+              <DrawerDescription className="hidden">
+                Измените данные или удалите запись
+              </DrawerDescription>
             </div>
-          </DrawerHeader>
 
-          <div className="flex-1 overflow-auto content-grid">
-            <form
-              className="flex flex-col gap-4"
-              id="edit-record-card"
-              ref={formRef}
-              onSubmit={e => {
-                e.preventDefault();
+            <div className="flex-1 flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const form = formRef.current;
+                  form?.requestSubmit();
+                }}
+                className="ml-auto"
+              >
+                Сохранить
+              </Button>
 
-                const servicesSelected = Array.from(serviceToggleFields, v =>
-                  Number(v),
-                );
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                onClick={() => {
+                  if (!recordFields?.id) return;
+                  if (!confirm('Удалить запись?')) return;
+                  records.deleteOne(recordFields.id);
+                }}
+              >
+                <TrashIcon />
+              </Button>
+            </div>
+          </div>
+        </DrawerHeader>
 
-                records.store.editableRightNow.setState({
-                  fields: produce(recordFields, draft => {
-                    if (!draft) return;
-                    draft.serviceIdList = new Set(servicesSelected);
-                    draft.sign = sign;
-                  }),
-                });
+        <div className="flex-1 overflow-auto content-grid">
+          <form
+            className="flex flex-col gap-4"
+            id="edit-record-card"
+            ref={formRef}
+            onSubmit={e => {
+              e.preventDefault();
 
-                records.finishEdit();
-              }}
-            >
-              <div className="flex flex-col gap-1">
-                <Label className="hidden" htmlFor="sign">
-                  Комментарий
-                </Label>
-                <Textarea
-                  id="sign"
-                  name="sign"
-                  value={sign}
-                  onChange={e => setSign(e.target.value)}
-                  placeholder="Заметка"
-                  className="h-[2lh] resize-none bg-background border-none outline-none"
-                />
-              </div>
+              const servicesSelected = Array.from(serviceToggleFields, v =>
+                Number(v),
+              );
 
-              <Card className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5 text-gray-700" />
-                    <h2 className="text-gray-900">Услуги</h2>
-                  </div>
+              records.store.editableRightNow.setState({
+                fields: produce(recordFields, draft => {
+                  if (!draft) return;
+                  draft.serviceIdList = new Set(servicesSelected);
+                  draft.sign = sign;
+                }),
+              });
 
-                  <Drawer
-                    open={isServicesDrawerOpen}
-                    onOpenChange={setIsServicesDrawerOpen}
-                  >
-                    <DrawerTrigger asChild>
-                      <Button size="sm">
-                        <Plus />
-                        Добавить
-                      </Button>
-                    </DrawerTrigger>
+              records.finishEdit();
+            }}
+          >
+            <div className="flex flex-col gap-1">
+              <Label className="hidden" htmlFor="sign">
+                Комментарий
+              </Label>
+              <Textarea
+                id="sign"
+                name="sign"
+                value={sign}
+                onChange={e => setSign(e.target.value)}
+                placeholder="Заметка"
+                className="h-[2lh] resize-none bg-background border-none outline-none"
+              />
+            </div>
 
-                    <DrawerContent className="pb-unified-safe">
-                      <DrawerHeader>
-                        <DrawerTitle>Выберите услугу</DrawerTitle>
-                        {/* <DrawerDescription>
-                          Добавьте услуги в окно календаря
-                        </DrawerDescription> */}
-                      </DrawerHeader>
-
-                      {/* <div className="flex overflow-x-auto gap-2 px-4 pb-3 border-b">
-                        <Button
-                          variant={
-                            selectedCategory === null ? 'default' : 'outline'
-                          }
-                          size="sm"
-                          className="shrink-0"
-                          onClick={() => setSelectedCategory(null)}
-                        >
-                          Все
-                        </Button>
-                        {categories.map(category => (
-                          <Button
-                            key={category}
-                            variant={
-                              selectedCategory === category
-                                ? 'default'
-                                : 'outline'
-                            }
-                            size="sm"
-                            className="shrink-0"
-                            onClick={() => setSelectedCategory(category)}
-                          >
-                            {category}
-                          </Button>
-                        ))}
-                      </div> */}
-
-                      <div className="overflow-y-auto flex-1 px-4 py-3">
-                        <Button
-                          variant="outline"
-                          className="w-full mb-3 border-dashed"
-                          onClick={() => {
-                            setIsServicesDrawerOpen(false);
-                            services.startEdit();
-                          }}
-                        >
-                          <Plus />
-                          Создать новую услугу
-                        </Button>
-
-                        <div className="space-y-2">
-                          {allServices.map((service: ServiceLike) => {
-                            const isAdded = timeSlot.services.some(
-                              s => s.id === service.id,
-                            );
-                            return (
-                              <div
-                                key={service.id}
-                                className={`p-3 border rounded-lg active:scale-[0.98] transition-all ${
-                                  isAdded
-                                    ? 'bg-gray-50 border-gray-300'
-                                    : 'bg-white active:bg-gray-50'
-                                }`}
-                                onClick={() => !isAdded && addService(service)}
-                              >
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                      <h3 className="text-gray-900">
-                                        {service.title ?? service.name}
-                                      </h3>
-                                      <Badge
-                                        variant="secondary"
-                                        className="shrink-0"
-                                      >
-                                        {service.category ?? '—'}
-                                      </Badge>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-gray-600">
-                                      <span className="flex items-center gap-1">
-                                        <Clock className="w-3.5 h-3.5" />
-                                        {service.duration
-                                          ? `${service.duration} мин`
-                                          : '—'}
-                                      </span>
-                                      <span>
-                                        {new Intl.NumberFormat('ru-RU', {
-                                          style: 'currency',
-                                          currency: 'RUB',
-                                          maximumFractionDigits: 0,
-                                        }).format(service.price ?? 0)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  {isAdded && (
-                                    <Badge className="shrink-0">✓</Badge>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </DrawerContent>
-                  </Drawer>
+            <Card className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-gray-700" />
+                  <h2 className="text-gray-900">Услуги</h2>
                 </div>
 
-                {timeSlot.services.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <MessageSquare className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                    <p>Услуги не добавлены</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {timeSlot.services.map((service: ServiceLike) => (
-                      <div
-                        key={service.id}
-                        className="flex items-start gap-3 p-3 bg-white border rounded-lg"
+                <Drawer
+                  open={isServicesDrawerOpen}
+                  onOpenChange={setIsServicesDrawerOpen}
+                >
+                  <DrawerTrigger asChild>
+                    <Button size="sm">
+                      <Plus />
+                      Добавить
+                    </Button>
+                  </DrawerTrigger>
+
+                  <DrawerContent className="pb-unified-safe">
+                    <DrawerHeader>
+                      <DrawerTitle>Выберите услугу</DrawerTitle>
+                      {/* <DrawerDescription>
+        Добавьте услуги в окно календаря
+        </DrawerDescription> */}
+                    </DrawerHeader>
+
+                    {/* <div className="flex overflow-x-auto gap-2 px-4 pb-3 border-b">
+        <Button
+        variant={
+        selectedCategory === null ? 'default' : 'outline'
+        }
+        size="sm"
+        className="shrink-0"
+        onClick={() => setSelectedCategory(null)}
+        >
+        Все
+        </Button>
+        {categories.map(category => (
+        <Button
+        key={category}
+        variant={
+        selectedCategory === category
+          ? 'default'
+          : 'outline'
+          }
+          size="sm"
+          className="shrink-0"
+          onClick={() => setSelectedCategory(category)}
+          >
+          {category}
+          </Button>
+          ))}
+          </div> */}
+
+                    <div className="overflow-y-auto flex-1 px-4 py-3">
+                      <Button
+                        variant="outline"
+                        className="w-full mb-3 border-dashed"
+                        onClick={() => {
+                          setIsServicesDrawerOpen(false);
+                          services.startEdit();
+                        }}
                       >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <h3 className="text-gray-900">
-                              {service.title ?? service.name}
-                            </h3>
-                            <Badge variant="outline" className="shrink-0">
-                              {service.category ?? '—'}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-3 text-gray-600">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5" />
-                              {service.duration
-                                ? `${service.duration} мин`
-                                : '—'}
-                            </span>
-                            <span>
-                              {new Intl.NumberFormat('ru-RU', {
-                                style: 'currency',
-                                currency: 'RUB',
-                                maximumFractionDigits: 0,
-                              }).format(service.price ?? 0)}
-                            </span>
-                          </div>
-                        </div>
+                        <Plus />
+                        Создать новую услугу
+                      </Button>
 
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeService(service.id)}
-                          className="text-gray-500 active:text-red-600 shrink-0"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
+                      <div className="space-y-2">
+                        {allServices.map((service: ServiceLike) => {
+                          const isAdded = timeSlot.services.some(
+                            s => s.id === service.id,
+                          );
+                          return (
+                            <div
+                              key={service.id}
+                              className={`p-3 border rounded-lg active:scale-[0.98] transition-all ${
+                                isAdded
+                                  ? 'bg-gray-50 border-gray-300'
+                                  : 'bg-white active:bg-gray-50'
+                              }`}
+                              onClick={() => !isAdded && addService(service)}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 className="text-gray-900">
+                                      {service.title ?? service.name}
+                                    </h3>
+                                    <Badge
+                                      variant="secondary"
+                                      className="shrink-0"
+                                    >
+                                      {service.category ?? '—'}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center gap-3 text-gray-600">
+                                    <span className="flex items-center gap-1">
+                                      <Clock className="w-3.5 h-3.5" />
+                                      {service.duration
+                                        ? `${service.duration} мин`
+                                        : '—'}
+                                    </span>
+                                    <span>
+                                      {new Intl.NumberFormat('ru-RU', {
+                                        style: 'currency',
+                                        currency: 'RUB',
+                                        maximumFractionDigits: 0,
+                                      }).format(service.price ?? 0)}
+                                    </span>
+                                  </div>
+                                </div>
+                                {isAdded && (
+                                  <Badge className="shrink-0">✓</Badge>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </Card>
-            </form>
-          </div>
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+              </div>
 
-          <DrawerFooter>
-            <Button
-              variant="outline"
-              onClick={records.store.editableRightNow.getState().reset}
-            >
-              закрыть
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </DrawerPortal>
+              {timeSlot.services.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <MessageSquare className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                  <p>Услуги не добавлены</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {timeSlot.services.map((service: ServiceLike) => (
+                    <div
+                      key={service.id}
+                      className="flex items-start gap-3 p-3 bg-white border rounded-lg"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <h3 className="text-gray-900">
+                            {service.title ?? service.name}
+                          </h3>
+                          <Badge variant="outline" className="shrink-0">
+                            {service.category ?? '—'}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-3 text-gray-600">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            {service.duration ? `${service.duration} мин` : '—'}
+                          </span>
+                          <span>
+                            {new Intl.NumberFormat('ru-RU', {
+                              style: 'currency',
+                              currency: 'RUB',
+                              maximumFractionDigits: 0,
+                            }).format(service.price ?? 0)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeService(service.id)}
+                        className="text-gray-500 active:text-red-600 shrink-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </form>
+        </div>
+
+        <DrawerFooter>
+          <Button
+            variant="outline"
+            onClick={records.store.editableRightNow.getState().reset}
+          >
+            закрыть
+          </Button>
+        </DrawerFooter>
+      </DrawerContent>
     </Drawer>
   );
 };
