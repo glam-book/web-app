@@ -91,19 +91,20 @@ viewport
   .mount()
   .then(() => {
     document.documentElement.style.setProperty(
-      '--tg-safe-area-inset-bottom',
-      `${Math.max(viewport.contentSafeAreaInsetBottom(), viewport.safeAreaInsetBottom())}px`,
+      '--tg-safe-area-inset-top',
+      `${Math.max(
+        viewport.contentSafeAreaInsetTop(),
+        viewport.safeAreaInsetTop(),
+      )}px`,
     );
-    if (import.meta.env.PROD) {
-      alert(
-        JSON.stringify(
-          Math.max(
-            viewport.contentSafeAreaInsetTop(),
-            viewport.safeAreaInsetTop(),
-          ),
-        ),
-      );
-    }
+
+    document.documentElement.style.setProperty(
+      '--tg-safe-area-inset-bottom',
+      `${Math.max(
+        viewport.contentSafeAreaInsetBottom(),
+        viewport.safeAreaInsetBottom(),
+      )}px`,
+    );
   })
   .catch(e => {
     alert(`tg viewport not initialized:::, ${JSON.stringify(e)}`);

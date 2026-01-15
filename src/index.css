@@ -264,6 +264,14 @@
   display: none;
 }
 
+@utility pt-unified-safe {
+  padding-top: max(
+    env(safe-area-inset-top),
+    var(--tg-safe-area-inset-top),
+    0.2rem
+  );
+}
+
 @utility pb-unified-safe {
   padding-bottom: max(
     env(safe-area-inset-bottom),
@@ -272,7 +280,7 @@
   );
 }
 
-@utility px-unified-safe {
+/* @utility px-unified-safe {
   padding-left: max(
     env(safe-area-inset-left),
     constant(safe-area-inset-left),
@@ -283,7 +291,7 @@
     constant(safe-area-inset-right),
     var(--tg-safe-area-inset-right)
   );
-}
+} */
 
 @layer base {
   * {
