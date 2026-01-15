@@ -57,7 +57,7 @@ export const ProfileView = () => {
       </div>
 
       <Drawer open={isContactsOpen} onOpenChange={setIsContactsOpen}>
-        <DrawerContent>
+        <DrawerContent className="pb-unified-safe">
           <DrawerHeader>
             <DrawerTitle>Контакты</DrawerTitle>
             <DrawerDescription>Информация о профиле</DrawerDescription>
@@ -96,7 +96,7 @@ export const ProfileView = () => {
             </div>
           </div>
 
-          <DrawerFooter className="pb-unified-safe">
+          <DrawerFooter>
             <Button
               variant="outline"
               onClick={() => setIsContactsOpen(false)}

@@ -116,7 +116,10 @@ export const Pendings = () => {
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent onClick={e => e.stopPropagation()}>
+      <DrawerContent
+        className="pb-unified-safe"
+        onClick={e => e.stopPropagation()}
+      >
         <DrawerHeader>
           <DrawerTitle>Запросы на услугу</DrawerTitle>
           <DrawerDescription className="hidden">

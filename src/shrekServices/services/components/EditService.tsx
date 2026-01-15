@@ -22,7 +22,7 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
       onClose={services.resetEdit}
       {...props}
     >
-      <DrawerContent className="pb-4 backdrop-blur-3xl">
+      <DrawerContent className="pb-unified-safe backdrop-blur-3xl">
         <DrawerHeader>
           <DrawerTitle>Сервис</DrawerTitle>
           <DrawerDescription className="hidden">

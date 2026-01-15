@@ -95,16 +95,6 @@ viewport
       `${viewport.contentSafeAreaInsetTop() + viewport.safeAreaInsetTop()}px`,
     );
 
-    if (import.meta.env.PROD) {
-      alert(
-        JSON.stringify(
-          document.documentElement.style.getPropertyValue(
-            '--tg-safe-area-inset-top',
-          ),
-        ),
-      );
-    }
-
     document.documentElement.style.setProperty(
       '--tg-safe-area-inset-bottom',
       `${

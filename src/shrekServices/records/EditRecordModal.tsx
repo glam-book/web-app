@@ -131,13 +131,14 @@ export const EditRecordModal = () => {
       repositionInputs={false}
     >
       <DrawerPortal>
-        <DrawerContent className="pb-4 bg-blurable backdrop-blur-3xl">
+        <DrawerContent className="pb-unified-safe bg-blurable backdrop-blur-3xl">
           <DrawerHeader>
             <div className="flex items-center justify-between w-full">
               <div className="">
-                <span>{recordFields?.id}</span>
-                <DrawerTitle>Редактирование записи</DrawerTitle>
-                <DrawerDescription>
+                <DrawerTitle className="hidden">
+                  Редактирование записи
+                </DrawerTitle>
+                <DrawerDescription className="hidden">
                   Измените данные или удалите запись
                 </DrawerDescription>
               </div>

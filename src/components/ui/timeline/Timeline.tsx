@@ -140,7 +140,6 @@ export const Timeline = ({
     records.startEdit({
       from,
       to,
-      sign: 'HUI',
     });
 
     activeCardState.toggle('isResizeMode', true);
