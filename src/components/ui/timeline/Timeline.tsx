@@ -222,7 +222,7 @@ export const Timeline = ({
     >
       <div className="card-header backdrop-blur-none shadow-shadow">
         <h2 className="flex justify-between pr-3 indent-3">
-          <time className="text-2xl uppercase">
+          <time className="text-xl uppercase">
             {format(currentDate, 'dd MMMM', { locale: ru })}
           </time>
         </h2>

@@ -98,6 +98,14 @@ viewport
       )}px`,
     );
 
+    if (import.meta.env.PROD) {
+      JSON.stringify(
+        document.documentElement.style.getPropertyValue(
+          '--tg-safe-area-inset-top',
+        ),
+      );
+    }
+
     document.documentElement.style.setProperty(
       '--tg-safe-area-inset-bottom',
       `${Math.max(
