@@ -92,11 +92,11 @@ export const RecordPreview = memo(
           isPreviewForClient && 'absolute z-[-1] inset-0 bg-teal-200/50',
         )}
       >
-        <span className="flex flex-col gap-0.5 text-xs" ref={setDetailsWrapper}>
+        <span className="flex flex-col gap-0.5 leading-3" ref={setDetailsWrapper}>
           {isOwner &&
             detailsForTheDay
-              ?.slice(0, detailItemsFitsCount)
-              .map((item, idx) => (
+              // ?.slice(0, detailItemsFitsCount)
+              ?.map((item, idx) => (
                 <span
                   key={idx}
                   className={cn(
@@ -106,6 +106,7 @@ export const RecordPreview = memo(
                 />
               ))}
         </span>
+        {/*
         <span
           className={cn(
             'hidden gap-1 pt-0.5 pl-0.5',
@@ -122,6 +123,7 @@ export const RecordPreview = memo(
             />
           ))}
         </span>
+          */}
       </span>
     );
   },
