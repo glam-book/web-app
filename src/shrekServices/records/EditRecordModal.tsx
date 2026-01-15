@@ -225,7 +225,8 @@ export const EditRecordModal = () => {
                         Добавить
                       </Button>
                     </DrawerTrigger>
-                    <DrawerContent>
+
+                    <DrawerContent className="pb-unified-safe">
                       <DrawerHeader>
                         <DrawerTitle>Выберите услугу</DrawerTitle>
                         {/* <DrawerDescription>
