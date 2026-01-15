@@ -92,12 +92,7 @@ viewport
   .then(() => {
     document.documentElement.style.setProperty(
       '--tg-safe-area-inset-top',
-      `${Math.ceil(
-        Math.max(
-          viewport.contentSafeAreaInsetTop(),
-          viewport.safeAreaInsetTop(),
-        ),
-      )}px`,
+      `${viewport.contentSafeAreaInsetTop() + viewport.safeAreaInsetTop()}px`,
     );
 
     if (import.meta.env.PROD) {
@@ -112,10 +107,9 @@ viewport
 
     document.documentElement.style.setProperty(
       '--tg-safe-area-inset-bottom',
-      `${Math.max(
-        viewport.contentSafeAreaInsetBottom(),
-        viewport.safeAreaInsetBottom(),
-      )}px`,
+      `${
+        viewport.contentSafeAreaInsetBottom() + viewport.safeAreaInsetBottom()
+      }px`,
     );
   })
   .catch(e => {

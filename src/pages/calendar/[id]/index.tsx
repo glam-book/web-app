@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { produce } from 'immer';
+import { addHours } from 'date-fns';
 
 import type { HostApi } from '@/components/ui/carousel';
 import * as Carousel from '@/components/ui/carousel';
@@ -25,10 +26,26 @@ export default function Id() {
 
   const [date, setDate] = useState(new Date());
 
-  const { data: recordList, error: errorRecordList } = records.useGet(
-    params.id,
-    date,
-  );
+  const {
+    data: recordList = new Map([
+      [
+        0,
+        {
+          id: 0,
+          from: new Date(),
+          to: addHours(new Date(), 1),
+          serviceIdList: new Set(),
+          owner: false,
+          pendigable: true,
+          pendings: {
+            limits: 1,
+            active: 0,
+          },
+        },
+      ],
+    ]),
+    error: errorRecordList,
+  } = records.useGet(params.id, date);
 
   const { fields: recordFields } = records.store.editableRightNow();
   const isCardSelected = Boolean(recordFields);
