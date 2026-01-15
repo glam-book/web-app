@@ -57,7 +57,7 @@ export const ProfileView = () => {
       </div>
 
       <Drawer open={isContactsOpen} onOpenChange={setIsContactsOpen}>
-        <DrawerContent className="px-unified-safe">
+        <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Контакты</DrawerTitle>
             <DrawerDescription>Информация о профиле</DrawerDescription>

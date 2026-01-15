@@ -69,7 +69,7 @@ export default function Id() {
 
   return (
     <>
-      <main className="content-grid grid-rows-[1fr_auto_1fr] gap-y-2 max-h-dvh overscroll-none">
+      <main className="content-grid pt-unified-safe grid-rows-[1fr_auto_1fr] gap-y-2 max-h-dvh overscroll-none">
         <header
           ref={() => {}}
           className="breakout flex justify-between items-center rounded-sm"
