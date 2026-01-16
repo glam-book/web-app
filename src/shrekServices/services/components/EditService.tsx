@@ -26,7 +26,7 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
         <DrawerHeader>
           <DrawerTitle>Сервис</DrawerTitle>
           <DrawerDescription className="hidden">
-            service edit form
+            service edit for
           </DrawerDescription>
         </DrawerHeader>
 
@@ -36,6 +36,7 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
             onSubmit={e => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
+
               services.store.editableRightNow.setState({
                 fields: produce(fields, draft => {
                   if (draft === undefined) return;
