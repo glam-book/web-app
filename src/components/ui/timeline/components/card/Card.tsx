@@ -350,16 +350,16 @@ const LongPress = ({ children }: React.PropsWithChildren) => {
           </DrawerHeader>
           <div className="content-grid">
             <PendingsContent />
-            <DrawerFooter className="pb-unified-safe">
-              <Button
-                variant="outline"
-                onClick={() => setOpen(false)}
-                className="w-full"
-              >
-                закрыть
-              </Button>
-            </DrawerFooter>
           </div>
+          <DrawerFooter className="pb-unified-safe">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="w-full"
+            >
+              закрыть
+            </Button>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </>
