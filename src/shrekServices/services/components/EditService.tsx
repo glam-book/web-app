@@ -11,9 +11,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { services } from '@/shrekServices';
+import { useEffect, useState } from 'react';
 
 export function EditService(props: React.ComponentProps<typeof Drawer>) {
   const { fields } = services.store.editableRightNow();
+  const [titleInput, setTitleInput] = useState<HTMLInputElement | null>();
+
+  useEffect(() => {
+    titleInput?.focus();
+  }, [titleInput]);
 
   return (
     <Drawer
@@ -54,6 +60,7 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
           >
             <Label className="flex-col items-start">
               <Input
+                ref={setTitleInput}
                 name="title"
                 type="text"
                 placeholder="Название"
@@ -67,7 +74,7 @@ export function EditService(props: React.ComponentProps<typeof Drawer>) {
                 name="price"
                 type="text"
                 placeholder="Цена в реблях"
-                defaultValue={fields?.price ? fields.price : ''}
+                defaultValue={fields?.price}
                 inputMode="numeric"
               />
             </Label>

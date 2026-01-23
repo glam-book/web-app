@@ -6,8 +6,10 @@ import { toast } from 'sonner';
 import { produce } from 'immer';
 import { addHours } from 'date-fns';
 
+import { version } from 'root/package.json';
 import type { HostApi } from '@/components/ui/carousel';
 import * as Carousel from '@/components/ui/carousel';
+import { Record } from '@/schemas/Record';
 
 import { Era } from '@/components/ui/era';
 import { Toaster } from '@/components/ui/sonner';
@@ -27,14 +29,15 @@ export default function Id() {
   const [date, setDate] = useState(new Date());
 
   const {
-    data: recordList = new Map([
+    data: recordList = new Map<number, typeof Record.Type>([
       [
         0,
         {
           id: 0,
           from: new Date(),
           to: addHours(new Date(), 1),
-          serviceIdList: new Set(),
+          serviceIdList: new Set([1, 2, 3]),
+          sign: '',
           owner: false,
           pendigable: true,
           pendings: {
@@ -153,7 +156,7 @@ export default function Id() {
             <span />
             <div ref={setCarouselIndicatorWrapper} />
             <span className="font-mono text-sm justify-self-end-safe">
-              v0.0.0
+              {version}
             </span>
           </div>
         </footer>

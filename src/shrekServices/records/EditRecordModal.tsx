@@ -11,7 +11,6 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
-  DrawerPortal,
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
@@ -19,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { records, services } from '@/shrekServices';
 
-const snapPoints = [0.5, 1];
+const snapPoints = [0.6, 1];
 
 type ServiceLike = {
   id: number;
@@ -170,7 +169,7 @@ export const EditRecordModal = () => {
           </div>
         </DrawerHeader>
 
-        <div className="flex-1 overflow-auto content-grid">
+        <div className="flex-1 overflow-y-auto content-grid">
           <form
             className="flex flex-col gap-4"
             id="edit-record-card"

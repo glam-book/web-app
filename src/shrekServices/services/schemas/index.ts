@@ -1,2 +1,2 @@
-export { Itself, ItselfWithOptionalId, ItselfWithoutId } from './Itself';
+export { Itself, ItselfWithOptionalId, ItselfWithoutId, beautyItems } from './Itself';
 export { List } from './List';

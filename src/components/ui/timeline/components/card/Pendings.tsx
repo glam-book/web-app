@@ -85,9 +85,16 @@ export const PendingsContent = () => {
   );
 };
 
-export const Pendings = () => {
+export const Pendings = ({
+  children,
+  setOpen,
+  open,
+}: React.PropsWithChildren & {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}) => {
   const { fields } = useContext(CardContext);
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
 
   return (
     <Drawer
@@ -103,18 +110,7 @@ export const Pendings = () => {
         });
       }}
     >
-      <DrawerTrigger asChild>
-        <Button
-          className="font-mono"
-          variant="secondary"
-          onClick={e => {
-            e.stopPropagation();
-            setOpen(true);
-          }}
-        >
-          {fields.pendings.active}/{fields.pendings.limits}
-        </Button>
-      </DrawerTrigger>
+      <DrawerTrigger>{children}</DrawerTrigger>
 
       <DrawerContent
         className="pb-unified-safe"

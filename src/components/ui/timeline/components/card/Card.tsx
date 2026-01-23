@@ -1,10 +1,21 @@
+import { Schema, Arbitrary, FastCheck } from 'effect';
 import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { pipe } from 'effect';
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useEffectEvent,
+  useState,
+} from 'react';
 import { toast } from 'sonner';
 
+import { Itself as Service } from '@/shrekServices/services/schemas';
+import { MapFromArrayWithIdsOrUndefined } from '@/transformers';
+import { tryDecodeInto } from '@/utils';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,6 +26,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  ContextMenuItem,
+  ContextMenuContent,
+  ContextMenuPortal,
+  ContextMenuTrigger,
+  ContextMenu,
+} from '@/components/ui/context-menu';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Menu, MenuItem } from '@/components/ui/menu';
 import { activeCard } from '@/components/ui/timeline/store';
@@ -27,7 +54,7 @@ import type { CardProps } from './types';
 import { CardContext, Root } from './CardContext';
 import { Content } from './Content';
 import { Badges } from './Badges';
-import { Pendings } from './Pendings';
+import { PendingsContent } from './Pendings';
 
 export const TheCard = ({
   aimPosition,
@@ -118,8 +145,16 @@ export const TheCard = ({
   );
 };
 
+const arb = Arbitrary.make(Service);
+const sample = FastCheck.sample(arb, 10);
+
+const serviceListWithInOrderId = Schema.decodeUnknownSync(
+  MapFromArrayWithIdsOrUndefined(Service),
+)(sample.map((i, idx) => ({ ...i, id: idx })));
+console.log({ serviceListWithInOrderId });
+
 export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
-  const { data: serviceList } = services.useGet();
+  const { data: serviceList = serviceListWithInOrderId } = services.useGet();
 
   const [open, setOpen] = useState(false);
 
@@ -241,7 +276,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                                 currency: 'RUB',
                                 maximumFractionDigits: 2,
                                 minimumFractionDigits: 0,
-                              }).format(i.price)}
+                              }).format(i.price ?? 0)}
                             </span>
                           </Label>
                         ))}
@@ -265,22 +300,96 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
   );
 });
 
+const LongPress = ({ children }: React.PropsWithChildren) => {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    let animationFrameId = 0;
+
+    animationFrameId = requestAnimationFrame(() => {
+      const overlay = document.querySelector('[data-vaul-overlay]');
+      overlay?.addEventListener('click', e => {
+        e.stopPropagation();
+        setOpen(false);
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [open]);
+
+  return (
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger className="content-grid">
+          {children}
+        </ContextMenuTrigger>
+        <ContextMenuPortal>
+          <ContextMenuContent onClick={e => e.stopPropagation()}>
+            <ContextMenuItem onClick={() => setOpen(true)}>
+              А кто ко мне записался?
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenuPortal>
+      </ContextMenu>
+
+      <Drawer
+        open={open}
+        onOpenChange={internalOpenState => setOpen(internalOpenState)}
+      >
+        <DrawerContent
+          className="pb-unified-safe"
+          onClick={e => e.stopPropagation()}
+        >
+          <DrawerHeader>
+            <DrawerTitle>Запросы на услугу</DrawerTitle>
+            <DrawerDescription className="hidden">
+              info about clients
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="content-grid">
+            <PendingsContent />
+            <DrawerFooter className="pb-unified-safe">
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="w-full"
+              >
+                закрыть
+              </Button>
+            </DrawerFooter>
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+};
+
 export const OwnerCard = memo(({ fields, ...rest }: CardProps) => {
   return (
     <Root fields={fields}>
-      <TheCard {...rest}>
-        <Content
-          className={cn(
-            'text-stands-out',
-            fields.pendings.limits === fields.pendings.active &&
-              'bg-accent-second text-[coral]',
-          )}
-        >
-          <span className="text-base text-foreground">{fields?.sign}</span>
-          <Badges />
-          <Pendings />
-        </Content>
-      </TheCard>
+      <LongPress>
+        <TheCard {...rest}>
+          <Content
+            className={cn(
+              'text-stands-out',
+              fields.pendings.limits === fields.pendings.active &&
+                'bg-accent-second text-[coral]',
+            )}
+          >
+            <div className="w-full">
+              <span className="flex-1 block text-sm text-foreground truncate">
+                {fields?.sign}
+              </span>
+
+              <div className="max-w-full overflow-x-auto scrollbar-hidden">
+                <Badges />
+              </div>
+            </div>
+          </Content>
+        </TheCard>
+      </LongPress>
     </Root>
   );
 });

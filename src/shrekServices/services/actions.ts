@@ -1,7 +1,8 @@
 import { Schema, flow } from 'effect';
+import { faker } from '@faker-js/faker';
 
 import { queryClient } from '@/services';
-import { Itself } from '@/shrekServices/services/schemas';
+import { Itself, beautyItems } from '@/shrekServices/services/schemas';
 import { store as ownerStore } from '@/shrekServices/owner';
 
 const resource = 'service';
@@ -23,6 +24,9 @@ export const startEdit = flow(
   Schema.Struct({
     ...Itself.fields,
     id: Schema.optional(Schema.Number),
+    title: Schema.optionalWith(Schema.String, {
+      default: () => faker.helpers.arrayElement(beautyItems),
+    }),
   }).make,
   _startEdit,
 );

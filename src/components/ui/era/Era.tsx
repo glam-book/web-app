@@ -113,8 +113,8 @@ const Month = memo(
                           <span className="flex-1 max-w-full p-1 flex flex-col gap-1 items-center">
                             <Badge
                               className={cn(
-                                'h-min border-none',
-                                isToday(dd) && 'bg-red-600/80',
+                                'h-[3.2ch] w-[3.2ch] rounded-full border-none text-xs',
+                                isToday(dd) && 'bg-red-600/80 font-semibold',
                               )}
                               variant={isToday(dd) ? 'default' : 'outline'}
                             >

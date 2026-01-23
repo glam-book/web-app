@@ -125,41 +125,39 @@ export const Indicator = () => {
   const carouselContext = useContext(CarouselContext);
   const [isScrolling, setScrolling] = useState(false);
 
-  useEffect(() => {
-    const host = carouselContext.scrollView;
-    if (!host) return;
-
-    const handler = () => {
-      carouselContext.setCurrentIndex?.(getcurrentindex(host));
-      setScrolling(false);
-    };
-
-    host.addEventListener('scrollend', handler);
-
-    return () => host.removeEventListener('scrollend', handler);
-  }, [carouselContext]);
-
   const [isScrollToTheLeft, setScrollToTheLeft] = useState(false);
 
   useEffect(() => {
     const { scrollView: host } = carouselContext;
     if (!host) return;
 
-    let aid = 0;
+    let animationFrameId = 0;
     let startLeft = host.scrollLeft;
+    let timerId = 0;
 
     const handler = () => {
-      cancelAnimationFrame(aid);
-      aid = requestAnimationFrame(() => {
-        setScrolling(true);
+      clearTimeout(timerId);
+      cancelAnimationFrame(animationFrameId);
+      setScrolling(true);
+
+      animationFrameId = requestAnimationFrame(() => {
         const isScrollToTheLeftNew = host.scrollLeft < startLeft;
         setScrollToTheLeft(isScrollToTheLeftNew);
       });
+
+      timerId = window.setTimeout(() => {
+        carouselContext.setCurrentIndex?.(getcurrentindex(host));
+        setScrolling(false);
+      }, 80);
     };
 
     host.addEventListener('scroll', handler);
 
-    return () => host.removeEventListener('scroll', handler);
+    return () => {
+      clearTimeout(timerId);
+      cancelAnimationFrame(animationFrameId);
+      host.removeEventListener('scroll', handler);
+    };
   }, [carouselContext]);
 
   return (
