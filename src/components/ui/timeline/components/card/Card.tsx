@@ -373,8 +373,7 @@ export const OwnerCard = memo(({ fields, ...rest }: CardProps) => {
         <Content
           className={cn(
             'text-stands-out',
-            fields.pendings.limits === fields.pendings.active &&
-              'bg-accent-second text-[coral]',
+            fields.pendings.active > 0 && 'bg-accent-second/60 text-[coral]',
           )}
         >
           <div className="w-full flex flex-col gap-0.5">
