@@ -16,7 +16,6 @@ import { toast } from 'sonner';
 import { Itself as Service } from '@/shrekServices/services/schemas';
 import { MapFromArrayWithIdsOrUndefined } from '@/transformers';
 import { tryDecodeInto } from '@/utils';
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -44,6 +43,7 @@ import {
 } from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Menu, MenuItem } from '@/components/ui/menu';
+import { Button } from '@/components/ui/button';
 import { activeCard } from '@/components/ui/timeline/store';
 import { setMinutesToDate } from '@/components/ui/timeline/utils';
 import { cn } from '@/lib/utils';
@@ -54,7 +54,7 @@ import type { CardProps } from './types';
 import { CardContext, Root } from './CardContext';
 import { Content } from './Content';
 import { Badges } from './Badges';
-import { PendingsContent } from './Pendings';
+import { Pendings, PendingsContent } from './Pendings';
 
 export const TheCard = ({
   aimPosition,
@@ -369,27 +369,37 @@ const LongPress = ({ children }: React.PropsWithChildren) => {
 export const OwnerCard = memo(({ fields, ...rest }: CardProps) => {
   return (
     <Root fields={fields}>
-      <LongPress>
-        <TheCard {...rest}>
-          <Content
-            className={cn(
-              'text-stands-out',
-              fields.pendings.limits === fields.pendings.active &&
-                'bg-accent-second text-[coral]',
-            )}
-          >
-            <div className="w-full">
-              <span className="flex-1 block text-sm text-foreground truncate">
+      <TheCard {...rest}>
+        <Content
+          className={cn(
+            'text-stands-out',
+            fields.pendings.limits === fields.pendings.active &&
+              'bg-accent-second text-[coral]',
+          )}
+        >
+          <div className="w-full flex flex-col gap-0.5">
+            <div className="flex gap-0.5 items-center">
+              <span className="block text-sm text-foreground truncate">
                 {fields?.sign}
               </span>
-
-              <div className="max-w-full overflow-x-auto scrollbar-hidden">
-                <Badges />
-              </div>
+              <Pendings>
+                <Button
+                  variant="secondary"
+                  className="h-auto py-1 text-primary-foreground font-mono text-xs"
+                  size="icon"
+                  onClick={e => e.stopPropagation()}
+                >
+                  {fields.pendings.active}/{fields.pendings.limits}
+                </Button>
+              </Pendings>
             </div>
-          </Content>
-        </TheCard>
-      </LongPress>
+
+            <div className="max-w-full overflow-x-auto scrollbar-hidden">
+              <Badges />
+            </div>
+          </div>
+        </Content>
+      </TheCard>
     </Root>
   );
 });

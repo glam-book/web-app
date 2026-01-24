@@ -25,7 +25,7 @@ export const Content = ({
         className,
       )}
     >
-      <div className="pl-2 pr-1 pt-2 pb-1 text-2xl sticky top-0 w-full max-h-full overflow-y-hidden flex flex-col">
+      <div className="pl-2 pr-1 py-1 text-2xl sticky top-0 w-full max-h-full overflow-y-hidden flex flex-col">
         {isSelected ? (
           <div className="flex font-mono text-xl">
             <time

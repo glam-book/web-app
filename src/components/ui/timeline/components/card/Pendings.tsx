@@ -85,16 +85,8 @@ export const PendingsContent = () => {
   );
 };
 
-export const Pendings = ({
-  children,
-  setOpen,
-  open,
-}: React.PropsWithChildren & {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-}) => {
-  const { fields } = useContext(CardContext);
-  // const [open, setOpen] = useState(false);
+export const Pendings = ({ children }: React.PropsWithChildren & {}) => {
+  const [open, setOpen] = useState(false);
 
   return (
     <Drawer
@@ -110,7 +102,7 @@ export const Pendings = ({
         });
       }}
     >
-      <DrawerTrigger>{children}</DrawerTrigger>
+      <DrawerTrigger asChild>{children}</DrawerTrigger>
 
       <DrawerContent
         className="pb-unified-safe"

@@ -133,28 +133,23 @@ export const Indicator = () => {
 
     let animationFrameId = 0;
     let startLeft = host.scrollLeft;
-    let timerId = 0;
 
     const handler = () => {
-      clearTimeout(timerId);
       cancelAnimationFrame(animationFrameId);
       setScrolling(true);
 
       animationFrameId = requestAnimationFrame(() => {
         const isScrollToTheLeftNew = host.scrollLeft < startLeft;
         setScrollToTheLeft(isScrollToTheLeftNew);
-      });
-
-      timerId = window.setTimeout(() => {
         carouselContext.setCurrentIndex?.(getcurrentindex(host));
         setScrolling(false);
-      }, 80);
+      });
     };
 
     host.addEventListener('scroll', handler);
 
     return () => {
-      clearTimeout(timerId);
+      setScrolling(false);
       cancelAnimationFrame(animationFrameId);
       host.removeEventListener('scroll', handler);
     };
