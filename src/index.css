@@ -280,6 +280,10 @@
   );
 }
 
+@utility little-inset-box-shadow {
+  box-shadow: inset -1px 5px 100px 40px var(--background-dark);
+}
+
 /* @utility px-unified-safe {
   padding-left: max(
     env(safe-area-inset-left),

@@ -188,24 +188,28 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                 onClick={e => {
                   e.stopPropagation();
                 }}
-                className="h-dvh min-w-full p-0 flex flex-col gap-8 bg-transparent backdrop-blur-xl"
+                className="h-dvh min-w-full p-0 flex flex-col gap-8 bg-transparent little-inset-box-shadow backdrop-blur-xl"
                 onPointerDownOutside={e => e.preventDefault()}
               >
                 <DialogHeader className="text-left">
-                  <DialogTitle className="text-2xl font-normal">
-                    <span className="inline-flex flex-col">
-                      <time>
-                        {format(fields.from, 'dd MMMM', { locale: ru })}
-                      </time>
-                      <time className="text-3xl">
-                        {format(fields.from, 'HH:mm')}-
-                        {format(fields.to, 'HH:mm')}
-                      </time>
-                    </span>
-                  </DialogTitle>
-                  <DialogDescription className="hidden">
-                    (desc)
-                  </DialogDescription>
+                  <div className="content-grid">
+                    <div className="card">
+                      <DialogTitle className="text-2xl font-normal">
+                        <span className="inline-flex flex-col">
+                          <time>
+                            {format(fields.from, 'dd MMMM', { locale: ru })}
+                          </time>
+                          <time className="text-3xl">
+                            {format(fields.from, 'HH:mm')}-
+                            {format(fields.to, 'HH:mm')}
+                          </time>
+                        </span>
+                      </DialogTitle>
+                      <DialogDescription className="hidden">
+                        (desc)
+                      </DialogDescription>
+                    </div>
+                  </div>
                 </DialogHeader>
 
                 <form
@@ -253,7 +257,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                       }
                     }}
                   >
-                    <Menu>
+                    <Menu className="card">
                       {Array.from(fields.serviceIdList, serviceId =>
                         serviceList?.get(serviceId),
                       )

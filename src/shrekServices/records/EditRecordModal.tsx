@@ -299,12 +299,12 @@ export const EditRecordModal = () => {
 
         <DrawerFooter>
           <Button
-            variant="outline"
+          fashion="glassy"
             onClick={() => {
               formRef.current?.requestSubmit();
             }}
           >
-            Закрыть
+            Сохранить
           </Button>
         </DrawerFooter>
       </DrawerContent>

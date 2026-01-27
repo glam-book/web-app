@@ -114,15 +114,16 @@ export const Pendings = ({ children }: React.PropsWithChildren & {}) => {
             info about clients
           </DrawerDescription>
         </DrawerHeader>
+
         <div className="content-grid">
           <PendingsContent />
-          <DrawerFooter className="pb-unified-safe">
+          <DrawerFooter className="pb-unified-safe px-0">
             <Button
               variant="outline"
               onClick={() => setOpen(false)}
               className="w-full"
             >
-              закрыть
+              Закрыть
             </Button>
           </DrawerFooter>
         </div>
