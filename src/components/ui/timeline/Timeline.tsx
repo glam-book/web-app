@@ -124,6 +124,42 @@ export const Timeline = ({
     scrollToCard,
   ]);
 
+  const hasScrolledToNearestRef = useRef(false);
+
+  useEffect(() => {
+    if (hasScrolledToNearestRef.current) return;
+    if (!scrollView) return;
+    if (isCardSelected) return;
+    if (!cards || (cards instanceof Map && cards.size === 0)) return;
+
+    const values = cards instanceof Map ?
+      Array.from(cards.values()) :
+      Array.isArray(cards) ?
+        cards : [];
+
+    if (values.length === 0) return;
+
+    let nearest = null;
+    let minDiff = Infinity;
+    const now = currentDate ? currentDate.getTime() : Date.now();
+
+    for (const f of values) {
+      if (!f || !f.from) continue;
+      const d = f.from instanceof Date ? f.from.getTime() : new Date(f.from).getTime();
+      const diff = Math.abs(d - now);
+      if (diff < minDiff) {
+        minDiff = diff;
+        nearest = f;
+      }
+    }
+
+    if (nearest && nearest.from) {
+      const date = nearest.from instanceof Date ? nearest.from : new Date(nearest.from);
+      scrollToDate(date);
+      hasScrolledToNearestRef.current = true;
+    }
+  }, [scrollView, cards, currentDate, isCardSelected, scrollToDate]);
+
   const createNewCard = () => {
     const from = pipe(
       aimPosition,
