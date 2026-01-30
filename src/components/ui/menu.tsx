@@ -13,7 +13,7 @@ export const Menu = ({
     <RadioGroup
       {...props}
       className={cn(
-        'overflow-auto card gap-0 [&>*+*]:border-t empty:hidden',
+        'overflow-auto gap-0 [&>*+*]:border-t empty:hidden',
         className,
       )}
     >

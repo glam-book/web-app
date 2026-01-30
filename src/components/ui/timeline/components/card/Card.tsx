@@ -191,107 +191,114 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                   e.stopPropagation();
                   setOpen(false);
                 }}
-                className="h-dvh min-w-full p-0 pb-10 flex flex-col justify-end-safe gap-6 bg-transparent little-inset-box-shadow backdrop-blur-xl"
+                className="h-dvh min-w-full p-0 pb-10 flex flex-col justify-end-safe bg-transparent backdrop-blur-md"
                 onPointerDownOutside={e => e.preventDefault()}
               >
-                <DialogHeader className="text-left">
-                  <div className="content-grid">
-                    <DialogTitle className="pl-6 text-2xl uppercase font-normal">
-                      <time>
-                        {format(fields.from, 'dd MMMM', { locale: ru })}
-                      </time>
-                      <br />С <time>{format(fields.from, 'HH:mm')}</time> ПО{' '}
-                      <time>{format(fields.to, 'HH:mm')}</time>
-                    </DialogTitle>
-                    <DialogDescription className="hidden">
-                      (desc)
-                    </DialogDescription>
-                  </div>
-                </DialogHeader>
+                <div className="content-grid">
+                  <div className="pt-4 pb-2 card shadow-none">
+                    <DialogHeader className="pb-2 text-left">
+                      <DialogTitle className="pl-6 text-2xl uppercase font-normal">
+                        <time>
+                          <span className="text-red-600/80">
+                            {format(fields.from, 'dd ', { locale: ru })}
+                          </span>
+                          <span className="text-red-600/80">
+                            {format(fields.from, 'MMMM', { locale: ru })}
+                          </span>
+                        </time>
+                        <br />С <time>{format(fields.from, 'HH:mm')}</time> ПО{' '}
+                        <time>{format(fields.to, 'HH:mm')}</time>
+                      </DialogTitle>
+                      <DialogDescription className="hidden">
+                        (desc)
+                      </DialogDescription>
+                    </DialogHeader>
 
-                <form
-                  id="select-service-form"
-                  onClick={e => e.stopPropagation()}
-                  className="min-h-1 h-min content-grid pb-6"
-                  onSubmit={e => {
-                    e.preventDefault();
-                    const form: HTMLFormElement = e.currentTarget;
-                    const serviceIdList = Array.from(
-                      form.querySelectorAll<HTMLInputElement>(
-                        'input[type="radio"]:checked',
-                      ),
-                      input => Number(input.value),
-                    );
+                    <form
+                      id="select-service-form"
+                      onClick={e => e.stopPropagation()}
+                      className="min-h-1 h-min"
+                      onSubmit={e => {
+                        e.preventDefault();
+                        const form: HTMLFormElement = e.currentTarget;
+                        const serviceIdList = Array.from(
+                          form.querySelectorAll<HTMLInputElement>(
+                            'input[type="radio"]:checked',
+                          ),
+                          input => Number(input.value),
+                        );
 
-                    if (
-                      fields.serviceIdList.size > 0 &&
-                      serviceIdList.length === 0
-                    ) {
-                      toast.error('Выберите хотябы один сервис');
-                      return;
-                    }
+                        if (
+                          fields.serviceIdList.size > 0 &&
+                          serviceIdList.length === 0
+                        ) {
+                          toast.error('Выберите хотябы один сервис');
+                          return;
+                        }
 
-                    makeAppointment
-                      .mutateAsync(serviceIdList)
-                      .then(() => {
-                        toast.success('Ура! Вы записаны');
-                        setOpen(false);
-                      })
-                      .catch(e => {
-                        console.warn(e);
-                        toast.error('упс');
-                      });
-                  }}
-                >
-                  <div
-                    className="flex flex-col justify-end-safe"
-                    onClick={e => {
-                      if (
-                        e.currentTarget === e.target &&
-                        !makeAppointment.isPending
-                      ) {
-                        setOpen(false);
-                      }
-                    }}
-                  >
-                    <Menu className="mb-5">
-                      {Array.from(fields.serviceIdList, serviceId =>
-                        serviceList?.get(serviceId),
-                      )
-                        .filter(i => i !== undefined)
-                        .map(i => (
-                          <Label
-                            key={i.id}
-                            className="flex justify-between p-4 text-base"
-                          >
-                            <span className="flex flex-1 gap-2 items-center relative overflow-hidden">
-                              <MenuItem
-                                className="overflow-y-auto"
-                                value={String(i.id)}
-                              />
-                              <span>{i.title}</span>
-                            </span>
-                            <span className="font-mono">
-                              {new Intl.NumberFormat('ru-RU', {
-                                style: 'currency',
-                                currency: 'RUB',
-                                maximumFractionDigits: 2,
-                                minimumFractionDigits: 0,
-                              }).format(i.price ?? 0)}
-                            </span>
-                          </Label>
-                        ))}
-                    </Menu>
-
-                    <Button
-                      fashion="fancy"
-                      disabled={makeAppointment.isPending}
-                      type="submit"
+                        makeAppointment
+                          .mutateAsync(serviceIdList)
+                          .then(() => {
+                            toast.success('Ура! Вы записаны');
+                            setOpen(false);
+                          })
+                          .catch(e => {
+                            console.warn(e);
+                            toast.error('упс');
+                          });
+                      }}
                     >
-                      Подтвердить запись
-                    </Button>
+                      <div
+                        className="flex flex-col justify-end-safe"
+                        onClick={e => {
+                          if (
+                            e.currentTarget === e.target &&
+                            !makeAppointment.isPending
+                          ) {
+                            setOpen(false);
+                          }
+                        }}
+                      >
+                        <Menu className="mb-5">
+                          {Array.from(fields.serviceIdList, serviceId =>
+                            serviceList?.get(serviceId),
+                          )
+                            .filter(i => i !== undefined)
+                            .map(i => (
+                              <Label
+                                key={i.id}
+                                className="flex justify-between p-4 text-base"
+                              >
+                                <span className="flex flex-1 gap-2 items-center relative overflow-hidden">
+                                  <MenuItem
+                                    className="overflow-y-auto"
+                                    value={String(i.id)}
+                                  />
+                                  <span>{i.title}</span>
+                                </span>
+                                <span className="font-mono">
+                                  {new Intl.NumberFormat('ru-RU', {
+                                    style: 'currency',
+                                    currency: 'RUB',
+                                    maximumFractionDigits: 2,
+                                    minimumFractionDigits: 0,
+                                  }).format(i.price ?? 0)}
+                                </span>
+                              </Label>
+                            ))}
+                        </Menu>
+
+                        <Button
+                          fashion="fancy"
+                          disabled={makeAppointment.isPending}
+                          type="submit"
+                        >
+                          Подтвердить запись
+                        </Button>
+                      </div>
+                    </form>
                   </div>
-                </form>
+                </div>
               </DialogContent>
             </Dialog>
 
