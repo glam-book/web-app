@@ -248,7 +248,7 @@ export const Era = ({
             type="button"
             size="sm"
             fashion="fancy"
-            className="bg-red-600/80"
+            className="h-9 bg-red-600/80"
             onClick={() => {
               setMonths(makeNMonths(new Date()));
               setIsTodayClicked(true);
