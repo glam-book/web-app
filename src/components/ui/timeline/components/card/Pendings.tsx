@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useContext, useState } from 'react';
 
-import { records } from '@/shrekServices';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,6 +14,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
+import { records } from '@/shrekServices';
 
 import { CardContext } from './CardContext';
 
@@ -52,7 +52,7 @@ export const PendingsContent = () => {
                   )}
                 </div>
                 <Badge variant={pending.confirmed ? 'default' : 'secondary'}>
-                  {pending.confirmed ? 'Подтверждено' : 'Ожидание'}
+                  {pending.confirmed}
                 </Badge>
               </div>
 
