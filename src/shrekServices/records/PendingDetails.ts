@@ -19,7 +19,7 @@ export const PendingDetails = Schema.Array(
   Schema.Struct({
     contact: Contact,
     requestTime: Schema.propertySignature(DateFromStringCustom),
-    confirmed: Schema.Boolean,
+    confirmed: Schema.optionalWith(Schema.String, { default: () => 'CREATED' }),
     services: Schema.Array(ServicePreview),
   }),
 );
