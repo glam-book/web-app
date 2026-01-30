@@ -7,9 +7,9 @@ const variants = cva('', {
   variants: {
     fashion: {
       fancy:
-        'rounded-4xl bg-brand text-background-light border-t border-t-highlight',
+        'h-10 rounded-4xl bg-brand text-background-light border-t border-t-highlight',
       glassy:
-        'rounded-4xl bg-background-light/80 backdrop-blur-2xl text-foreground border-t border-t-highlight shadow-shadow',
+        'h-10 rounded-4xl bg-background-light/80 backdrop-blur-2xl text-foreground border-t border-t-highlight shadow-shadow',
     },
   },
   defaultVariants: undefined,
