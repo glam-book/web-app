@@ -184,41 +184,41 @@ export const Timeline = ({
     scrollToCard,
   ]);
 
-  const hasScrolledToNearestRef = useRef(false);
+  // const hasScrolledToNearestRef = useRef(false);
 
-  useEffect(() => {
-    if (hasScrolledToNearestRef.current) return;
-    if (!scrollView) return;
-    if (isCardSelected) return;
-    if (!cards || (cards instanceof Map && cards.size === 0)) return;
+  // useEffect(() => {
+  //   if (hasScrolledToNearestRef.current) return;
+  //   if (!scrollView) return;
+  //   if (isCardSelected) return;
+  //   if (!cards || (cards instanceof Map && cards.size === 0)) return;
 
-    const values = cards instanceof Map ?
-      Array.from(cards.values()) :
-      Array.isArray(cards) ?
-        cards : [];
+  //   const values = cards instanceof Map ?
+  //     Array.from(cards.values()) :
+  //     Array.isArray(cards) ?
+  //       cards : [];
 
-    if (values.length === 0) return;
+  //   if (values.length === 0) return;
 
-    let nearest = null;
-    let minDiff = Infinity;
-    const now = currentDate ? currentDate.getTime() : Date.now();
+  //   let nearest = null;
+  //   let minDiff = Infinity;
+  //   const now = currentDate ? currentDate.getTime() : Date.now();
 
-    for (const f of values) {
-      if (!f || !f.from) continue;
-      const d = f.from instanceof Date ? f.from.getTime() : new Date(f.from).getTime();
-      const diff = Math.abs(d - now);
-      if (diff < minDiff) {
-        minDiff = diff;
-        nearest = f;
-      }
-    }
+  //   for (const f of values) {
+  //     if (!f || !f.from) continue;
+  //     const d = f.from instanceof Date ? f.from.getTime() : new Date(f.from).getTime();
+  //     const diff = Math.abs(d - now);
+  //     if (diff < minDiff) {
+  //       minDiff = diff;
+  //       nearest = f;
+  //     }
+  //   }
 
-    if (nearest && nearest.from) {
-      const date = nearest.from instanceof Date ? nearest.from : new Date(nearest.from);
-      scrollToDate(date);
-      hasScrolledToNearestRef.current = true;
-    }
-  }, [scrollView, cards, currentDate, isCardSelected, scrollToDate]);
+  //   if (nearest && nearest.from) {
+  //     const date = nearest.from instanceof Date ? nearest.from : new Date(nearest.from);
+  //     scrollToDate(date);
+  //     hasScrolledToNearestRef.current = true;
+  //   }
+  // }, [scrollView, cards, currentDate, isCardSelected, scrollToDate]);
 
   const createNewCard = () => {
     const from = pipe(
@@ -445,7 +445,10 @@ export const Timeline = ({
       <div className="min-h-lh text-2xl py-2 rounded-b-4xl bg-background-darker" />
 
       {cardsList.length > 0 && (
-        <div className="absolute bottom-6 right-4 z-10 flex flex-col gap-2 pointer-events-auto">
+        <div
+          className="absolute bottom-6 right-4 z-10 flex flex-col gap-2 pointer-events-auto"
+          onClick={e => e.stopPropagation()}
+        >
           <Button
             type="button"
             size="icon"
