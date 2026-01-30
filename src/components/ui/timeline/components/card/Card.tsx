@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { pipe } from 'effect';
+import { X } from 'lucide-react';
 import {
   memo,
   useCallback,
@@ -24,6 +25,7 @@ import {
   DialogOverlay,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from '@/components/ui/dialog';
 import {
   ContextMenuItem,
@@ -169,52 +171,48 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
     <Root fields={fields}>
       <TheCard {...rest} disabled>
         <Content>
-          <div className="flex min-h-[2.5lh] items-center justify-center">
-            <Dialog open={open}>
+          <div className="flex-1 max-w-full flex flex-col items-center justify-center gap-y-1">
+            <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button
+                  fashion="fancy"
+                  className="flex-1 w-full"
                   onClick={e => {
                     e.stopPropagation();
                     setOpen(true);
                   }}
-                  className="max-w-full bg-[cornflowerblue] hover:bg-[cornflowerblue] focus-visible:bg-[cornflowerblue]"
-                  variant="destructive"
                 >
                   Записаться
                 </Button>
               </DialogTrigger>
-              <DialogOverlay className="opacity-100 bg-transparent" />
+
               <DialogContent
                 onClick={e => {
                   e.stopPropagation();
+                  setOpen(false);
                 }}
-                className="h-dvh min-w-full p-0 flex flex-col gap-8 bg-transparent little-inset-box-shadow backdrop-blur-xl"
+                className="h-dvh min-w-full p-0 pb-10 flex flex-col justify-end-safe gap-6 bg-transparent little-inset-box-shadow backdrop-blur-xl"
                 onPointerDownOutside={e => e.preventDefault()}
               >
                 <DialogHeader className="text-left">
                   <div className="content-grid">
-                    <div className="card">
-                      <DialogTitle className="text-2xl font-normal">
-                        <span className="inline-flex flex-col">
-                          <time>
-                            {format(fields.from, 'dd MMMM', { locale: ru })}
-                          </time>
-                          <time className="text-3xl">
-                            {format(fields.from, 'HH:mm')}-
-                            {format(fields.to, 'HH:mm')}
-                          </time>
-                        </span>
-                      </DialogTitle>
-                      <DialogDescription className="hidden">
-                        (desc)
-                      </DialogDescription>
-                    </div>
+                    <DialogTitle className="pl-6 text-2xl uppercase font-normal">
+                      <time>
+                        {format(fields.from, 'dd MMMM', { locale: ru })}
+                      </time>
+                      <br />С <time>{format(fields.from, 'HH:mm')}</time> ПО{' '}
+                      <time>{format(fields.to, 'HH:mm')}</time>
+                    </DialogTitle>
+                    <DialogDescription className="hidden">
+                      (desc)
+                    </DialogDescription>
                   </div>
                 </DialogHeader>
 
                 <form
                   id="select-service-form"
                   onClick={e => e.stopPropagation()}
+                  className="min-h-1 h-min content-grid pb-6"
                   onSubmit={e => {
                     e.preventDefault();
                     const form: HTMLFormElement = e.currentTarget;
@@ -244,10 +242,9 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                         toast.error('упс');
                       });
                   }}
-                  className="flex-1 min-h-1 content-grid pb-6"
                 >
                   <div
-                    className="flex flex-col"
+                    className="flex flex-col justify-end-safe"
                     onClick={e => {
                       if (
                         e.currentTarget === e.target &&
@@ -257,7 +254,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                       }
                     }}
                   >
-                    <Menu className="card">
+                    <Menu className="mb-5">
                       {Array.from(fields.serviceIdList, serviceId =>
                         serviceList?.get(serviceId),
                       )
@@ -265,7 +262,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                         .map(i => (
                           <Label
                             key={i.id}
-                            className="flex justify-between p-4 font-mono"
+                            className="flex justify-between p-4 text-base"
                           >
                             <span className="flex flex-1 gap-2 items-center relative overflow-hidden">
                               <MenuItem
@@ -274,7 +271,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                               />
                               <span>{i.title}</span>
                             </span>
-                            <span>
+                            <span className="font-mono">
                               {new Intl.NumberFormat('ru-RU', {
                                 style: 'currency',
                                 currency: 'RUB',
@@ -287,8 +284,8 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                     </Menu>
 
                     <Button
+                      fashion="fancy"
                       disabled={makeAppointment.isPending}
-                      className="self-end mt-auto"
                       type="submit"
                     >
                       Подтвердить запись
@@ -297,6 +294,10 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                 </form>
               </DialogContent>
             </Dialog>
+
+            <div className="max-w-full overflow-x-auto scrollbar-hidden">
+              <Badges />
+            </div>
           </div>
         </Content>
       </TheCard>

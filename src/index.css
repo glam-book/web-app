@@ -281,7 +281,8 @@
 }
 
 @utility little-inset-box-shadow {
-  box-shadow: inset -1px 5px 100px 40px var(--background-dark);
+  box-shadow: inset -20px 8px 100px 40px
+    color-mix(in hsl, var(--background-dark), transparent 30%);
 }
 
 /* @utility px-unified-safe {
