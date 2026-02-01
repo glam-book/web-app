@@ -73,7 +73,7 @@ export const useGetPreview = (
                 ts: new Date(),
                 isOwner: true,
                 canPending: true,
-                hasPendings: false,
+                hasPendings: true,
               },
               {
                 day: 1,

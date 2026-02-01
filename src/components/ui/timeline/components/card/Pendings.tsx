@@ -1,3 +1,4 @@
+import { Schema } from 'effect';
 import { openLink } from '@tma.js/sdk-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -15,8 +16,25 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import { records } from '@/shrekServices';
+import { PendingStatuses } from '@/shrekServices/records/PendingDetails';
 
 import { CardContext } from './CardContext';
+
+const PengingStatusesRuTranslation = Schema.Literal(
+  'Создан',
+  'Подтвержден',
+  'Отменен',
+  'Истёк',
+);
+
+const RuTranlationFromPendingStatuses = Schema.transformLiterals<
+  [typeof PendingStatuses.Type, typeof PengingStatusesRuTranslation.Type][]
+>(
+  ['CONFIRMED', 'Подтвержден'],
+  ['EXPIRED', 'Истёк'],
+  ['CREATED', 'Создан'],
+  ['CANCELLED', 'Отменен'],
+);
 
 export const PendingsContent = () => {
   const { fields } = useContext(CardContext);
@@ -51,8 +69,14 @@ export const PendingsContent = () => {
                     </Button>
                   )}
                 </div>
-                <Badge variant={pending.confirmed ? 'default' : 'secondary'}>
-                  {pending.confirmed}
+                <Badge
+                  variant={
+                    pending.confirmed === 'CONFIRMED' ? 'secondary' : 'default'
+                  }
+                >
+                  {Schema.decodeSync(RuTranlationFromPendingStatuses)(
+                    pending.confirmed,
+                  )}
                 </Badge>
               </div>
 

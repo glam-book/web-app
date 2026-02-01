@@ -32,6 +32,7 @@
   --highlight: oklch(1 0 0);
   --foreground: oklch(26.448% 0.00003 271.152 / 0.916);
   --brand: oklch(0.66 0.15 235.85);
+  --success: var(--color-teal-200);
 
   --shadow: 0 2px 2px oklch(0 0 0 / 7%);
 
@@ -100,6 +101,7 @@
   --color-highlight: var(--highlight);
   --color-foreground: var(--foreground);
   --color-brand: var(--brand);
+  --color-success: var(--success);
 
   --color-card: var(--accent);
   --color-accent: var(--accent);

@@ -39,7 +39,7 @@ export const usePendingDetails = (
                   tgUserName: 'gamabunta',
                 },
                 requestTime: new Date(),
-                confirmed: true,
+                confirmed: 'CONFIRMED',
                 services: [
                   {
                     id: 1,
@@ -56,7 +56,7 @@ export const usePendingDetails = (
                   tgUserName: 'gamabunta',
                 },
                 requestTime: new Date(),
-                confirmed: true,
+                confirmed: 'EXPIRED',
                 services: [
                   {
                     id: 1,
@@ -73,7 +73,7 @@ export const usePendingDetails = (
                   tgUserName: 'gamabunta',
                 },
                 requestTime: new Date(),
-                confirmed: true,
+                confirmed: 'CREATED',
                 services: [
                   {
                     id: 1,

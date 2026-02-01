@@ -250,6 +250,7 @@ export const Era = ({
             size="sm"
             fashion="fancy"
             className="h-9 bg-red-600/80"
+            aria-label="Сегодня!"
             onClick={() => {
               setMonths(makeNMonths(new Date()));
               setIsTodayClicked(true);

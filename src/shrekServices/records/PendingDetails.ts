@@ -15,11 +15,20 @@ const ServicePreview = Schema.Struct({
   isHourlyPrice: Schema.optionalWith(Schema.Boolean, { default: () => false }),
 });
 
+export const PendingStatuses = Schema.Literal(
+  'CREATED',
+  'CONFIRMED',
+  'CANCELLED',
+  'EXPIRED',
+);
+
 export const PendingDetails = Schema.Array(
   Schema.Struct({
     contact: Contact,
     requestTime: Schema.propertySignature(DateFromStringCustom),
-    confirmed: Schema.optionalWith(Schema.String, { default: () => 'CREATED' }),
+    confirmed: Schema.optionalWith(PendingStatuses, {
+      default: () => 'CREATED',
+    }),
     services: Schema.Array(ServicePreview),
   }),
 );
