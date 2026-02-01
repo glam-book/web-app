@@ -21,6 +21,7 @@ import { owner, records, services, users } from '@/shrekServices';
 
 export default function Id() {
   const params = useParams('/calendar/:id');
+  const ownerResult = owner.useIsOwner();
 
   useEffect(() => {
     owner.store.setState({ calendarId: params.id });
@@ -50,15 +51,25 @@ export default function Id() {
     error: errorRecordList,
   } = records.useGet(params.id, date);
 
+  const readyRecordList = useMemo(
+    () =>
+      new Map(
+        Array.from(recordList).filter(
+          ([, record]) => ownerResult.isOwner || record.pendigable,
+        ),
+      ),
+    [recordList, ownerResult.isOwner],
+  );
+
   const { fields: recordFields } = records.store.editableRightNow();
   const isCardSelected = Boolean(recordFields);
 
   // It's hack for tanstack query ??
   const recordsWithEditableRightNow = useMemo(() => {
-    return produce(recordList, list => {
+    return produce(readyRecordList, list => {
       if (recordFields) list?.set(recordFields.id, recordFields);
     });
-  }, [recordList, recordFields]);
+  }, [readyRecordList, recordFields]);
 
   // useEffect(() => {
   //   if (errorRecordList) {
@@ -102,9 +113,8 @@ export default function Id() {
             aria-label="Share"
             type="button"
             fashion="glassy"
-            variant="ghost"
             size="icon"
-            className="rounded-[50%]"
+            className="rounded-full size-10"
             onClick={() => {
               const startAppParam = { calendarId: params.id };
               shareURL(

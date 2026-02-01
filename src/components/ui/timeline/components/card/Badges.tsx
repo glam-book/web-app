@@ -15,7 +15,6 @@ const sample = FastCheck.sample(arb, 10);
 const serviceListWithInOrderId = Schema.decodeUnknownSync(
   MapFromArrayWithIdsOrUndefined(Service),
 )(sample.map((i, idx) => ({ ...i, id: idx })));
-console.log({ serviceListWithInOrderId });
 
 
 export const Badges = () => {

@@ -115,18 +115,24 @@ export const Timeline = ({
 
   const cardsList = useMemo(() => {
     if (!cards || (cards instanceof Map && cards.size === 0)) return [];
+
     const values =
       cards instanceof Map
         ? Array.from(cards.values())
         : Array.isArray(cards)
           ? cards
           : [];
+
     return values
       .filter((f): f is CardFields => Boolean(f?.from))
       .sort(
         (a, b) =>
-          (a.from instanceof Date ? a.from.getTime() : new Date(a.from).getTime()) -
-          (b.from instanceof Date ? b.from.getTime() : new Date(b.from).getTime()),
+          (a.from instanceof Date
+            ? a.from.getTime()
+            : new Date(a.from).getTime()) -
+          (b.from instanceof Date
+            ? b.from.getTime()
+            : new Date(b.from).getTime()),
       );
   }, [cards]);
 
@@ -142,14 +148,20 @@ export const Timeline = ({
   const { nextCardAbove, nextCardBelow } = useMemo(() => {
     const above = [...cardsList]
       .filter(f => {
-        const t = f.from instanceof Date ? f.from.getTime() : new Date(f.from).getTime();
+        const t =
+          f.from instanceof Date
+            ? f.from.getTime()
+            : new Date(f.from).getTime();
         return t < currentTimeMs;
       })
       .pop();
+
     const below = cardsList.find(f => {
-      const t = f.from instanceof Date ? f.from.getTime() : new Date(f.from).getTime();
+      const t =
+        f.from instanceof Date ? f.from.getTime() : new Date(f.from).getTime();
       return t > currentTimeMs;
     });
+
     return { nextCardAbove: above ?? null, nextCardBelow: below ?? null };
   }, [cardsList, currentTimeMs]);
 
@@ -444,35 +456,33 @@ export const Timeline = ({
 
       <div className="min-h-lh text-2xl py-2 rounded-b-4xl bg-background-darker" />
 
-      {cardsList.length > 0 && (
-        <div
-          className="absolute bottom-6 right-4 z-10 flex flex-col gap-2 pointer-events-auto"
-          onClick={e => e.stopPropagation()}
+      <div
+        className="absolute bottom-6 -right-(--gap) -translate-x-1/6 z-10 flex flex-col gap-2"
+        onClick={e => e.stopPropagation()}
+      >
+        <Button
+          type="button"
+          size="icon"
+          fashion="glassy"
+          className="size-10 border-t-foreground/10 border-l border-l-foreground/10"
+          aria-label="К следующей карточке сверху"
+          disabled={!nextCardAbove}
+          onClick={goToCardAbove}
         >
-          <Button
-            type="button"
-            size="icon"
-            variant="secondary"
-            className="h-11 w-11 rounded-full shadow-lg"
-            aria-label="К следующей карточке сверху"
-            disabled={!nextCardAbove}
-            onClick={goToCardAbove}
-          >
-            <ChevronUp className="h-5 w-5" />
-          </Button>
-          <Button
-            type="button"
-            size="icon"
-            variant="secondary"
-            className="h-11 w-11 rounded-full shadow-lg"
-            aria-label="К следующей карточке снизу"
-            disabled={!nextCardBelow}
-            onClick={goToCardBelow}
-          >
-            <ChevronDown className="h-5 w-5" />
-          </Button>
-        </div>
-      )}
+          <ChevronUp className="size-6" />
+        </Button>
+        <Button
+          type="button"
+          size="icon"
+          fashion="glassy"
+          className="size-10 border-t-foreground/10 border-l border-l-foreground/10"
+          aria-label="К следующей карточке снизу"
+          disabled={!nextCardBelow}
+          onClick={goToCardBelow}
+        >
+          <ChevronDown className="size-6" />
+        </Button>
+      </div>
     </Comp>
   );
 };

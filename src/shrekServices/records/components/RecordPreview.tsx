@@ -1,6 +1,5 @@
 import { memo, useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import { differenceInMonths, startOfMonth, getDate } from 'date-fns';
-import { Circle as Dot } from 'lucide-react';
 
 import { owner, records } from '@/shrekServices';
 import { between } from '@/utils';
@@ -92,7 +91,10 @@ export const RecordPreview = memo(
           isPreviewForClient && 'absolute z-[-1] inset-0 bg-teal-200/50',
         )}
       >
-        <span className="flex flex-col gap-0.5 leading-3" ref={setDetailsWrapper}>
+        <span
+          className="flex flex-col gap-0.5 leading-3"
+          ref={setDetailsWrapper}
+        >
           {isOwner &&
             detailsForTheDay
               // ?.slice(0, detailItemsFitsCount)
@@ -100,10 +102,10 @@ export const RecordPreview = memo(
                 <span
                   key={idx}
                   className={cn(
-                    'min-h-[1lh] h-[1lh] bg-card rounded-sm',
+                    'min-h-[1lh] max-h-[2lh] bg-card rounded-[0.3rem] text-[8px] overflow-x-auto',
                     item.hasPendings && 'bg-teal-200',
                   )}
-                />
+                ></span>
               ))}
         </span>
         {/*

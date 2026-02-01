@@ -9,6 +9,7 @@ import {
   isValid,
   startOfMonth,
   isToday,
+  getMonth,
 } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
@@ -70,8 +71,8 @@ const Month = memo(
         <thead className="flex w-full absolute translate-y-[-1lh] text-xl">
           <tr className="flex-1 h-[1lh] flex [&>*]:flex-1">
             <td className="flex items-center">
-              <span className="w-max uppercase indent-3">
-                {format(date, 'LLLL yyyy', { locale: ru })}
+              <span className="w-max capitalize indent-3">
+                {format(date, `LLLL ${getMonth(date) === 0 ? 'yyyy' : ''}`, { locale: ru })}
               </span>
             </td>
           </tr>
@@ -113,7 +114,7 @@ const Month = memo(
                           <span className="flex-1 max-w-full p-1 flex flex-col gap-1 items-center">
                             <Badge
                               className={cn(
-                                'h-[3.2ch] w-[3.2ch] rounded-full border-none text-xs',
+                                'size-[4ch] rounded-full border-none text-xs',
                                 isToday(dd) && 'bg-red-600/80 font-semibold',
                               )}
                               variant={isToday(dd) ? 'default' : 'outline'}
@@ -259,14 +260,14 @@ export const Era = ({
           </Button>
         </header>
 
-        <ul className="flex justify-around rounded-t-md text-sm lowercase border-transparent border-b [&>li]:border-y [&>li]:border-x-transparent [&>li]:border-l [&>li:last-child]:border-r [&>li]:flex-1 [&>li]:text-center">
-          <li>ПН</li>
-          <li>ВТ</li>
-          <li>СР</li>
-          <li>ЧТ</li>
-          <li>ПТ</li>
-          <li>СБ</li>
-          <li>ВС</li>
+        <ul className="flex justify-around rounded-t-md text-sm lowercase border-b">
+          <li>П</li>
+          <li>В</li>
+          <li>С</li>
+          <li>Ч</li>
+          <li>П</li>
+          <li>С</li>
+          <li>В</li>
         </ul>
       </div>
 

@@ -153,7 +153,6 @@ const sample = FastCheck.sample(arb, 10);
 const serviceListWithInOrderId = Schema.decodeUnknownSync(
   MapFromArrayWithIdsOrUndefined(Service),
 )(sample.map((i, idx) => ({ ...i, id: idx })));
-console.log({ serviceListWithInOrderId });
 
 export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
   const { data: serviceList = serviceListWithInOrderId } = services.useGet();
@@ -164,8 +163,6 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
     mutationFn: (serviceIdList: number[]) =>
       records.makeAppointment(fields.id, serviceIdList),
   });
-
-  if (!fields.pendigable) return;
 
   return (
     <Root fields={fields}>
@@ -302,7 +299,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
               </DialogContent>
             </Dialog>
 
-            <div className="max-w-full overflow-x-auto scrollbar-hidden">
+            <div className="max-w-full w-full overflow-x-auto scrollbar-hidden">
               <Badges />
             </div>
           </div>

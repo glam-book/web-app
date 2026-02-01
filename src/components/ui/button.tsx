@@ -9,7 +9,7 @@ const variants = cva('', {
       fancy:
         'h-10 rounded-4xl bg-brand text-background-light border-t border-t-highlight',
       glassy:
-        'h-10 rounded-4xl bg-background-light/80 backdrop-blur-2xl text-foreground border-t border-t-highlight shadow-shadow',
+        'h-10 rounded-4xl bg-background/80 backdrop-blur-xs text-foreground border-t border-t-highlight shadow-shadow',
     },
   },
   defaultVariants: undefined,
