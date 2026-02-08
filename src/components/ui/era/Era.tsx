@@ -34,6 +34,7 @@ import {
   ContextMenuTrigger,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuPortal,
 } from '@/components/ui/context-menu';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
 import { records, owner } from '@/shrekServices';
@@ -162,15 +163,17 @@ const Month = memo(
                             </button>
                           </ContextMenuTrigger>
                           {isOwner && (
-                            <ContextMenuContent>
-                              <ContextMenuItem
-                                onClick={() => {
-                                  onCopyFromTheDate?.(dd);
-                                }}
-                              >
-                                <Copy /> Скопировать расписание дня
-                              </ContextMenuItem>
-                            </ContextMenuContent>
+                            <ContextMenuPortal>
+                              <ContextMenuContent>
+                                <ContextMenuItem
+                                  onClick={() => {
+                                    onCopyFromTheDate?.(dd);
+                                  }}
+                                >
+                                  <Copy /> Скопировать расписание дня
+                                </ContextMenuItem>
+                              </ContextMenuContent>
+                            </ContextMenuPortal>
                           )}
                         </ContextMenu>
                       )}
