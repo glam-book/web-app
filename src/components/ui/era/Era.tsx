@@ -164,7 +164,9 @@ const Month = memo(
                           </ContextMenuTrigger>
                           {isOwner && (
                             <ContextMenuPortal>
-                              <ContextMenuContent>
+                              <ContextMenuContent
+                                onClick={e => e.stopPropagation()}
+                              >
                                 <ContextMenuItem
                                   onClick={() => {
                                     onCopyFromTheDate?.(dd);
