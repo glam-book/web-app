@@ -85,6 +85,9 @@ export const makeResourceListActionsTemplate = <
   });
 
   return {
+    pureActions: actions,
+    actions: { fetchList },
+
     useGet,
     deleteOne,
     finishEdit,

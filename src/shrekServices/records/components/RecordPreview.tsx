@@ -88,7 +88,7 @@ export const RecordPreview = memo(
         ref={setHost}
         className={cn(
           'min-w-0.5 min-h-full h-full flex flex-col gap-0.5',
-          isPreviewForClient && 'absolute z-[-1] inset-0 bg-success',
+          isPreviewForClient && 'absolute z-[-1] inset-0 bg-success/50',
         )}
       >
         <span
@@ -103,7 +103,7 @@ export const RecordPreview = memo(
                   key={idx}
                   className={cn(
                     'min-h-[1lh] max-h-[2lh] bg-card rounded-[0.3rem] text-[8px] overflow-x-auto',
-                    item.hasPendings && 'bg-success',
+                    item.hasPendings && 'bg-success/50',
                   )}
                 ></span>
               ))}

@@ -10,6 +10,8 @@ import {
   startOfMonth,
   isToday,
   getMonth,
+  isEqual,
+  addHours,
 } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
@@ -20,12 +22,21 @@ import {
   useMemo,
   useState,
   Fragment,
+  useRef,
 } from 'react';
+import { Check, Copy, X } from 'lucide-react';
 
+import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+} from '@/components/ui/context-menu';
 import { IntersectionTarget } from '@/components/ui/intersectionTarget';
-import { cn } from '@/lib/utils';
+import { records, owner } from '@/shrekServices';
 
 const isFinallySafari = () =>
   document.documentElement.style.overflowAnchor === undefined;
@@ -38,13 +49,17 @@ const Month = memo(
     visibleDate,
     className,
     Detail,
+    onCopyFromTheDate,
+    chosenDates,
     ...props
   }: {
     onSelect: (date: Date) => void;
     selected: Date;
     date: Date;
     visibleDate: Date;
+    onCopyFromTheDate?: (date: Date) => void;
     Detail?: (props: { epoch: Date; currentDate: Date }) => React.ReactNode;
+    chosenDates?: Set<number>;
   } & Omit<React.ComponentProps<'table'>, 'onSelect'>) => {
     const d = eachDayOfInterval({
       start: startOfMonth(date),
@@ -62,6 +77,8 @@ const Month = memo(
       [] as (Date | undefined)[][],
     );
 
+    const { isOwner } = owner.useIsOwner();
+
     return (
       <table
         aria-label={`${format(date, 'yyyy MMMM')}`}
@@ -72,7 +89,9 @@ const Month = memo(
           <tr className="flex-1 h-[1lh] flex [&>*]:flex-1">
             <td className="flex items-center">
               <span className="w-max capitalize indent-3">
-                {format(date, `LLLL ${getMonth(date) === 0 ? 'yyyy' : ''}`, { locale: ru })}
+                {format(date, `LLLL ${getMonth(date) === 0 ? 'yyyy' : ''}`, {
+                  locale: ru,
+                })}
               </span>
             </td>
           </tr>
@@ -104,31 +123,56 @@ const Month = memo(
                       data-today={dd && isToday(dd)}
                     >
                       {dd && (
-                        <button
-                          onClick={() => onSelect(dd)}
-                          type="button"
-                          className={cn(
-                            'isolate relative w-full h-full pt-1 flex justify-center',
-                          )}
-                        >
-                          <span className="flex-1 max-w-full p-1 flex flex-col gap-1 items-center">
-                            <Badge
+                        <ContextMenu>
+                          <ContextMenuTrigger asChild>
+                            <button
+                              onClick={() => onSelect(dd)}
+                              type="button"
                               className={cn(
-                                'size-[4ch] rounded-full border-none text-xs',
-                                isToday(dd) && 'bg-red-600/80 font-semibold',
+                                'isolate relative w-full h-full pt-1 flex justify-center',
                               )}
-                              variant={isToday(dd) ? 'default' : 'outline'}
                             >
-                              {getDate(dd)}
-                            </Badge>
+                              <span className="flex-1 max-w-full p-1 flex flex-col gap-1 items-center">
+                                <Badge
+                                  className={cn(
+                                    'size-[4ch] rounded-full border-none text-xs font-semibold',
+                                    isToday(dd) &&
+                                      'bg-red-600/80 font-semibold text-background-light',
+                                  )}
+                                  variant={isToday(dd) ? 'default' : 'outline'}
+                                >
+                                  {getDate(dd)}
+                                </Badge>
 
-                            <span className="empty:hidden w-full flex-1">
-                              {Detail && (
-                                <Detail epoch={dd} currentDate={visibleDate} />
-                              )}
-                            </span>
-                          </span>
-                        </button>
+                                {chosenDates?.has(dd.getTime()) && (
+                                  <span className="absolute left-1 top-1.5 flex items-center justify-center bg-green-600 size-4 rounded-full text-white">
+                                    <Check strokeWidth={3} className="size-3" />
+                                  </span>
+                                )}
+
+                                <span className="empty:hidden w-full flex-1">
+                                  {Detail && (
+                                    <Detail
+                                      epoch={dd}
+                                      currentDate={visibleDate}
+                                    />
+                                  )}
+                                </span>
+                              </span>
+                            </button>
+                          </ContextMenuTrigger>
+                          {isOwner && (
+                            <ContextMenuContent>
+                              <ContextMenuItem
+                                onClick={() => {
+                                  onCopyFromTheDate?.(dd);
+                                }}
+                              >
+                                <Copy /> Скопировать расписание дня
+                              </ContextMenuItem>
+                            </ContextMenuContent>
+                          )}
+                        </ContextMenu>
                       )}
                     </td>
                   )}
@@ -150,7 +194,7 @@ type Props = {
 } & Omit<React.ComponentProps<'div'>, 'onSelect'>;
 
 export const Era = ({
-  onSelect,
+  onSelect: _onSelect,
   selected = new Date(),
   className,
   onChangeVisibleMonth,
@@ -176,7 +220,7 @@ export const Era = ({
       addMonths(center, idx - Math.floor(n / 2)),
     );
 
-  const [months, setMonths] = useState(makeNMonths(selected));
+  const [months, setMonths] = useState(makeNMonths(startOfMonth(selected)));
 
   const scrollToToday = () => {
     if (!scrollView) return;
@@ -237,91 +281,207 @@ export const Era = ({
     if (isTodayClicked) setIsTodayClicked(false);
   }, [isTodayClicked]);
 
+  const [choosingState, setChoosingState] = useState(false);
+  const dateToCopy = useRef<Date | undefined>(undefined);
+
+  const [chosenDatesByMonth, setChosenDateByMonth] = useState<
+    Map<number, Set<number>>
+  >(new Map());
+
+  const resetCopyState = () => {
+    setChoosingState(false);
+    dateToCopy.current = undefined;
+    setChosenDateByMonth(new Map());
+  };
+
+  useEffect(() => {
+    console.log([...chosenDatesByMonth.entries()]);
+  }, [chosenDatesByMonth]);
+
+  const onSelect = useCallback(
+    (date: Date) => {
+      if (dateToCopy.current) {
+        if (isEqual(dateToCopy.current, date)) return;
+        setChosenDateByMonth(prev => {
+          const key = startOfMonth(date).getTime();
+          const month = prev.get(key) ?? new Set();
+          prev.set(key, month.symmetricDifference(new Set([date.getTime()])));
+          return new Map(Array.from(prev));
+        });
+      } else _onSelect(date);
+    },
+    [_onSelect],
+  );
+
+  const onCopyFromTheDate = useCallback((date: Date) => {
+    setChoosingState(true);
+    dateToCopy.current = date;
+  }, []);
+
+  const {
+    data: recordListToCopy = import.meta.env.DEV
+      ? new Map([
+          [
+            0,
+            {
+              id: 0,
+              from: new Date(),
+              to: addHours(new Date(), 1),
+              serviceIdList: new Set([1, 2, 3]),
+              sign: '',
+              owner: false,
+              pendigable: true,
+              pendings: {
+                limits: 1,
+                active: 1,
+              },
+            },
+          ],
+        ])
+      : undefined,
+  } = records.useGet(owner.store.getState().calendarId, dateToCopy.current);
+
   return (
-    <div className={cn('relative flex flex-col overflow-hidden', className)}>
-      <div className="flex flex-col">
-        <header className="flex justify-between py-2">
-          <h2 className="flex items-center text-xl indent-3 uppercase">
-            {format(visibleDate, 'LLLL yyyy', { locale: ru })}
-          </h2>
+    <>
+      <div className={cn('relative flex flex-col overflow-hidden', className)}>
+        <div className="flex flex-col">
+          <header className="flex justify-between py-2 pr-2">
+            <h2 className="flex items-center text-xl indent-3 uppercase">
+              {format(visibleDate, 'LLLL yyyy', { locale: ru })}
+            </h2>
 
-          <Button
-            type="button"
-            size="sm"
-            fashion="fancy"
-            className="h-9 bg-red-600/80"
-            aria-label="Сегодня!"
-            onClick={() => {
-              setMonths(makeNMonths(new Date()));
-              setIsTodayClicked(true);
-              requestAnimationFrame(scrollToToday);
-            }}
-          >
-            Сегодня
-          </Button>
-        </header>
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                size="sm"
+                fashion="fancy"
+                className="h-9 bg-red-600/80"
+                aria-label="Сегодня!"
+                onClick={() => {
+                  setMonths(makeNMonths(startOfMonth(new Date())));
+                  setIsTodayClicked(true);
+                  requestAnimationFrame(scrollToToday);
+                }}
+              >
+                Сегодня
+              </Button>
+            </div>
+          </header>
 
-        <ul className="flex justify-around rounded-t-md text-sm lowercase border-b">
-          <li>П</li>
-          <li>В</li>
-          <li>С</li>
-          <li>Ч</li>
-          <li>П</li>
-          <li>С</li>
-          <li>В</li>
-        </ul>
+          <ul className="flex justify-around rounded-t-md text-xs lowercase border-b">
+            <li>П</li>
+            <li>В</li>
+            <li>С</li>
+            <li>Ч</li>
+            <li>П</li>
+            <li>С</li>
+            <li>В</li>
+          </ul>
+        </div>
+
+        <div
+          ref={setScrollView}
+          {...props}
+          className={cn('overflow-y-auto scrollbar-hidden flex-1 rounded-md')}
+          onScrollEnd={e => {
+            if (!isFinallySafari()) return;
+
+            const target = e.currentTarget;
+            const depth = target.scrollHeight - target.scrollTop;
+
+            if (depth <= target.clientHeight + 1) {
+              setMonths(makeNMonths(months.at(-1) as Date));
+            }
+
+            if (target.scrollTop <= 0) {
+              setMonths(makeNMonths(months[0]));
+            }
+          }}
+          onScroll={e => {
+            if (isFinallySafari()) return;
+
+            const target = e.currentTarget;
+            const depth = target.scrollHeight - target.scrollTop;
+
+            if (depth <= target.clientHeight * 4) {
+              setMonths(makeNMonths(months.at(-1) as Date));
+            }
+
+            if (target.scrollTop <= target.clientHeight * 4) {
+              setMonths(makeNMonths(months[0]));
+            }
+          }}
+        >
+          {months.map(v => (
+            <IntersectionTarget
+              key={v.getTime()}
+              intersectionOpts={intersectionObserverOpts}
+              callback={cb}
+            >
+              <Month
+                onSelect={onSelect}
+                selected={selected}
+                visibleDate={visibleDate}
+                date={v}
+                data-date={v.getTime()}
+                Detail={Detail}
+                onCopyFromTheDate={onCopyFromTheDate}
+                chosenDates={chosenDatesByMonth.get(startOfMonth(v).getTime())}
+              />
+            </IntersectionTarget>
+          ))}
+        </div>
       </div>
 
-      <div
-        ref={setScrollView}
-        {...props}
-        className={cn('overflow-y-auto flex-1 rounded-md')}
-        onScrollEnd={e => {
-          if (!isFinallySafari()) return;
+      {choosingState && (
+        <div className="fixed top-0 px-(--gap) py-1 w-full flex card items-center gap-x-1 bg-none backdrop-blur">
+          <p>Выберите дни в календаре</p>
+          <span className="font-mono">
+            {Array.from(chosenDatesByMonth).reduce(
+              (acc, [, month]) => month.size + acc,
+              0,
+            )}
+          </span>
+          <div className="ml-auto flex gap-x-1">
+            <Button
+              className="bg-success"
+              fashion="glassy"
+              onClick={() => {
+                records
+                  .copyTheDailySchedule({
+                    source: Array.from(
+                      recordListToCopy ?? new Map(),
+                      ([, record]) => record,
+                    ),
+                    targets: [...chosenDatesByMonth.values()].reduce(
+                      (acc, dateSet) => [
+                        ...acc,
+                        ...Array.from(
+                          dateSet,
+                          timestamp => new Date(timestamp),
+                        ),
+                      ],
+                      [] as Date[],
+                    ),
+                  })
+                  .then(console.log);
 
-          const target = e.currentTarget;
-          const depth = target.scrollHeight - target.scrollTop;
-
-          if (depth <= target.clientHeight + 1) {
-            setMonths(makeNMonths(months.at(-1) as Date));
-          }
-
-          if (target.scrollTop <= 0) {
-            setMonths(makeNMonths(months[0]));
-          }
-        }}
-        onScroll={e => {
-          if (isFinallySafari()) return;
-
-          const target = e.currentTarget;
-          const depth = target.scrollHeight - target.scrollTop;
-
-          if (depth <= target.clientHeight * 4) {
-            setMonths(makeNMonths(months.at(-1) as Date));
-          }
-
-          if (target.scrollTop <= target.clientHeight * 4) {
-            setMonths(makeNMonths(months[0]));
-          }
-        }}
-      >
-        {months.map(v => (
-          <IntersectionTarget
-            key={v.getTime()}
-            intersectionOpts={intersectionObserverOpts}
-            callback={cb}
-          >
-            <Month
-              onSelect={onSelect}
-              selected={selected}
-              visibleDate={visibleDate}
-              date={v}
-              data-date={v.getTime()}
-              Detail={Detail}
-            />
-          </IntersectionTarget>
-        ))}
-      </div>
-    </div>
+                resetCopyState();
+              }}
+            >
+              OK
+            </Button>
+            <Button
+              onClick={resetCopyState}
+              className="size-10"
+              fashion="glassy"
+              size="icon"
+            >
+              <X />
+            </Button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };

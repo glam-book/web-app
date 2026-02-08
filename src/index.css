@@ -32,7 +32,7 @@
   --highlight: oklch(1 0 0);
   --foreground: oklch(26.448% 0.00003 271.152 / 0.916);
   --brand: oklch(0.66 0.15 235.85);
-  --success: var(--color-teal-200);
+  --success: oklch(0.79 0.25 150.55);
 
   --shadow: 0 2px 2px oklch(0 0 0 / 7%);
 
@@ -74,7 +74,8 @@
   --sidebar-ring: oklch(0.705 0.015 286.067);
 
   --fs--2: clamp(0.7813rem, 0.7736rem + 0.0341vw, 0.8rem);
-  --fs--1: clamp(0.9375rem, 0.9119rem + 0.1136vw, 1rem);
+  /* --fs--1: clamp(0.9375rem, 0.9119rem + 0.1136vw, 1rem); */
+  --fs--1: 0.9375rem;
   --fs-0: clamp(1.125rem, 1.0739rem + 0.2273vw, 1.25rem);
   --fs-1: clamp(1.35rem, 1.2631rem + 0.3864vw, 1.5625rem);
   --fs-2: clamp(1.62rem, 1.4837rem + 0.6057vw, 1.9531rem);
@@ -308,7 +309,7 @@
     @apply bg-background-dark text-foreground;
   }
   .card {
-    @apply bg-background-gradient px-2 rounded-4xl border border-background border-t-highlight shadow-shadow;
+    @apply bg-background-gradient px-0.5 rounded-4xl border border-background border-t-highlight shadow-shadow;
   }
   .card-header {
     @apply py-2 bg-background-darker/30 backdrop-blur-2xl rounded-t-4xl border-t border-t-highlight;

@@ -1,5 +1,13 @@
 import { Effect, Duration, Exit, Schema, flow, pipe } from 'effect';
-import { format, getDate, startOfDay } from 'date-fns';
+import {
+  format,
+  getDate,
+  startOfDay,
+  setHours,
+  setMinutes,
+  getHours,
+  getMinutes,
+} from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 
 import { queryClient, rest } from '@/services';
@@ -17,6 +25,7 @@ export const {
   useGet,
   finishEdit: _finishEdit,
   deleteOne: _deleteOne,
+  pureActions,
 } = queryClient.makeResourceListActionsTemplate({
   resource,
   Itself,
@@ -143,3 +152,42 @@ export const deleteOne = flow(_deleteOne, x => {
   x?.then(Exit.map(result => result.success && invalidatePreview()));
   return x;
 });
+
+export const copyTheDailySchedule = async ({
+  source,
+  targets,
+}: {
+  source: (typeof Itself.Type)[];
+  targets: Date[];
+}) => {
+  const createRecordRequests = targets.reduce(
+    (acc, targetDate) => {
+      const newRecordsForTheDate = source.map(({ serviceIdList, from, to }) => {
+        return Itself.omit('id').make({
+          serviceIdList,
+          to: setMinutes(setHours(targetDate, getHours(to)), getMinutes(to)),
+          from: setMinutes(
+            setHours(targetDate, getHours(from)),
+            getMinutes(from),
+          ),
+        });
+      });
+
+      const runnableRecords = newRecordsForTheDate.map(record =>
+        Effect.runPromise(
+          pureActions.createOrUpdate(
+            Schema.encodeSync(Itself.omit('id'))(record),
+          ),
+        ),
+      );
+
+      return [...acc, ...runnableRecords];
+    },
+    [] as Promise<typeof Itself.Type>[],
+  );
+
+  return Promise.allSettled(createRecordRequests).then(res => {
+    invalidatePreview();
+    return res;
+  });
+};

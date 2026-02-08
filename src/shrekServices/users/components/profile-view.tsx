@@ -39,10 +39,10 @@ export const ProfileView = () => {
                 <img
                   src={String(profile.profileIcon)}
                   alt="avatar"
-                  className="w-9 h-9 rounded-full object-cover border-2 border-white/20"
+                  className="size-10 rounded-full object-cover border-2 border-white/20"
                 />
               ) : (
-                <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white border-2 border-white/20">
+                <div className="size-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white border-2 border-white/20">
                   {initials}
                 </div>
               )}

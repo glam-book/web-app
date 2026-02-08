@@ -107,9 +107,7 @@ viewport
   });
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <Routes />
-    </QueryClientProvider>
-  </StrictMode>,
+  <QueryClientProvider client={queryClient}>
+    <Routes />
+  </QueryClientProvider>,
 );

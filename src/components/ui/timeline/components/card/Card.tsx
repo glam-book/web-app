@@ -285,13 +285,16 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                             ))}
                         </Menu>
 
-                        <Button
-                          fashion="fancy"
-                          disabled={makeAppointment.isPending}
-                          type="submit"
-                        >
-                          Подтвердить запись
-                        </Button>
+                        <div className="px-2">
+                          <Button
+                            className="w-full"
+                            fashion="fancy"
+                            disabled={makeAppointment.isPending}
+                            type="submit"
+                          >
+                            Подтвердить запись
+                          </Button>
+                        </div>
                       </div>
                     </form>
                   </div>
