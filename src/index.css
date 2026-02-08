@@ -283,6 +283,14 @@
   );
 }
 
+@utility top-unified-safe {
+  top: max(
+    env(safe-area-inset-top),
+    var(--tg-safe-area-inset-top),
+    0.2rem
+  );
+}
+
 @utility little-inset-box-shadow {
   box-shadow: inset 0px 10px 100px 10px
     color-mix(in hsl, var(--foreground), transparent 30%);

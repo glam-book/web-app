@@ -101,6 +101,13 @@ viewport
         viewport.contentSafeAreaInsetBottom() + viewport.safeAreaInsetBottom()
       }px`,
     );
+
+    document.documentElement.style.setProperty(
+      '--tg-safe-area-inset-top',
+      `${
+        viewport.contentSafeAreaInsetTop() + viewport.safeAreaInsetTop()
+      }px`,
+    );
   })
   .catch(e => {
     alert(`tg viewport not initialized:::, ${JSON.stringify(e)}`);

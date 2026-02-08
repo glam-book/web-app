@@ -434,7 +434,7 @@ export const Era = ({
       </div>
 
       {choosingState && (
-        <div className="fixed top-0 px-(--gap) py-1 w-full flex card items-center gap-x-1 bg-none backdrop-blur">
+        <div className="fixed top-unified-safe px-(--gap) py-1 w-full flex card items-center gap-x-1 bg-none backdrop-blur">
           <p>Выберите дни в календаре</p>
           <span className="font-mono">
             {Array.from(chosenDatesByMonth).reduce(
