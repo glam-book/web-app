@@ -168,7 +168,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
     <Root fields={fields}>
       <TheCard {...rest} disabled>
         <Content>
-          <div className="flex-1 max-w-full flex flex-col items-center justify-center gap-y-1">
+          <div className="pl-[2ch] flex-1 max-w-full flex flex-col items-center justify-center gap-y-1">
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button
@@ -322,7 +322,7 @@ export const OwnerCard = memo(({ fields, ...rest }: CardProps) => {
             fields.pendings.active > 0 && 'bg-success/50 text-[coral]',
           )}
         >
-          <div className="w-full flex flex-col gap-0.5">
+          <div className="pl-[2ch] w-full flex flex-col gap-0.5">
             <div className="flex gap-0.5 items-center">
               <span className="block text-sm text-foreground truncate">
                 {fields?.sign}

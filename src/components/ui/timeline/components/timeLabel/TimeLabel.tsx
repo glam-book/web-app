@@ -13,8 +13,8 @@ export const TimeLabel = ({
   return (
     <time
       className={cn(
-        'h-[2.5lh] flex flex-col justify-center',
-        isIntersecting && 'text-red-400',
+        'h-[2.5lh] flex flex-col justify-center z-10',
+        // isIntersecting && 'text-red-400',
         className,
       )}
       dateTime={label}

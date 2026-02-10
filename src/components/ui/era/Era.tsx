@@ -136,7 +136,7 @@ const Month = memo(
                               <span className="flex-1 max-w-full p-1 flex flex-col gap-1 items-center">
                                 <Badge
                                   className={cn(
-                                    'size-[4ch] rounded-full border-none text-xs font-semibold',
+                                    'size-[4ch] rounded-full border-none text-xs',
                                     isToday(dd) &&
                                       'bg-red-600/80 font-semibold text-background-light',
                                   )}
@@ -164,7 +164,7 @@ const Month = memo(
                           </ContextMenuTrigger>
                           {isOwner && (
                             <ContextMenuPortal>
-                              <ContextMenuContent>
+                              <ContextMenuContent collisionPadding={100}>
                                 <ContextMenuItem
                                   onClick={() => {
                                     onCopyFromTheDate?.(dd);

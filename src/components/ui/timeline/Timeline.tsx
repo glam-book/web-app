@@ -306,6 +306,10 @@ export const Timeline = ({
     [scrollView],
   );
 
+  useEffect(() => {
+    navigator.vibrate(200);
+  }, [intersectionTimeIndex])
+
   // useEffect(() => {
   //   let timerId = 0;
 
@@ -323,11 +327,11 @@ export const Timeline = ({
 
   return (
     <Comp
-      className={cn(className, 'relative content-grid overflow-y-auto')}
+      className={cn(className, 'relative content-grid overflow-y-auto hide')}
       onClick={ownerResult.isOwner ? onClick : undefined}
       {...props}
     >
-      <div className="card-header backdrop-blur-none shadow-shadow">
+      <div className="breakout card-header backdrop-blur-none shadow-shadow">
         <h2 className="flex justify-between pr-3 indent-3">
           <time className="text-xl uppercase">
             {format(currentDate, 'dd MMMM', { locale: ru })}
@@ -346,7 +350,7 @@ export const Timeline = ({
           <div
             ref={setScrollView}
             className={cn(
-              'relative overflow-y-auto overflow-x-hidden snap-mandatory snap-y max-h-full h-full snap-normal scroll-smooth',
+              'relative overflow-y-auto scrollbar-hidden overflow-x-hidden snap-mandatory snap-y max-h-full h-full snap-normal scroll-smooth',
             )}
             onScroll={() => {
               activeCardState.toggle('isUnfreezed', false);
@@ -359,7 +363,7 @@ export const Timeline = ({
             }}
           >
             <div className="content-grid text-base h-1/2">
-              <div className="text-xl card bg-none bg-background-light pl-0 border-b-0 rounded-none shadow-none flex items-end overflow-y-hidden overflow-x-visible">
+              <div className="breakout text-xl card bg-none bg-background-light pl-0 border-b-0 rounded-none shadow-none flex items-end overflow-y-hidden overflow-x-visible">
                 <div className="flex-1">
                   {timeList.map(time => (
                     <div key={time} className="flex">
@@ -378,8 +382,8 @@ export const Timeline = ({
               </div>
             </div>
 
-            <div className="flex-1 content-grid text-base relative">
-              <div className="text-xl card pl-0 bg-none bg-background border-t-0 rounded-none shadow-none">
+            <div className="flex-1 content-grid text-base">
+              <div className="breakout relative text-xl card pl-0 bg-none bg-background border-t-0 rounded-none shadow-none">
                 {timeList.map((time, idx) => (
                   <div
                     key={time}
@@ -433,7 +437,7 @@ export const Timeline = ({
             </div>
 
             <div className="h-1/2 content-grid text-base">
-              <div className="text-xl card pl-0 rounded-none bg-none bg-background flex overflow-hidden">
+              <div className="breakout text-xl card pl-0 rounded-none bg-none bg-background flex overflow-hidden">
                 <div className="flex-1">
                   {timeList.map(time => (
                     <div key={time} className="flex">
@@ -454,10 +458,10 @@ export const Timeline = ({
         </div>
       </div>
 
-      <div className="min-h-lh text-2xl py-2 rounded-b-4xl bg-background-darker" />
+      <div className="breakout min-h-lh text-2xl py-2 rounded-b-4xl bg-background-darker" />
 
       <div
-        className="absolute bottom-6 -right-(--gap) -translate-x-1/6 z-10 flex flex-col gap-2"
+        className="breakout absolute bottom-6 -right-(--gap) -translate-x-1/6 z-10 flex flex-col gap-2"
         onClick={e => e.stopPropagation()}
       >
         <Button
