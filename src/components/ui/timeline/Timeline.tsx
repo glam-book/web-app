@@ -307,8 +307,8 @@ export const Timeline = ({
   );
 
   useEffect(() => {
-    navigator.vibrate(200);
-  }, [intersectionTimeIndex])
+    navigator.vibrate?.(200);
+  }, [intersectionTimeIndex]);
 
   // useEffect(() => {
   //   let timerId = 0;
