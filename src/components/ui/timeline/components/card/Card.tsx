@@ -3,46 +3,19 @@ import { useMutation } from '@tanstack/react-query';
 import { format, isBefore } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { pipe } from 'effect';
-import { X } from 'lucide-react';
-import {
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useEffectEvent,
-  useState,
-} from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Itself as Service } from '@/shrekServices/services/schemas';
 import { MapFromArrayWithIdsOrUndefined } from '@/transformers';
-import { tryDecodeInto } from '@/utils';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogOverlay,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from '@/components/ui/dialog';
-import {
-  ContextMenuItem,
-  ContextMenuContent,
-  ContextMenuPortal,
-  ContextMenuTrigger,
-  ContextMenu,
-} from '@/components/ui/context-menu';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Menu, MenuItem } from '@/components/ui/menu';
 import { Button } from '@/components/ui/button';
@@ -56,7 +29,7 @@ import type { CardProps } from './types';
 import { CardContext, Root } from './CardContext';
 import { Content } from './Content';
 import { Badges } from './Badges';
-import { Pendings, PendingsContent } from './Pendings';
+import { Pendings } from './Pendings';
 
 export const TheCard = ({
   aimPosition,
