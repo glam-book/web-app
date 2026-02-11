@@ -1,6 +1,6 @@
 import { Schema, Arbitrary, FastCheck } from 'effect';
 import { useMutation } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { format, isBefore } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { pipe } from 'effect';
 import { X } from 'lucide-react';
@@ -226,11 +226,16 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                           input => Number(input.value),
                         );
 
+                        if (isBefore(fields.from, new Date())) {
+                          toast.warning('Дата уже прошла 😭');
+                          return;
+                        }
+
                         if (
                           fields.serviceIdList.size > 0 &&
                           serviceIdList.length === 0
                         ) {
-                          toast.error('Выберите хотя бы одну услугу');
+                          toast.warning('Выберите хотя бы одну услугу');
                           return;
                         }
 
@@ -286,7 +291,10 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                             ))}
                         </Menu>
 
-                        <p className="px-4 py-2 text-sm">* Фактическая продолжительность услуги может отличаться от заявленой</p>
+                        <p className="px-4 py-2 text-sm">
+                          * Фактическая продолжительность услуги может
+                          отличаться от заявленой
+                        </p>
 
                         <div className="px-2">
                           <Button
