@@ -205,6 +205,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                         </time>
                         <br />С <time>{format(fields.from, 'HH:mm')}</time> ПО{' '}
                         <time>{format(fields.to, 'HH:mm')}</time>
+                        <span> *</span>
                       </DialogTitle>
                       <DialogDescription className="hidden">
                         (desc)
@@ -229,7 +230,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                           fields.serviceIdList.size > 0 &&
                           serviceIdList.length === 0
                         ) {
-                          toast.error('Выберите хотябы один сервис');
+                          toast.error('Выберите хотя бы одну услугу');
                           return;
                         }
 
@@ -284,6 +285,8 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
                               </Label>
                             ))}
                         </Menu>
+
+                        <p className="px-4 py-2 text-sm">* Фактическая продолжительность услуги может отличаться от заявленой</p>
 
                         <div className="px-2">
                           <Button
