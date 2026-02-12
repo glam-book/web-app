@@ -117,9 +117,17 @@ export default function Id() {
             className="rounded-full size-10"
             onClick={() => {
               const startAppParam = { calendarId: params.id };
-              shareURL(
-                `https://t.me/glambookbot/slapdash?startapp=${btoa(JSON.stringify(startAppParam))}`,
-              );
+              const url = `https://t.me/glambookbot/slapdash?startapp=${btoa(JSON.stringify(startAppParam))}`;
+
+              navigator
+                .share({
+                  title: 'Здесь можно записаться ко мне на услуги 💕',
+                  url,
+                })
+                .catch(error => {
+                  console.error(error);
+                  shareURL(url);
+                });
             }}
           >
             <Share />

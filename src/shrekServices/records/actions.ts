@@ -188,6 +188,7 @@ export const copyTheDailySchedule = async ({
 
   return Promise.allSettled(createRecordRequests).then(res => {
     invalidatePreview();
+    invalidateQueries([resource]);
     return res;
   });
 };

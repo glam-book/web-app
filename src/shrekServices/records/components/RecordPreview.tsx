@@ -80,15 +80,12 @@ export const RecordPreview = memo(
       return result;
     }, [detailsForTheDay?.length, detailsWrapper]);
 
-    const isAllDetailItemsFits =
-      detailItemsFitsCount >= detailsForTheDay?.length!;
-
     return (
       <span
         ref={setHost}
         className={cn(
           'min-w-0.5 min-h-full h-full flex flex-col gap-0.5',
-          isPreviewForClient && 'absolute z-[-1] inset-0 bg-success/40',
+          isPreviewForClient && 'absolute z-[-1] inset-0 bg-success',
         )}
       >
         <span
@@ -96,36 +93,16 @@ export const RecordPreview = memo(
           ref={setDetailsWrapper}
         >
           {isOwner &&
-            detailsForTheDay
-              // ?.slice(0, detailItemsFitsCount)
-              ?.map((item, idx) => (
-                <span
-                  key={idx}
-                  className={cn(
-                    'min-h-[1lh] max-h-[2lh] bg-card rounded-[0.3rem] text-[8px] overflow-x-auto',
-                    item.hasPendings && 'bg-success/40',
-                  )}
-                ></span>
-              ))}
+            detailsForTheDay?.map((item, idx) => (
+              <span
+                key={idx}
+                className={cn(
+                  'min-h-[1lh] max-h-[2lh] bg-card rounded-[0.3rem] text-[8px] overflow-x-auto',
+                  item.hasPendings && 'bg-success',
+                )}
+              ></span>
+            ))}
         </span>
-        {/*
-        <span
-          className={cn(
-            'hidden gap-1 pt-0.5 pl-0.5',
-            isOwner &&
-              detailsForTheDay?.length &&
-              !isAllDetailItemsFits &&
-              'flex',
-          )}
-        >
-          {Array.from({ length: 3 }, (_, idx) => (
-            <Dot
-              key={idx}
-              className="fill-muted-foreground/60 stroke-0 h-2 w-2"
-            />
-          ))}
-        </span>
-          */}
       </span>
     );
   },

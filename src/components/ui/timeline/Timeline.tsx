@@ -334,7 +334,7 @@ export const Timeline = ({
       <div className="breakout card-header backdrop-blur-none shadow-shadow">
         <h2 className="flex justify-between pr-3 indent-3">
           <time className="text-xl uppercase">
-            {format(currentDate, 'dd MMMM', { locale: ru })}
+            {format(currentDate, 'd MMMM', { locale: ru })}
           </time>
         </h2>
       </div>
@@ -368,7 +368,7 @@ export const Timeline = ({
                   {timeList.map(time => (
                     <div key={time} className="flex">
                       <TimeLabel
-                        className="[&>*]:-translate-y-1/2"
+                        className="[&>*]:-translate-y-1/2 text-muted-foreground"
                         label={time}
                       />
                       <div className="flex-1 flex flex-col">
@@ -442,7 +442,7 @@ export const Timeline = ({
                   {timeList.map(time => (
                     <div key={time} className="flex">
                       <TimeLabel
-                        className="[&>*]:-translate-y-1/2"
+                        className="[&>*]:-translate-y-1/2 text-muted-foreground"
                         label={time}
                       />
                       <div className="flex-1 flex flex-col">
