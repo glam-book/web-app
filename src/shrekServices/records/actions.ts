@@ -41,21 +41,6 @@ export const startEdit = flow(
   _startEdit,
 );
 
-export const makeAppointment = (
-  recordId: (typeof Itself.Type)['id'],
-  serviceIdList: number[],
-) =>
-  pipe(
-    [
-      `${resource}/pending/${recordId}`,
-      { method: 'PUT', body: JSON.stringify(serviceIdList) },
-    ] as const,
-    params => rest.client(...params),
-    tryDecodeInto(Itself),
-    Effect.tap(record => store.listActions.setOne(record)),
-    Effect.runPromise,
-  );
-
 export const getPreview = (userId: number | string, month: Date) =>
   pipe(
     `${resource}/calendar?userId=${userId}&month=${format(month, 'MM')}&year=${format(month, 'yyyy')}`,
@@ -126,6 +111,22 @@ export const useGetPreview = (
 
 export const invalidatePreview = () =>
   invalidateQueries([`${resource}/preview`]);
+
+export const makeAppointment = (
+  recordId: (typeof Itself.Type)['id'],
+  serviceIdList: number[],
+) =>
+  pipe(
+    [
+      `${resource}/pending/${recordId}`,
+      { method: 'PUT', body: JSON.stringify(serviceIdList) },
+    ] as const,
+    params => rest.client(...params),
+    tryDecodeInto(Itself),
+    Effect.tap(record => store.listActions.setOne(record)),
+    Effect.tap(invalidatePreview),
+    Effect.runPromise,
+  );
 
 const validateToDate = () => {
   const { fields } = store.editableRightNow.getState();
