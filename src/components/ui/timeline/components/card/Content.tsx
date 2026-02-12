@@ -20,7 +20,7 @@ export const Content = ({
   return (
     <div
       className={cn(
-        'relative bg-blurable bg-card/90 min-w-full min-h-[2.5lh] text-2xs select-none transition-foo text-foreground rounded-[inherit]',
+        'relative bg-blurable bg-card/70 min-w-full min-h-[2.5lh] text-2xs select-none transition-foo text-foreground rounded-[inherit]',
         isSelected && 'bg-accent-strong/80',
         className,
       )}

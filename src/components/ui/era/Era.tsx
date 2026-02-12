@@ -164,8 +164,12 @@ const Month = memo(
                           </ContextMenuTrigger>
                           {isOwner && (
                             <ContextMenuPortal>
-                              <ContextMenuContent collisionPadding={100}>
+                              <ContextMenuContent
+                                className="max-w-[50vw]"
+                                collisionPadding={100}
+                              >
                                 <ContextMenuItem
+                                  className="text-balance"
                                   onClick={() => {
                                     onCopyFromTheDate?.(dd);
                                   }}
@@ -296,10 +300,6 @@ export const Era = ({
     dateToCopy.current = undefined;
     setChosenDateByMonth(new Map());
   };
-
-  useEffect(() => {
-    console.log([...chosenDatesByMonth.entries()]);
-  }, [chosenDatesByMonth]);
 
   const onSelect = useCallback(
     (date: Date) => {
