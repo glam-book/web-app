@@ -141,7 +141,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
     <Root fields={fields}>
       <TheCard {...rest} disabled>
         <Content>
-          <div className="max-w-full flex flex-col gap-y-1">
+          <div className="flex-1 max-w-full flex flex-col gap-y-1">
             <div className="pl-[3ch] flex-1 max-w-full flex flex-col items-center justify-center">
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
