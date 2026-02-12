@@ -306,10 +306,6 @@ export const Timeline = ({
     [scrollView],
   );
 
-  useEffect(() => {
-    navigator.vibrate?.(200);
-  }, [intersectionTimeIndex]);
-
   // useEffect(() => {
   //   let timerId = 0;
 

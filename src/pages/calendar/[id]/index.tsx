@@ -118,16 +118,7 @@ export default function Id() {
             onClick={() => {
               const startAppParam = { calendarId: params.id };
               const url = `https://t.me/glambookbot/slapdash?startapp=${btoa(JSON.stringify(startAppParam))}`;
-
-              navigator
-                .share({
-                  title: 'Здесь можно записаться ко мне на услуги 💕',
-                  url,
-                })
-                .catch(error => {
-                  console.error(error);
-                  shareURL(url);
-                });
+              shareURL(url);
             }}
           >
             <Share />
