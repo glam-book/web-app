@@ -160,7 +160,7 @@ export const EditRecordModal = () => {
                 value={sign}
                 onChange={e => setSign(e.target.value)}
                 placeholder="Заметка"
-                className="h-[2lh] resize-none bg-background border-none outline-none"
+                className="h-[2lh] resize-none bg-background border-none outline-none rounded-xl"
               />
             </div>
 

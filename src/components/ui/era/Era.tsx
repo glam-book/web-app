@@ -133,7 +133,7 @@ const Month = memo(
                                 'isolate relative w-full h-full pt-1 flex justify-center select-none',
                               )}
                             >
-                              <span className="flex-1 max-w-full p-1 flex flex-col gap-1 items-center">
+                              <span className="flex-1 max-w-full flex flex-col gap-1 items-center">
                                 <Badge
                                   className={cn(
                                     'size-[4ch] rounded-full border-none text-xs',

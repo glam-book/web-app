@@ -469,7 +469,7 @@ export const Timeline = ({
           disabled={!nextCardAbove}
           onClick={goToCardAbove}
         >
-          <ChevronUp className="size-6" />
+          <ChevronUp className="size-7" />
         </Button>
         <Button
           type="button"
@@ -480,7 +480,7 @@ export const Timeline = ({
           disabled={!nextCardBelow}
           onClick={goToCardBelow}
         >
-          <ChevronDown className="size-6" />
+          <ChevronDown className="size-7" />
         </Button>
       </div>
     </Comp>

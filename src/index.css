@@ -146,7 +146,7 @@
   --prose: 40ch;
   --prose-xl: 65ch;
 
-  --gap: 1rem;
+  --gap: 0.5rem;
   --breakout-size: minmax(0, 7rem);
   --content-size-xl: minmax(0, calc(var(--prose-xl) - var(--prose)));
   --content-size: min(var(--prose), calc(100% - var(--gap) * 2));
@@ -310,6 +310,10 @@
     var(--tg-safe-area-inset-right)
   );
 } */
+
+@utility corner-shape-squircle {
+  corner-shape: squircle;
+}
 
 @layer base {
   * {

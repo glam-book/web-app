@@ -61,6 +61,50 @@ export const useGetPreview = (
       getPreview(userId as number | string, month).catch(
         () =>
           ({
+            '2': [
+              {
+                day: 1,
+                ts: new Date(),
+                isOwner: true,
+                canPending: true,
+                hasPendings: true,
+              },
+              {
+                day: 1,
+                ts: new Date(),
+                isOwner: true,
+                canPending: true,
+                hasPendings: false,
+              },
+              {
+                day: 1,
+                ts: new Date(),
+                isOwner: true,
+                canPending: true,
+                hasPendings: false,
+              },
+              {
+                day: 1,
+                ts: new Date(),
+                isOwner: true,
+                canPending: true,
+                hasPendings: false,
+              },
+              {
+                day: 1,
+                ts: new Date(),
+                isOwner: true,
+                canPending: true,
+                hasPendings: false,
+              },
+              {
+                day: 1,
+                ts: new Date(),
+                isOwner: true,
+                canPending: true,
+                hasPendings: false,
+              },
+            ],
             '1': [
               {
                 day: 1,

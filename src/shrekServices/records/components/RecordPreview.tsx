@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useMemo, useLayoutEffect } from 'react';
+import { memo, useState, useEffect, useLayoutEffect } from 'react';
 import { differenceInMonths, startOfMonth, getDate } from 'date-fns';
 
 import { owner, records } from '@/shrekServices';
@@ -29,12 +29,11 @@ export const RecordPreview = memo(
     );
 
     const detailsForTheDay = details?.[getDate(epoch)];
+
     const isPreviewForClient =
       !isOwner && detailsForTheDay?.some(i => i.canPending);
 
     const [host, setHost] = useState<HTMLSpanElement | null>(null);
-    const [detailsWrapper, setDetailsWrapper] =
-      useState<HTMLSpanElement | null>(null);
 
     useLayoutEffect(() => {
       let timerId = 0;
@@ -47,39 +46,6 @@ export const RecordPreview = memo(
       return () => cancelAnimationFrame(timerId);
     }, [details, host]);
 
-    const detailItemsFitsCount = useMemo(() => {
-      if (!host) return 0;
-      if (!detailsForTheDay?.length) return 0;
-
-      const height = host.offsetHeight;
-      const computedStyles = window.getComputedStyle(host);
-      const itemHeight = parseFloat(computedStyles.lineHeight);
-      const remInPx = parseFloat(
-        window.getComputedStyle(document.documentElement).fontSize,
-      );
-      const spacing =
-        parseFloat(computedStyles.getPropertyValue('--spacing')) * remInPx;
-      const gap = spacing * 0.5;
-      const dotsHeight = spacing * 2;
-
-      const preItemsCount = Math.max(
-        0,
-        Math.floor((height - itemHeight) / (itemHeight + gap)) + 1,
-      );
-
-      const result =
-        preItemsCount < detailsForTheDay.length
-          ? Math.max(
-              0,
-              Math.floor(
-                (height - itemHeight - (dotsHeight + gap)) / (itemHeight + gap),
-              ) + 1,
-            )
-          : preItemsCount;
-
-      return result;
-    }, [detailsForTheDay?.length, detailsWrapper]);
-
     return (
       <span
         ref={setHost}
@@ -88,16 +54,13 @@ export const RecordPreview = memo(
           isPreviewForClient && 'absolute z-[-1] inset-0 bg-success',
         )}
       >
-        <span
-          className="flex flex-col gap-0.5 leading-3"
-          ref={setDetailsWrapper}
-        >
+        <span className="pb-1.5 flex flex-col gap-0.5 leading-3">
           {isOwner &&
             detailsForTheDay?.map((item, idx) => (
               <span
                 key={idx}
                 className={cn(
-                  'min-h-[1lh] max-h-[2lh] bg-card rounded-[0.3rem] text-[8px] overflow-x-auto',
+                  'min-h-[1lh] max-h-[2lh] bg-card rounded-full corner-shape-squircle overflow-x-hidden scrollbar-hidden',
                   item.hasPendings && 'bg-success',
                 )}
               ></span>

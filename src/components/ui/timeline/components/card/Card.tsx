@@ -106,7 +106,7 @@ export const TheCard = ({
       tabIndex={0}
       onClick={disabled ? undefined : onClick}
       className={cn(
-        'flex absolute left-0 w-full rounded-md',
+        'flex absolute left-0 w-full rounded-xl',
         isSelected && 'z-1 translate-x-[3ch]',
         'transition-foo',
       )}
@@ -304,26 +304,29 @@ export const OwnerCard = memo(({ fields, ...rest }: CardProps) => {
           )}
         >
           <div className="max-w-full flex flex-col gap-y-1">
-            <div className="pl-[3ch] w-full flex flex-col">
-              <div className="flex gap-0.5 items-center">
+            <div className="[&>*]:pl-[3ch] w-full flex flex-col">
+              <div>
                 <span className="block text-sm text-foreground truncate">
                   {fields?.sign}
                 </span>
-                <Pendings>
-                  <Button
-                    variant="secondary"
-                    className="h-auto py-1 text-primary-foreground font-mono text-xs"
-                    size="icon"
-                    onClick={e => e.stopPropagation()}
-                  >
-                    {fields.pendings.active}/{fields.pendings.limits}
-                  </Button>
-                </Pendings>
               </div>
-            </div>
 
-            <div className="pl-[3ch] max-w-full overflow-x-auto scrollbar-hidden">
-              <Badges />
+              <div className="max-w-full overflow-x-auto scrollbar-hidden">
+                <div className="flex gap-0.5 items-center">
+                  <Pendings>
+                    <Button
+                      variant="secondary"
+                      className="h-auto self-stretch py-0.5 text-primary-foreground font-mono text-xs"
+                      size="icon"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      {fields.pendings.active}/{fields.pendings.limits}
+                    </Button>
+                  </Pendings>
+
+                  <Badges />
+                </div>
+              </div>
             </div>
           </div>
         </Content>
