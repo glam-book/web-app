@@ -14,49 +14,21 @@ export const Content = ({
 }: React.ComponentProps<'div'>) => {
   const { fields } = useContext(CardContext);
   const { fields: editableRightNowFields } = records.store.editableRightNow();
-  const { isResizeMode } = activeCard();
+  // const { isResizeMode } = activeCard();
   const isSelected = editableRightNowFields?.id === fields.id;
 
   return (
     <div
       className={cn(
-        'relative bg-blurable bg-card/70 min-w-full min-h-[2.5lh] text-2xs select-none transition-foo text-foreground rounded-[inherit]',
-        isSelected && 'bg-accent-strong/80',
+        'relative bg-blurable bg-card/70 min-w-full text-xs select-none transition-foo text-foreground rounded-[inherit] corner-shape-squircle',
+        // isSelected && 'jello',
         className,
       )}
     >
-      <div className="px-0.5 py-1 text-2xl sticky top-0 w-full max-h-full overflow-y-hidden flex flex-col">
-        {isSelected ? (
-          <div className="flex font-mono text-xl">
-            <time
-              className={cn(
-                'text-foreground inline-flex',
-                isResizeMode || 'text-current',
-              )}
-              dateTime={format(String(editableRightNowFields?.from), 'MM-dd')}
-            >
-              <Sdometer
-                value={format(String(editableRightNowFields?.from), 'HH:mm')}
-              />
-            </time>
-            <span className="text-foreground">-</span>
-            <time
-              className={cn(
-                'text-foreground inline-flex',
-                isResizeMode && 'text-current',
-              )}
-              dateTime={format(String(editableRightNowFields?.to), 'MM-dd')}
-            >
-              <Sdometer
-                value={format(String(editableRightNowFields?.to), 'HH:mm')}
-              />
-            </time>
-          </div>
-        ) : (
-          <div className="max-h-full flex items-center justify-between gap-3">
-            {children}
-          </div>
-        )}
+      <div className="pl-0.5 text-xl sticky top-0 w-full max-h-full min-h-[0.6lh] overflow-y-visible flex flex-col">
+        <div className="flex-1 h-full flex items-center justify-between gap-3 overflow-y-visible">
+          {children}
+        </div>
       </div>
     </div>
   );

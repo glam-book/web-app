@@ -28,7 +28,7 @@ export const ProfileView = () => {
 
   return (
     <>
-      <div className={cn('flex items-center gap-2 text-sm font-bold indent-2')}>
+      <div className={cn('flex items-center gap-1 text-sm font-bold indent-2')}>
         <span className="followable animate-follow">
           <div
             className="flex items-center gap-2"

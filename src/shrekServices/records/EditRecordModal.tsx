@@ -1,6 +1,7 @@
 import { produce } from 'immer';
 import { MessageSquare, Plus, TrashIcon, X } from 'lucide-react';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { format, parse } from 'date-fns';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,10 +27,14 @@ export const EditRecordModal = () => {
   const isCardSelected = Boolean(recordFields);
   const open = isCardSelected;
 
+  useEffect(() => {
+    console.log(recordFields?.from);
+  }, [recordFields]);
+
   const { data: serviceList } = services.useGet();
 
   const formRef = useRef<HTMLFormElement | null>(null);
-  const [sign, setSign] = useState(String(recordFields?.sign || ''));
+
   const recordServices = useMemo(
     () =>
       Array.from(
@@ -59,10 +64,6 @@ export const EditRecordModal = () => {
 
     prevServiceIdsRef.current = a;
   }, [serviceList]);
-
-  useEffect(() => {
-    setSign(String(recordFields?.sign || ''));
-  }, [recordFields?.id]);
 
   useEffect(() => {
     if (open) {
@@ -95,6 +96,39 @@ export const EditRecordModal = () => {
     });
   };
 
+  const [signTextarea, setSignTextArea] = useState<HTMLTextAreaElement | null>(
+    null,
+  );
+
+  const updateSignField = useCallback((value: string) => {
+    records.store.editableRightNow.setState({
+      fields: produce(
+        records.store.editableRightNow.getState().fields,
+        draft => {
+          if (!draft) return;
+          draft.sign = value;
+        },
+      ),
+    });
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const textarea = e.currentTarget as HTMLTextAreaElement;
+      updateSignField(textarea.value);
+    };
+
+    signTextarea?.addEventListener('change', handler);
+
+    return () => signTextarea?.removeEventListener('change', handler);
+  }, [signTextarea, updateSignField]);
+
+  useEffect(() => {
+    if (signTextarea) {
+      signTextarea.value = recordFields?.sign ?? '';
+    }
+  }, [recordFields?.id]);
+
   return (
     <Drawer
       open={open}
@@ -117,18 +151,24 @@ export const EditRecordModal = () => {
               Измените данные или удалите запись
             </DrawerDescription>
 
-            <Button
-              className="justify-self-end"
-              type="button"
-              variant="destructive"
-              size="icon"
-              onClick={() => {
-                if (!confirm('Удалить запись?')) return;
-                records.deleteOne(recordFields?.id);
-              }}
-            >
-              <TrashIcon />
-            </Button>
+            <div className="flex justify-between items-center gap-1">
+              <p className="text-muted-foreground text-xs text-left">
+                * Нажмите на карточку, чтобы её растянуть или переместить
+              </p>
+
+              <Button
+                className="justify-self-end"
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  if (!confirm('Удалить запись?')) return;
+                  records.deleteOne(recordFields?.id);
+                }}
+              >
+                <TrashIcon /> Удалить запись
+              </Button>
+            </div>
           </div>
         </DrawerHeader>
 
@@ -139,33 +179,65 @@ export const EditRecordModal = () => {
             ref={formRef}
             onSubmit={e => {
               e.preventDefault();
-
-              records.store.editableRightNow.setState({
-                fields: produce(recordFields, draft => {
-                  if (!draft) return;
-                  draft.sign = sign;
-                }),
-              });
-
+              updateSignField(signTextarea?.value ?? '');
               records.finishEdit();
             }}
           >
+            <div className="hidden gap-1">
+              <label>
+                C{' '}
+                <input
+                  type="time"
+                  className="bg-background rounded-xl corner-shape-squircle"
+                  value={format(recordFields?.from ?? 0, 'HH:mm')}
+                  onChange={v =>
+                    records.store.editableRightNow.setState({
+                      fields: produce(
+                        records.store.editableRightNow.getState().fields,
+                        draft => {
+                          if (!draft) return;
+
+                          const from = parse(
+                            v.target.value,
+                            'HH:mm',
+                            draft.from,
+                          );
+
+                          console.log({from})
+
+                          draft.from = from;
+                        },
+                      ),
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                ПО{' '}
+                <input
+                  type="time"
+                  className="bg-background rounded-xl corner-shape-squircle"
+                />
+              </label>
+            </div>
+
             <div className="pt-1 flex flex-col gap-1">
               <Label className="hidden" htmlFor="sign">
                 Комментарий
               </Label>
               <Textarea
+                ref={setSignTextArea}
                 id="sign"
                 name="sign"
-                value={sign}
-                onChange={e => setSign(e.target.value)}
+                defaultValue={recordFields?.sign ?? ''}
                 placeholder="Заметка"
                 className="h-[2lh] resize-none bg-background border-none outline-none rounded-xl"
               />
             </div>
 
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-4">
+            <Card className="p-3 pb-4">
+              <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="w-5 h-5 text-gray-700" />
                   <h2 className="text-gray-900">Услуги</h2>
@@ -299,7 +371,7 @@ export const EditRecordModal = () => {
 
         <DrawerFooter>
           <Button
-          fashion="glassy"
+            fashion="glassy"
             onClick={() => {
               formRef.current?.requestSubmit();
             }}

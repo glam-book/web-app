@@ -6,50 +6,44 @@ import { flow, pipe } from 'effect';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { IntersectionTarget } from '@/components/ui/intersectionTarget';
-import { activeCard } from '@/components/ui/timeline/store';
 import { cn } from '@/lib/utils';
 import { owner, records } from '@/shrekServices';
 import type { MapValueType } from '@/types';
-import { between } from '@/utils';
+import { Button } from '@/components/ui/button';
+import { IntersectionTarget } from '@/components/ui/intersectionTarget';
+import { activeCard } from '@/components/ui/timeline/store';
 
 import { Container } from './components/container';
 import { TimeLabel } from './components/timeLabel';
-import {
-  defaultSectionDisplaySize,
-  defaultsSectionSizeInMinutes,
-} from './constants';
-import { dummy, timeLine } from './style';
+import { defaultsSectionSizeInMinutes as sectionSizeInMinutes } from './constants';
+import { timeLineVariants } from './style';
 import type { TimelineProps } from './types';
 import {
-  convertMinutesToUnits,
-  convertUnitsToMinutes,
   getMinutesFromDate,
   getNumberOfSections,
   getTimeList,
   setMinutesToDate,
-  validateSectionSize,
 } from './utils';
 
 type CardFields = MapValueType<
   React.ComponentProps<typeof Container>['fields']
 >;
 
-const toDisplayUnits = (n: number) => `${n}lh`;
+const toDisplayUnits = (n: number) => `${n * 100}%`;
 
 export const Timeline = ({
   currentDate = new Date(),
   cards = new Map(),
-  sectionDisplaySize = defaultSectionDisplaySize,
-  sectionSizeInMinutes = defaultsSectionSizeInMinutes,
   asChild = false,
   className,
-  size,
+  size = 'sm',
   ...props
-}: TimelineProps & VariantProps<typeof timeLine>) => {
+}: TimelineProps & VariantProps<typeof timeLineVariants>) => {
   const Comp = asChild ? Slot : 'div';
+
   const [scrollView, setScrollView] = useState<HTMLDivElement | null>(null);
+  const [todayRecordPlace, setTodayRecordPlace] =
+    useState<HTMLDivElement | null>(null);
   const [intersectionTimeIndex, setIntersecionTimeIndex] = useState(0);
   const [aimPosition, setAimPosition] = useState(0);
   const aimPositionRef = useRef(aimPosition);
@@ -58,82 +52,62 @@ export const Timeline = ({
   const isCardSelected = Boolean(selectedCardState.fields);
   const ownerResult = owner.useIsOwner();
 
-  const validSectionSizeInMinutes = useMemo(
-    () => validateSectionSize(sectionSizeInMinutes),
-    [sectionSizeInMinutes],
-  );
-
-  const numberOfSections = useMemo(
-    () => getNumberOfSections(validSectionSizeInMinutes),
-    [validSectionSizeInMinutes],
-  );
-
-  const timeList = useMemo(
-    () => getTimeList(numberOfSections, validSectionSizeInMinutes),
-    [validSectionSizeInMinutes, numberOfSections],
-  );
+  const numberOfSections = getNumberOfSections(sectionSizeInMinutes);
+  const timeList = getTimeList(numberOfSections, sectionSizeInMinutes);
+  const sectionSizeInPercent = 1 / numberOfSections;
+  const sectionDisplaySize = sectionSizeInPercent;
 
   const dateToDisplayUnits = useCallback(
     (epoch: Date) => {
       const minutes =
         getMinutesFromDate(epoch) +
+        // Это нужно если мы вылезаем на другую дату?
         (getDate(epoch) !== getDate(currentDate) ? 24 * 60 : 0);
 
-      return convertMinutesToUnits(
-        numberOfSections,
-        sectionDisplaySize,
-        minutes,
-      );
+      return minutes / (24 * 60);
     },
-    [numberOfSections, sectionDisplaySize, currentDate],
+    [currentDate],
   );
 
   const displayUnitsToMinutes = useCallback(
-    (units: number) =>
-      convertUnitsToMinutes(numberOfSections, sectionDisplaySize, units),
-    [numberOfSections, sectionDisplaySize],
+    (units: number) => units * 24 * 60,
+    [],
   );
 
   const scrollToDate = useCallback(
     (date: Date) => {
       if (!scrollView) return;
+      if (!todayRecordPlace) return;
       const position = dateToDisplayUnits(date);
-      const lhPx = parseFloat(getComputedStyle(scrollView).lineHeight);
-      const y = lhPx * position;
+      const inPixels = todayRecordPlace.clientHeight;
+      const y = position * inPixels;
       scrollView.scroll(0, y);
     },
     [scrollView, dateToDisplayUnits],
   );
 
+  const [lastScrollTarget, setLastScrollTarget] = useState<number | undefined>(
+    undefined,
+  );
+
   const scrollToCard = useCallback(
-    flow(({ from, to }: CardFields, isResizeMode?: boolean) => {
+    flow(({ from, to }: { from: Date; to: Date }, isResizeMode?: boolean) => {
       if (getDate(to) !== getDate(from)) return from;
-      return isResizeMode ? to : from;
+      const scrollTargetDate = isResizeMode ? to : from;
+
+      setLastScrollTarget(
+        (dateToDisplayUnits(scrollTargetDate) * 24 * 60) / 30,
+      );
+
+      return scrollTargetDate;
     }, scrollToDate),
     [scrollToDate],
   );
 
   const cardsList = useMemo(() => {
-    if (!cards || (cards instanceof Map && cards.size === 0)) return [];
-
-    const values =
-      cards instanceof Map
-        ? Array.from(cards.values())
-        : Array.isArray(cards)
-          ? cards
-          : [];
-
-    return values
+    return Array.from(cards.values())
       .filter((f): f is CardFields => Boolean(f?.from))
-      .sort(
-        (a, b) =>
-          (a.from instanceof Date
-            ? a.from.getTime()
-            : new Date(a.from).getTime()) -
-          (b.from instanceof Date
-            ? b.from.getTime()
-            : new Date(b.from).getTime()),
-      );
+      .sort((a, b) => a.from.getTime() - b.from.getTime());
   }, [cards]);
 
   const currentTimeMs = useMemo(() => {
@@ -142,23 +116,20 @@ export const Timeline = ({
       displayUnitsToMinutes,
       setMinutesToDate(currentDate),
     );
+
     return date.getTime();
   }, [aimPosition, displayUnitsToMinutes, currentDate]);
 
   const { nextCardAbove, nextCardBelow } = useMemo(() => {
     const above = [...cardsList]
       .filter(f => {
-        const t =
-          f.from instanceof Date
-            ? f.from.getTime()
-            : new Date(f.from).getTime();
+        const t = f.from.getTime();
         return t < currentTimeMs;
       })
       .pop();
 
     const below = cardsList.find(f => {
-      const t =
-        f.from instanceof Date ? f.from.getTime() : new Date(f.from).getTime();
+      const t = f.from.getTime();
       return t > currentTimeMs;
     });
 
@@ -167,70 +138,13 @@ export const Timeline = ({
 
   const goToCardAbove = useCallback(() => {
     if (!nextCardAbove?.from) return;
-    const date =
-      nextCardAbove.from instanceof Date
-        ? nextCardAbove.from
-        : new Date(nextCardAbove.from);
-    scrollToDate(date);
+    scrollToDate(nextCardAbove.from);
   }, [nextCardAbove, scrollToDate]);
 
   const goToCardBelow = useCallback(() => {
     if (!nextCardBelow?.from) return;
-    const date =
-      nextCardBelow.from instanceof Date
-        ? nextCardBelow.from
-        : new Date(nextCardBelow.from);
-    scrollToDate(date);
+    scrollToDate(nextCardBelow.from);
   }, [nextCardBelow, scrollToDate]);
-
-  useEffect(() => {
-    const fields = records.store.editableRightNow.getState().fields;
-
-    if (isCardSelected) {
-      scrollToCard(fields!, activeCardState.isResizeMode);
-    }
-  }, [
-    isCardSelected,
-    activeCardState.isResizeMode,
-    selectedCardState.fields?.id,
-    scrollToCard,
-  ]);
-
-  // const hasScrolledToNearestRef = useRef(false);
-
-  // useEffect(() => {
-  //   if (hasScrolledToNearestRef.current) return;
-  //   if (!scrollView) return;
-  //   if (isCardSelected) return;
-  //   if (!cards || (cards instanceof Map && cards.size === 0)) return;
-
-  //   const values = cards instanceof Map ?
-  //     Array.from(cards.values()) :
-  //     Array.isArray(cards) ?
-  //       cards : [];
-
-  //   if (values.length === 0) return;
-
-  //   let nearest = null;
-  //   let minDiff = Infinity;
-  //   const now = currentDate ? currentDate.getTime() : Date.now();
-
-  //   for (const f of values) {
-  //     if (!f || !f.from) continue;
-  //     const d = f.from instanceof Date ? f.from.getTime() : new Date(f.from).getTime();
-  //     const diff = Math.abs(d - now);
-  //     if (diff < minDiff) {
-  //       minDiff = diff;
-  //       nearest = f;
-  //     }
-  //   }
-
-  //   if (nearest && nearest.from) {
-  //     const date = nearest.from instanceof Date ? nearest.from : new Date(nearest.from);
-  //     scrollToDate(date);
-  //     hasScrolledToNearestRef.current = true;
-  //   }
-  // }, [scrollView, cards, currentDate, isCardSelected, scrollToDate]);
 
   const createNewCard = () => {
     const from = pipe(
@@ -252,6 +166,7 @@ export const Timeline = ({
 
     activeCardState.toggle('isResizeMode', true);
     activeCardState.toggle('isUnfreezed', true);
+    scrollToCard({ from, to }, true);
   };
 
   const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -278,24 +193,52 @@ export const Timeline = ({
 
       if (isThatCardSelected) {
         activeCardState.toggle('isResizeMode');
+        scrollToCard(fields, activeCard.getState().isResizeMode);
+
         return;
       }
 
       records.startEdit(fields);
 
-      const from = dateToDisplayUnits(fields.from);
-
-      const dontNeedScrollToTheCard = between(
-        aimPositionRef.current,
-        from - sectionDisplaySize,
-        from + sectionDisplaySize,
-        { strict: true },
-      );
-
-      activeCardState.toggle('isUnfreezed', dontNeedScrollToTheCard);
+      scrollToCard(fields);
     },
     [dateToDisplayUnits],
   );
+
+  useEffect(() => {
+    if (
+      lastScrollTarget !== undefined &&
+      lastScrollTarget !== Math.floor(lastScrollTarget) &&
+      Math.abs(intersectionTimeIndex - lastScrollTarget) <= 1
+    ) {
+      setLastScrollTarget(undefined);
+      activeCardState.toggle('isUnfreezed', true);
+      return;
+    }
+
+    if (
+      lastScrollTarget !== undefined &&
+      intersectionTimeIndex - lastScrollTarget === 0
+    ) {
+      setLastScrollTarget(undefined);
+      activeCardState.toggle('isUnfreezed', true);
+      return;
+    }
+
+    if (
+      lastScrollTarget !== undefined &&
+      intersectionTimeIndex !== lastScrollTarget &&
+      selectedCardState.fields
+    ) {
+      scrollToCard(selectedCardState.fields, activeCardState.isResizeMode);
+      return;
+    }
+
+    activeCardState.toggle(
+      'isUnfreezed',
+      lastScrollTarget === undefined && isCardSelected,
+    );
+  }, [selectedCardState, isCardSelected, aimPosition, lastScrollTarget]);
 
   const intersectionObserverOpts = useMemo(
     () => ({
@@ -305,21 +248,6 @@ export const Timeline = ({
     }),
     [scrollView],
   );
-
-  // useEffect(() => {
-  //   let timerId = 0;
-
-  //   const f = () => {
-  //     if (!activeCardState.isUnfreezed && !isCardSelected) return;
-  //     const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
-  //     setAimPosition(newAimPosition);
-  //     aimPositionRef.current = newAimPosition;
-  //   };
-
-  //   timerId = requestAnimationFrame(f);
-
-  //   return () => cancelAnimationFrame(timerId);
-  // }, [intersectionTimeIndex, isCardSelected, activeCardState]);
 
   return (
     <Comp
@@ -352,48 +280,51 @@ export const Timeline = ({
               activeCardState.toggle('isUnfreezed', false);
             }}
             onScrollEnd={() => {
-              const newAimPosition = intersectionTimeIndex * sectionDisplaySize;
+              const newAimPosition =
+                intersectionTimeIndex * sectionSizeInPercent;
               setAimPosition(newAimPosition);
               aimPositionRef.current = newAimPosition;
-              if (isCardSelected) activeCardState.toggle('isUnfreezed', true);
             }}
           >
             <div className="content-grid text-base h-1/2">
-              <div className="breakout text-xl card bg-none bg-background-light pl-0 border-b-0 rounded-none shadow-none flex items-end overflow-y-hidden overflow-x-visible">
+              <div className="breakout card bg-none bg-background-light pl-0 border-b-0 rounded-none shadow-none flex items-end overflow-y-hidden overflow-x-visible">
                 <div className="flex-1">
                   {timeList.map(time => (
-                    <div key={time} className="flex">
+                    <div key={time} className="flex gap-2">
                       <TimeLabel
-                        className="[&>*]:-translate-y-1/2 text-muted-foreground"
+                        className={cn(
+                          '[&>*]:-translate-y-1/1 text-muted-foreground',
+                          timeLineVariants({ size }),
+                          size === 'sm' && !time.endsWith('00') && 'invisible',
+                        )}
                         label={time}
                       />
                       <div className="flex-1 flex flex-col">
-                        <div className="flex-1 border-b border-dashed" />
+                        <div className="flex-1 border-t border-dashed" />
                         <div className="flex-1" />
                       </div>
                     </div>
                   ))}
-                  <div className={cn(dummy({ size }))} />
                 </div>
               </div>
             </div>
 
-            <div className="flex-1 content-grid text-base">
+            <div
+              ref={setTodayRecordPlace}
+              className="flex-1 bg-transparent content-grid text-base"
+            >
               <div className="breakout relative text-xl card pl-0 bg-none bg-background border-t-0 rounded-none shadow-none">
                 {timeList.map((time, idx) => (
-                  <div
-                    key={time}
-                    className={cn(
-                      'flex snap-center basis-full',
-                      idx === 0 && 'basis-1/2 snap-end',
-                    )}
-                  >
+                  <div key={time} className="flex basis-full gap-2">
                     <TimeLabel
                       label={time}
                       isIntersecting={idx === intersectionTimeIndex}
                       className={cn(
-                        '[&>*]:-translate-y-1/2',
-                        idx === 0 && `-translate-y-2/4 h-[1.25lh]`,
+                        '[&>*]:-translate-y-1/1',
+                        timeLineVariants({ size }),
+                        size === 'sm' &&
+                          !time.endsWith('00') &&
+                          'text-transparent',
                       )}
                     />
 
@@ -404,17 +335,11 @@ export const Timeline = ({
                           setIntersecionTimeIndex(idx);
                         }
                       }}
-                      className={cn('flex-1 flex flex-col w-full')}
+                      className="flex-1 flex flex-col w-full"
                     >
-                      {idx === 0 && (
-                        <div className="w-full flex-1 border-t border-dashed"></div>
-                      )}
-                      {idx !== 0 && (
-                        <>
-                          <div className="w-full flex-1 border-b border-dashed"></div>
-                          <div className="w-full flex-1"></div>
-                        </>
-                      )}
+                      <div className="h-[1px] w-full snap-center"></div>
+                      <div className="w-full flex-1 border-t"></div>
+                      <div className="w-full flex-1"></div>
                     </IntersectionTarget>
                   </div>
                 ))}
@@ -427,6 +352,7 @@ export const Timeline = ({
                     dateToDisplayUnits={dateToDisplayUnits}
                     displayUnitsToMinutes={displayUnitsToMinutes}
                     clickHandler={onTheCardClick}
+                    minCardSize={sectionDisplaySize}
                   />
                 </div>
               </div>
@@ -436,13 +362,17 @@ export const Timeline = ({
               <div className="breakout text-xl card pl-0 rounded-none bg-none bg-background flex overflow-hidden">
                 <div className="flex-1">
                   {timeList.map(time => (
-                    <div key={time} className="flex">
+                    <div key={time} className="flex gap-2">
                       <TimeLabel
-                        className="[&>*]:-translate-y-1/2 text-muted-foreground"
+                        className={cn(
+                          '[&>*]:-translate-y-1/1 [&>*:first-child]:absolute text-muted-foreground',
+                          timeLineVariants({ size }),
+                          size === 'sm' && !time.endsWith('00') && 'invisible',
+                        )}
                         label={time}
                       />
                       <div className="flex-1 flex flex-col">
-                        <div className="flex-1 border-b border-dashed" />
+                        <div className="flex-1 border-t border-dashed"></div>
                         <div className="flex-1" />
                       </div>
                     </div>
@@ -454,17 +384,20 @@ export const Timeline = ({
         </div>
       </div>
 
-      <div className="breakout min-h-lh text-2xl py-2 rounded-b-4xl bg-background-darker" />
+      <div
+        onClick={e => e.stopPropagation()}
+        className="breakout min-h-lh flex items-center text-xl rounded-b-4xl bg-background-darker"
+      />
 
       <div
-        className="breakout absolute bottom-6 -right-(--gap) -translate-x-1/6 z-10 flex flex-col gap-2"
+        className="breakout absolute bottom-10 -right-(--gap) -translate-x-1/6 z-10 flex flex-col gap-2"
         onClick={e => e.stopPropagation()}
       >
         <Button
           type="button"
           size="icon"
           fashion="glassy"
-          className="size-10 border-t-foreground/10 border-l border-l-foreground/10"
+          className="size-10 border-t-foreground/10 border-l border-l-foreground/10 text-muted-foreground"
           aria-label="К следующей карточке сверху"
           disabled={!nextCardAbove}
           onClick={goToCardAbove}
@@ -475,7 +408,7 @@ export const Timeline = ({
           type="button"
           size="icon"
           fashion="glassy"
-          className="size-10 border-t-foreground/10 border-l border-l-foreground/10"
+          className="size-10 border-t-foreground/10 border-l border-l-foreground/10 text-muted-foreground"
           aria-label="К следующей карточке снизу"
           disabled={!nextCardBelow}
           onClick={goToCardBelow}

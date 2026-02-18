@@ -13,9 +13,9 @@ export const TimeLabel = ({
   return (
     <time
       className={cn(
-        'h-[2.5lh] flex flex-col justify-center',
-        // isIntersecting && 'text-red-400',
+        'w-[4ch] flex flex-col justify-start items-end-safe',
         className,
+        isIntersecting && 'text-red-400 font-semibold',
       )}
       dateTime={label}
     >

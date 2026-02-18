@@ -36,7 +36,7 @@ export default function Id() {
         {
           id: 0,
           from: addHours(new Date(), -1),
-          to: addHours(new Date(), 2),
+          to: addHours(new Date(), 0.5),
           serviceIdList: new Set([1, 2, 3]),
           sign: '',
           owner: false,
@@ -100,7 +100,7 @@ export default function Id() {
 
   return (
     <>
-      <main className="content-grid pt-unified-safe grid-rows-[1fr_auto_1fr] gap-y-2 max-h-dvh overscroll-none">
+      <main className="content-grid pt-unified-safe grid-rows-[1fr_auto_1fr] gap-y-1 max-h-dvh overscroll-none">
         <header
           ref={() => {}}
           className="breakout flex justify-between items-center rounded-sm"

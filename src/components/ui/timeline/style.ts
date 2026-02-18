@@ -1,35 +1,21 @@
 import { cva } from 'class-variance-authority';
 
-export const timeLine = cva('', {
-  variants: {
-    size: {
-      default: '',
-    },
-  },
-  defaultVariants: {
-    size: 'default',
-  },
-});
+export const sizes = {
+  sm: 0.7,
+} as const;
 
-export const dummy: typeof timeLine = cva('', {
-  variants: {
-    size: {
-      default: 'h-[1.25lh]',
-    },
-  },
-  defaultVariants: {
-    size: 'default',
-  },
-});
+export const defaultSize = 'sm' satisfies keyof typeof sizes;
 
-export const timeLabel: typeof timeLine = cva('', {
+export const timeLineVariants = cva('', {
   variants: {
     size: {
-      default: 'h-[2.5lh]',
-      half: 'h-[1.25lh]'
+      sm: 'h-[1lh] text-base',
+    },
+    contentSize: {
+      sm: 'h-[calc(1lh-var(--spacing)*1)] text-base',
     },
   },
   defaultVariants: {
-    size: 'default',
+    size: defaultSize,
   },
 });
