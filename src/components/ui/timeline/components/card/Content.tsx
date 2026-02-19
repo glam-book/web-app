@@ -1,8 +1,5 @@
-import { useContext, useMemo } from 'react';
-import { format } from 'date-fns';
+import { useContext } from 'react';
 
-import { Sdometer } from '@/components/ui/sdometer';
-import { activeCard } from '@/components/ui/timeline/store';
 import { cn } from '@/lib/utils';
 import { records } from '@/shrekServices';
 
@@ -14,14 +11,13 @@ export const Content = ({
 }: React.ComponentProps<'div'>) => {
   const { fields } = useContext(CardContext);
   const { fields: editableRightNowFields } = records.store.editableRightNow();
-  // const { isResizeMode } = activeCard();
   const isSelected = editableRightNowFields?.id === fields.id;
 
   return (
     <div
       className={cn(
         'relative bg-blurable bg-card/70 min-w-full text-xs select-none transition-foo text-foreground rounded-[inherit] corner-shape-squircle',
-        // isSelected && 'jello',
+        isSelected && 'bg-card',
         className,
       )}
     >

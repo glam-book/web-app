@@ -108,7 +108,7 @@ export const TheCard = ({
       tabIndex={0}
       onClick={disabled ? undefined : onClick}
       className={cn(
-        'flex absolute left-0 w-full rounded-xl',
+        'flex absolute left-0 w-full rounded-3xl',
         isSelected && 'z-1 translate-x-[3ch]',
         'transition-foo',
       )}
@@ -295,13 +295,17 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
 });
 
 export const OwnerCard = memo(({ fields, ...rest }: CardProps) => {
+  const selectedCardState = records.store.editableRightNow();
+  const isSelected = selectedCardState.fields?.id === fields.id;
+
   return (
     <Root fields={fields}>
       <TheCard {...rest}>
         <Content
           className={cn(
             'text-stands-out',
-            fields.pendings.active > 0 && 'bg-success',
+            fields.pendings.active > 0 && 'bg-success/30',
+            isSelected && fields.pendings.active > 0 && 'bg-success/40'
           )}
         >
           <div className={cn('[&>*]:pl-[4.6ch] w-full flex flex-col')}>

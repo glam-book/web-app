@@ -140,38 +140,36 @@ export const EditRecordModal = () => {
       setActiveSnapPoint={setSnap}
       repositionInputs={false}
     >
-      <DrawerContent className="pb-unified-safe bg-blurable backdrop-blur-3xl">
-        <DrawerHeader className="px-0">
-          <div className="content-grid">
-            <DrawerTitle className="hidden">Редактирование записи</DrawerTitle>
-            <DrawerDescription className="hidden">
-              Измените данные или удалите запись
-            </DrawerDescription>
+      <DrawerContent className="pb-unified-safe max-w-sm bg-blurable backdrop-blur-3xl">
+        <DrawerHeader className="pb-3">
+          <DrawerTitle className="hidden">Редактирование записи</DrawerTitle>
+          <DrawerDescription className="hidden">
+            Измените данные или удалите запись
+          </DrawerDescription>
 
-            <div className="flex justify-between items-center gap-1">
-              <Button
-                className="justify-self-end"
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={() => {
-                  if (!confirm('Удалить запись?')) return;
-                  records.deleteOne(recordFields?.id);
-                }}
-              >
-                <TrashIcon /> Удалить
+          <div className="flex justify-between items-center gap-1">
+            <Button
+              className="justify-self-end"
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => {
+                if (!confirm('Удалить запись?')) return;
+                records.deleteOne(recordFields?.id);
+              }}
+            >
+              <TrashIcon /> Удалить
+            </Button>
+
+            <DrawerClose asChild>
+              <Button size="icon" variant="ghost">
+                <X />
               </Button>
-
-              <DrawerClose asChild>
-                <Button size="icon" variant="ghost">
-                  <X />
-                </Button>
-              </DrawerClose>
-            </div>
+            </DrawerClose>
           </div>
         </DrawerHeader>
 
-        <div className="flex-1 py-1 max-h-96 overflow-y-auto content-grid">
+        <div className="flex-1 px-4 py-1 overflow-y-auto">
           <form
             className="flex flex-col gap-4"
             id="edit-record-card"

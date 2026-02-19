@@ -33,7 +33,7 @@
   --foreground: oklch(26.448% 0.00003 271.152 / 0.916);
   --brand: oklch(0.66 0.15 235.85);
   --success-deep: var(--color-green-600);
-  --success: color-mix(in hsl, oklch(0.79 0.25 150.55) 30%, transparent);
+  --success: oklch(0.79 0.25 150.55);
 
   --shadow: 0 2px 2px oklch(0 0 0 / 7%);
 
