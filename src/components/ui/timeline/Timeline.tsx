@@ -61,7 +61,7 @@ export const Timeline = ({
     (epoch: Date) => {
       const minutes =
         getMinutesFromDate(epoch) +
-        // Это нужно если мы вылезаем на другую дату?
+        // Это нужно если мы вылезаем на следующий день?
         (getDate(epoch) !== getDate(currentDate) ? 24 * 60 : 0);
 
       return minutes / (24 * 60);
@@ -180,8 +180,6 @@ export const Timeline = ({
       records.finishEdit();
       return;
     }
-
-    createNewCard();
   };
 
   const onTheCardClick = useCallback(
@@ -249,6 +247,10 @@ export const Timeline = ({
     [scrollView],
   );
 
+  const [isScrolling, setIsScrolling] = useState(false);
+
+  const addNewRecordButton = useRef<HTMLButtonElement>(null);
+
   return (
     <Comp
       className={cn(className, 'relative content-grid overflow-y-auto hide')}
@@ -258,17 +260,35 @@ export const Timeline = ({
       <div className="breakout card-header backdrop-blur-none shadow-shadow">
         <h2 className="flex justify-between pr-3 indent-3">
           <time className="text-xl uppercase">
-            {format(currentDate, 'd MMMM', { locale: ru })}
+            {format(currentDate, 'd MMMM, EEEE', { locale: ru })}
           </time>
         </h2>
       </div>
 
       <div className="full-bleed relative flex flex-col overflow-y-auto">
-        <div className="absolute w-dvw z-1 inset-0 flex flex-col justify-center pointer-events-none">
-          <div className="aim flex-1" />
-          <div className="flex h-[2px] bg-red-500" />
-          <div className="flex-1" />
-        </div>
+        {isCardSelected && (
+          <div className="absolute w-dvw z-1 inset-0 flex flex-col justify-center pointer-events-none">
+            <div className="aim flex-1" />
+            <div className="flex h-[2px] bg-red-500" />
+            <div className="flex-1" />
+          </div>
+        )}
+
+        {!isScrolling && ownerResult.isOwner && (
+          <Button
+            ref={addNewRecordButton}
+            fashion="fancy"
+            aria-label="add new record"
+            size="icon"
+            className={cn(
+              'absolute left-[6ch] top-[calc(50%-0.5lh)] -translate-y-1/2 z-1 size-[1.4lh] rounded-full bg-success-deep border border-highlight bouncein',
+              isCardSelected && 'hidden',
+            )}
+            onClick={createNewCard}
+          >
+            +
+          </Button>
+        )}
 
         <div className="relative flex-1 max-w-full overflow-y-hidden overflow-x-visible text-xl">
           <div
@@ -277,9 +297,11 @@ export const Timeline = ({
               'relative overflow-y-auto scrollbar-hidden overflow-x-hidden snap-mandatory snap-y max-h-full h-full snap-normal scroll-smooth',
             )}
             onScroll={() => {
+              setIsScrolling(true);
               activeCardState.toggle('isUnfreezed', false);
             }}
             onScrollEnd={() => {
+              setIsScrolling(false);
               const newAimPosition =
                 intersectionTimeIndex * sectionSizeInPercent;
               setAimPosition(newAimPosition);
@@ -295,7 +317,6 @@ export const Timeline = ({
                         className={cn(
                           '[&>*]:-translate-y-1/1 text-muted-foreground',
                           timeLineVariants({ size }),
-                          size === 'sm' && !time.endsWith('00') && 'invisible',
                         )}
                         label={time}
                       />
@@ -315,16 +336,21 @@ export const Timeline = ({
             >
               <div className="breakout relative text-xl card pl-0 bg-none bg-background border-t-0 rounded-none shadow-none">
                 {timeList.map((time, idx) => (
-                  <div key={time} className="flex basis-full gap-2">
+                  <div key={time} className="relative flex basis-full gap-2">
                     <TimeLabel
                       label={time}
-                      isIntersecting={idx === intersectionTimeIndex}
+                      isIntersecting={
+                        isCardSelected &&
+                        ((selectedCardState.fields?.from &&
+                          format(selectedCardState.fields.from, 'HH:mm') ===
+                            time) ||
+                          (selectedCardState.fields?.to &&
+                            format(selectedCardState.fields.to, 'HH:mm') ===
+                              time))
+                      }
                       className={cn(
                         '[&>*]:-translate-y-1/1',
                         timeLineVariants({ size }),
-                        size === 'sm' &&
-                          !time.endsWith('00') &&
-                          'text-transparent',
                       )}
                     />
 
@@ -367,7 +393,6 @@ export const Timeline = ({
                         className={cn(
                           '[&>*]:-translate-y-1/1 [&>*:first-child]:absolute text-muted-foreground',
                           timeLineVariants({ size }),
-                          size === 'sm' && !time.endsWith('00') && 'invisible',
                         )}
                         label={time}
                       />

@@ -181,7 +181,7 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
               <DialogHeader className="pb-2 text-left">
                 <DialogTitle className="pl-6 text-2xl uppercase font-normal">
                   <time className="text-red-600/80">
-                    {format(fields.from, 'd MMMM', { locale: ru })}
+                    {format(fields.from, 'd MMMM, EEEEEE', { locale: ru })}
                   </time>
                   <br />С <time>{format(fields.from, 'HH:mm')}</time> ПО{' '}
                   <time>{format(fields.to, 'HH:mm')}</time>
@@ -295,9 +295,6 @@ export const ClientCard = memo(({ fields, ...rest }: CardProps) => {
 });
 
 export const OwnerCard = memo(({ fields, ...rest }: CardProps) => {
-  const selectedCardState = records.store.editableRightNow();
-  const isSelected = selectedCardState.fields?.id === fields.id;
-
   return (
     <Root fields={fields}>
       <TheCard {...rest}>
@@ -307,23 +304,25 @@ export const OwnerCard = memo(({ fields, ...rest }: CardProps) => {
             fields.pendings.active > 0 && 'bg-success',
           )}
         >
-          <div className={cn('[&>*]:pl-[3.4ch] w-full flex flex-col')}>
+          <div className={cn('[&>*]:pl-[4.6ch] w-full flex flex-col')}>
             <div className="max-w-full overflow-x-auto scrollbar-hidden">
               <div className="max-w-full flex py-0.5 gap-1 items-start">
-                <Pendings>
-                  <Button
-                    variant="secondary"
-                    className={cn(
-                      'px-2 self-stretch bg-brand text-primary-foreground font-mono',
-                      timeLineVariants({ contentSize: 'sm' }),
-                    )}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <span className="text-xs">
-                      {fields.pendings.active}/{fields.pendings.limits}
-                    </span>
-                  </Button>
-                </Pendings>
+                {fields.pendings.active > 0 && (
+                  <Pendings>
+                    <Button
+                      variant="secondary"
+                      className={cn(
+                        'px-2 self-stretch bg-brand text-primary-foreground font-mono',
+                        timeLineVariants({ contentSize: 'sm' }),
+                      )}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <span className="text-xs">
+                        {fields.pendings.active}/{fields.pendings.limits}
+                      </span>
+                    </Button>
+                  </Pendings>
+                )}
 
                 <p
                   className={cn(

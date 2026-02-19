@@ -32,7 +32,7 @@
   --highlight: oklch(1 0 0);
   --foreground: oklch(26.448% 0.00003 271.152 / 0.916);
   --brand: oklch(0.66 0.15 235.85);
-  --success-deep: oklch(0.79 0.25 150.55);
+  --success-deep: var(--color-green-600);
   --success: color-mix(in hsl, oklch(0.79 0.25 150.55) 30%, transparent);
 
   --shadow: 0 2px 2px oklch(0 0 0 / 7%);
@@ -146,7 +146,7 @@
   --prose: 40ch;
   --prose-xl: 65ch;
 
-  --gap: 0.5rem;
+  --gap: 0.6rem;
   --breakout-size: minmax(0, 7rem);
   --content-size-xl: minmax(0, calc(var(--prose-xl) - var(--prose)));
   --content-size: min(var(--prose), calc(100% - var(--gap) * 2));
@@ -337,18 +337,47 @@
   animation-iteration-count: infinite;
 }
 
-/* @utility px-unified-safe {
-  padding-left: max(
-    env(safe-area-inset-left),
-    constant(safe-area-inset-left),
-    var(--tg-safe-area-inset-left)
-  );
-  padding-right: max(
-    env(safe-area-inset-right),
-    constant(safe-area-inset-right),
-    var(--tg-safe-area-inset-right)
-  );
-} */
+@keyframes bounceIn {
+  from,
+  20%,
+  40%,
+  60%,
+  80%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  0% {
+    transform: scale3d(0.4, 0.4, 0.4);
+  }
+
+  20% {
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+
+  40% {
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+
+  60% {
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+
+  80% {
+    transform: scale3d(0.97, 0.97, 0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+@utility bouncein {
+  animation-name: bounceIn;
+  animation-duration: 0.8s;
+  animation-iteration-count: 1;
+}
 
 @utility corner-shape-squircle {
   corner-shape: squircle;

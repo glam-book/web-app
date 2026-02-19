@@ -447,7 +447,7 @@ export const Era = ({
           </span>
           <div className="ml-auto flex gap-x-1">
             <Button
-              className="bg-success-deep"
+              className="bg-success-deep text-background"
               fashion="glassy"
               onClick={() => {
                 records

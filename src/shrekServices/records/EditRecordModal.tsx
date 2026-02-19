@@ -1,7 +1,8 @@
 import { produce } from 'immer';
-import { MessageSquare, Plus, TrashIcon, X } from 'lucide-react';
+import { MessageSquare, Plus, TrashIcon, X, Clock } from 'lucide-react';
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import { format, parse } from 'date-fns';
+import { format, intervalToDuration, formatDuration } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,22 +15,19 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
+  DrawerClose,
 } from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { records, services } from '@/shrekServices';
 import { cn } from '@/lib/utils';
 
-const snapPoints = ['320px', 1];
+const snapPoints = ['300px', 1];
 
 export const EditRecordModal = () => {
   const { fields: recordFields } = records.store.editableRightNow();
   const isCardSelected = Boolean(recordFields);
   const open = isCardSelected;
-
-  useEffect(() => {
-    console.log(recordFields?.from);
-  }, [recordFields]);
 
   const { data: serviceList } = services.useGet();
 
@@ -152,10 +150,6 @@ export const EditRecordModal = () => {
             </DrawerDescription>
 
             <div className="flex justify-between items-center gap-1">
-              <p className="text-muted-foreground text-xs text-left">
-                * Нажмите на карточку, чтобы её растянуть или переместить
-              </p>
-
               <Button
                 className="justify-self-end"
                 type="button"
@@ -166,13 +160,19 @@ export const EditRecordModal = () => {
                   records.deleteOne(recordFields?.id);
                 }}
               >
-                <TrashIcon /> Удалить запись
+                <TrashIcon /> Удалить
               </Button>
+
+              <DrawerClose asChild>
+                <Button size="icon" variant="ghost">
+                  <X />
+                </Button>
+              </DrawerClose>
             </div>
           </div>
         </DrawerHeader>
 
-        <div className="flex-1 pt-1 max-h-96 overflow-y-auto content-grid">
+        <div className="flex-1 py-1 max-h-96 overflow-y-auto content-grid">
           <form
             className="flex flex-col gap-4"
             id="edit-record-card"
@@ -183,43 +183,42 @@ export const EditRecordModal = () => {
               records.finishEdit();
             }}
           >
-            <div className="hidden gap-1">
-              <label>
-                C{' '}
+            <div className="flex flex-wrap items-center gap-1">
+              <Clock className="size-4" />
+              <label className="inline-flex items-center gap-0.5">
                 <input
                   type="time"
-                  className="bg-background rounded-xl corner-shape-squircle"
+                  className="min-w-0 w-min px-2 bg-background rounded-xl corner-shape-squircle"
                   value={format(recordFields?.from ?? 0, 'HH:mm')}
-                  onChange={v =>
-                    records.store.editableRightNow.setState({
-                      fields: produce(
-                        records.store.editableRightNow.getState().fields,
-                        draft => {
-                          if (!draft) return;
-
-                          const from = parse(
-                            v.target.value,
-                            'HH:mm',
-                            draft.from,
-                          );
-
-                          console.log({from})
-
-                          draft.from = from;
-                        },
-                      ),
-                    })
-                  }
+                  disabled
                 />
               </label>
-
-              <label>
-                ПО{' '}
+              <span>—</span>
+              <label className="inline-flex items-center gap-0.5">
                 <input
                   type="time"
-                  className="bg-background rounded-xl corner-shape-squircle"
+                  className="min-w-0 w-min px-2 bg-background rounded-xl corner-shape-squircle"
+                  value={format(recordFields?.to ?? 0, 'HH:mm')}
+                  disabled
                 />
               </label>
+              {false && recordFields?.from && recordFields?.to && (
+                <>
+                  =
+                  <span>
+                    {formatDuration(
+                      intervalToDuration({
+                        start: recordFields?.from!,
+                        end: recordFields?.to!,
+                      }),
+                      { locale: ru },
+                    )}
+                  </span>
+                </>
+              )}
+              <p className="text-muted-foreground text-xs text-left">
+                * Нажмите на карточку, чтобы её растянуть или переместить
+              </p>
             </div>
 
             <div className="pt-1 flex flex-col gap-1">
@@ -368,17 +367,6 @@ export const EditRecordModal = () => {
         </div>
 
         {snap !== 1 && <div className="h-[var(--snap-point-height)]" />}
-
-        <DrawerFooter>
-          <Button
-            fashion="glassy"
-            onClick={() => {
-              formRef.current?.requestSubmit();
-            }}
-          >
-            Сохранить
-          </Button>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );
