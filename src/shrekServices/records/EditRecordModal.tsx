@@ -214,7 +214,7 @@ export const EditRecordModal = () => {
                 </>
               )}
               <p className="text-muted-foreground text-xs text-left">
-                * Нажмите на карточку, чтобы её растянуть или переместить
+                * Клик - чтобы менять время
               </p>
             </div>
 
