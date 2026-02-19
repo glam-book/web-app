@@ -11,7 +11,6 @@ import {
   Drawer,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -22,7 +21,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { records, services } from '@/shrekServices';
 import { cn } from '@/lib/utils';
 
-const snapPoints = ['300px', 1];
+const snapPoints = ['320px', 1];
 
 export const EditRecordModal = () => {
   const { fields: recordFields } = records.store.editableRightNow();
