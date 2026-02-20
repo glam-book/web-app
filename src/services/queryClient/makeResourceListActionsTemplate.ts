@@ -78,9 +78,9 @@ export const makeResourceListActionsTemplate = <
     if (x) return Effect.runPromiseExit(x);
   });
 
-  // It's hack for tanstack query ??
   const startEdit = flow(actions.startEdit, x => {
-    invalidateQueries(queriesStore.getState().queries);
+    // It's hack for tanstack query ??
+    // invalidateQueries(queriesStore.getState().queries);
     return x;
   });
 
