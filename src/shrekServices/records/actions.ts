@@ -1,4 +1,4 @@
-import { Effect, Duration, Exit, Schema, flow, pipe } from 'effect';
+import { Effect, Fiber, Duration, Exit, Schema, flow, pipe } from 'effect';
 import {
   format,
   getDate,
@@ -43,7 +43,14 @@ export const startEdit = flow(
   }).make,
   _startEdit,
   x => {
-    Effect.fromNullable(x).pipe(Effect.tap(Effect.tap(invalidatePreview)));
+    Effect.fromNullable(x).pipe(
+      Effect.andThen(Fiber.join),
+      Effect.andThen(y => {
+        console.log({ y });
+        invalidatePreview();
+      }),
+    );
+
     return x;
   },
 );
