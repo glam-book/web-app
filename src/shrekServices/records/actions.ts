@@ -45,10 +45,8 @@ export const startEdit = flow(
   x => {
     Effect.fromNullable(x).pipe(
       Effect.andThen(Fiber.join),
-      Effect.andThen(y => {
-        console.log({ y });
-        invalidatePreview();
-      }),
+      Effect.andThen(invalidatePreview),
+      Effect.runSync,
     );
 
     return x;
