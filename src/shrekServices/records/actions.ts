@@ -43,7 +43,7 @@ export const startEdit = flow(
   }).make,
   _startEdit,
   x => {
-    Effect.tap(invalidatePreview);
+    Effect.fromNullable(x).pipe(Effect.tap(Effect.tap(invalidatePreview)));
     return x;
   },
 );
