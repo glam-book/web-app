@@ -43,11 +43,9 @@ export const startEdit = flow(
   }).make,
   _startEdit,
   x => {
-    Effect.fromNullable(x).pipe(
-      Effect.andThen(Fiber.join),
-      Effect.andThen(invalidatePreview),
-      Effect.runSync,
-    );
+    if (x) {
+      Fiber.join(x).pipe(Effect.andThen(invalidatePreview), Effect.runFork);
+    }
 
     return x;
   },
