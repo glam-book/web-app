@@ -33,12 +33,19 @@ export const {
     `${userId}?date=${format(date, 'yyyy-MM-dd')}`,
 });
 
+export const invalidatePreview = () =>
+  invalidateQueries([`${resource}/preview`]);
+
 export const startEdit = flow(
   Schema.Struct({
     ...Itself.fields,
     id: Schema.optional(Schema.Number),
   }).make,
   _startEdit,
+  x => {
+    Effect.tap(invalidatePreview);
+    return x;
+  },
 );
 
 export const getPreview = (userId: number | string, month: Date) =>
@@ -152,9 +159,6 @@ export const useGetPreview = (
           }) as typeof Preview.Type,
       ),
   });
-
-export const invalidatePreview = () =>
-  invalidateQueries([`${resource}/preview`]);
 
 export const makeAppointment = (
   recordId: (typeof Itself.Type)['id'],

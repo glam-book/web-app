@@ -78,11 +78,11 @@ export const makeResourceListActionsTemplate = <
     if (x) return Effect.runPromiseExit(x);
   });
 
-  const startEdit = flow(actions.startEdit, x => {
+  /* const startEdit = flow(actions.startEdit, x => {
     // It's hack for tanstack query ??
     // invalidateQueries(queriesStore.getState().queries);
     return x;
-  });
+  }); */
 
   return {
     pureActions: actions,
@@ -91,7 +91,7 @@ export const makeResourceListActionsTemplate = <
     useGet,
     deleteOne,
     finishEdit,
-    startEdit,
+    startEdit: actions.startEdit,
     resetEdit: actions.resetEdit,
     store: {
       editableRightNow: actions.store.editableRightNow,
