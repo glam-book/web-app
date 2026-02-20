@@ -34,7 +34,7 @@
   --brand: oklch(0.66 0.15 235.85);
   --success-deep: var(--color-green-600);
   --success: oklch(0.79 0.25 150.55);
-
+  --footer-gradient: linear-gradient(2deg, var(--background-dark), transparent 80%);
   --shadow: 0 2px 2px oklch(0 0 0 / 7%);
 
   --accent: rgba(255, 204, 176, 0.803);
@@ -259,6 +259,9 @@
 
 @utility bg-background-gradient {
   background: var(--background-gradient);
+}
+@utility bg-footer-gradient {
+  background: var(--footer-gradient);
 }
 
 @utility scrollbar-hidden {

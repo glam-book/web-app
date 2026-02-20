@@ -100,7 +100,7 @@ export default function Id() {
 
   return (
     <>
-      <main className="content-grid pt-unified-safe grid-rows-[1fr_auto_1fr] gap-y-1 max-h-dvh overscroll-none">
+      <main className="content-grid pt-unified-safe grid-rows-[1fr_auto_1fr] max-h-dvh overscroll-none">
         <header
           ref={() => {}}
           className="breakout flex justify-between items-center rounded-sm"
@@ -130,18 +130,18 @@ export default function Id() {
           ref={carouselApi}
         >
           <Carousel.ItemsContainer className="max-h-full scrollbar-hidden overscroll-none">
-            <Carousel.Item className="mb-1 flex-1 min-w-full flex">
+            <Carousel.Item className="flex-1 min-w-full flex">
               <article className="flex-1 content-grid">
                 <Era
                   onSelect={setDate}
                   selected={date}
-                  className="breakout card shadow-none"
+                  className="breakout card rounded-b-none shadow-none"
                   Detail={records.components.RecordPreview}
                 />
               </article>
             </Carousel.Item>
 
-            <Carousel.Item className="mb-1 flex-1 min-w-full max-w-full flex">
+            <Carousel.Item className="flex-1 min-w-full max-w-full flex">
               <section className="flex-1 flex overflow-hidden">
                 <Timeline
                   className="flex-1"
@@ -160,8 +160,8 @@ export default function Id() {
             createPortal(<Carousel.Indicator />, carouselIndicatorWrapper)}
         </Carousel.Host>
 
-        <footer className="full-bleed content-grid pb-unified-safe px-unified-safe indent-3">
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center">
+        <footer className="fixed bottom-0 w-full full-bleed content-grid pb-unified-safe px-unified-safe indent-3 bg-footer-gradient backdrop-blur-xs border-t border-highlight">
+          <div className="pt-0.5 grid grid-cols-[1fr_auto_1fr] items-center">
             <span />
             <div ref={setCarouselIndicatorWrapper} />
             <span className="font-mono text-sm justify-self-end-safe">

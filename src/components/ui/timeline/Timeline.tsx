@@ -410,12 +410,7 @@ export const Timeline = ({
       </div>
 
       <div
-        onClick={e => e.stopPropagation()}
-        className="breakout min-h-lh flex items-center text-xl rounded-b-4xl bg-background-darker"
-      />
-
-      <div
-        className="breakout absolute bottom-10 -right-(--gap) -translate-x-1/6 z-10 flex flex-col gap-2"
+        className="breakout absolute bottom-20 -right-(--gap) -translate-x-1/6 z-10 flex flex-col gap-2"
         onClick={e => e.stopPropagation()}
       >
         <Button

@@ -1,9 +1,11 @@
 import { produce } from 'immer';
-import { MessageSquare, Plus, TrashIcon, X, Clock } from 'lucide-react';
+import { MessageSquare, Plus, TrashIcon, X, TriangleAlert } from 'lucide-react';
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { format, intervalToDuration, formatDuration } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
+import { records, services } from '@/shrekServices';
+import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -18,8 +20,11 @@ import {
 } from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { records, services } from '@/shrekServices';
-import { cn } from '@/lib/utils';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/generated/popover';
 
 const snapPoints = ['320px', 1];
 
@@ -140,7 +145,7 @@ export const EditRecordModal = () => {
       setActiveSnapPoint={setSnap}
       repositionInputs={false}
     >
-      <DrawerContent className="pb-unified-safe max-w-sm bg-blurable backdrop-blur-3xl">
+      <DrawerContent className="pb-unified-safe bg-blurable backdrop-blur-3xl">
         <DrawerHeader className="pb-3">
           <DrawerTitle className="hidden">Редактирование записи</DrawerTitle>
           <DrawerDescription className="hidden">
@@ -181,7 +186,18 @@ export const EditRecordModal = () => {
             }}
           >
             <div className="flex flex-wrap items-center gap-1">
-              <Clock className="size-4" />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button size="icon" variant="ghost">
+                    <TriangleAlert className="size-4 fill-yellow-300" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="px-6 py-2 w-80">
+                  <p className="text-xs text-balance">
+                    Кликните по карточке и скрольте, а потом еще раз 😘 Удачи!
+                  </p>
+                </PopoverContent>
+              </Popover>
               <label className="inline-flex items-center gap-0.5">
                 <input
                   type="time"
@@ -213,9 +229,6 @@ export const EditRecordModal = () => {
                   </span>
                 </>
               )}
-              <p className="text-muted-foreground text-xs text-left">
-                * Клик - чтобы менять время
-              </p>
             </div>
 
             <div className="pt-1 flex flex-col gap-1">
