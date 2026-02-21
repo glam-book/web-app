@@ -24,7 +24,6 @@ export const makeResourceListActionsTemplate = <
   const mutateList = (
     mutation: (old?: Map<number, typeof options.Itself.Type>) => unknown,
   ) => {
-    console.log(queriesStore.getState().queries);
     setQueryData(queriesStore.getState().queries, mutation);
   };
 
@@ -66,12 +65,19 @@ export const makeResourceListActionsTemplate = <
     Effect.runPromise,
   );
 
-  const useGet = (...params: Partial<Parameters<typeof fetchList>>) =>
-    useQuery({
+  const useGet = (...params: Partial<Parameters<typeof fetchList>>) => {
+    const enabled = params.every(Boolean);
+
+    if (enabled) {
+      queriesStore.setState({ queries: [options.resource, ...params] });
+    }
+
+    return useQuery({
+      enabled,
       queryKey: [options.resource, ...params],
-      enabled: params.every(Boolean),
       queryFn: () => fetchList(...(params as Parameters<typeof fetchList>)),
     });
+  };
 
   const deleteOne = flow(actions.deleteOneOptimistic, Effect.runPromiseExit);
 
