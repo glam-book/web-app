@@ -3,7 +3,7 @@ import { type VariantProps } from 'class-variance-authority';
 import { format, getDate } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { flow, pipe } from 'effect';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -286,7 +286,7 @@ export const Timeline = ({
             )}
             onClick={createNewCard}
           >
-            +
+            <Plus />
           </Button>
         )}
 
