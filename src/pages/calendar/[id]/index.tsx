@@ -3,7 +3,6 @@ import { Share } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
-import { produce } from 'immer';
 import { addHours } from 'date-fns';
 
 import { version } from 'root/package.json';
@@ -63,13 +62,6 @@ export default function Id() {
 
   const { fields: recordFields } = records.store.editableRightNow();
   const isCardSelected = Boolean(recordFields);
-
-  // It's hack for tanstack query ??
-  const recordsWithEditableRightNow = useMemo(() => {
-    return produce(readyRecordList, list => {
-      if (recordFields) list?.set(recordFields.id, recordFields);
-    });
-  }, [readyRecordList, recordFields]);
 
   // useEffect(() => {
   //   if (errorRecordList) {
@@ -146,7 +138,7 @@ export default function Id() {
                 <Timeline
                   className="flex-1"
                   currentDate={date}
-                  cards={recordsWithEditableRightNow}
+                  cards={recordList}
                 />
               </section>
 
