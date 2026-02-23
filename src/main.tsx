@@ -7,7 +7,6 @@ import {
   viewport,
 } from '@tma.js/sdk-react';
 import { enableMapSet } from 'immer';
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { queryClient } from '@/lib/tanstackQuery';

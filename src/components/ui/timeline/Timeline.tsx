@@ -321,7 +321,7 @@ export const Timeline = ({
                         label={time}
                       />
                       <div className="flex-1 flex flex-col">
-                        <div className="flex-1 border-t border-dashed" />
+                        <div className="flex-1 border-t" />
                         <div className="flex-1" />
                       </div>
                     </div>
@@ -397,7 +397,7 @@ export const Timeline = ({
                         label={time}
                       />
                       <div className="flex-1 flex flex-col">
-                        <div className="flex-1 border-t border-dashed"></div>
+                        <div className="flex-1 border-t"></div>
                         <div className="flex-1" />
                       </div>
                     </div>

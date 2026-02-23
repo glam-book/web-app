@@ -138,7 +138,7 @@ export default function Id() {
                 <Timeline
                   className="flex-1"
                   currentDate={date}
-                  cards={recordList}
+                  cards={readyRecordList}
                 />
               </section>
 
@@ -152,11 +152,11 @@ export default function Id() {
             createPortal(<Carousel.Indicator />, carouselIndicatorWrapper)}
         </Carousel.Host>
 
-        <footer className="fixed bottom-0 w-full full-bleed content-grid pb-unified-safe px-unified-safe indent-3 bg-footer-gradient backdrop-blur-xs border-t border-highlight">
-          <div className="pt-0.5 grid grid-cols-[1fr_auto_1fr] items-center">
+        <footer className="footer fixed bottom-0 w-full full-bleed content-grid pb-unified-safe px-unified-safe indent-3 backdrop-blur-xs">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center">
             <span />
             <div ref={setCarouselIndicatorWrapper} />
-            <span className="font-mono text-sm justify-self-end-safe">
+            <span className="font-mono text-xs justify-self-end-safe">
               {version}
             </span>
           </div>

@@ -34,7 +34,16 @@
   --brand: oklch(0.66 0.15 235.85);
   --success-deep: var(--color-green-600);
   --success: oklch(0.79 0.25 150.55);
-  --footer-gradient: linear-gradient(2deg, var(--background-dark), transparent 80%);
+  --footer-background: radial-gradient(
+    circle at 20% 450%,
+    var(--background),
+    transparent
+  );
+  --footer-gradient: linear-gradient(40deg, transparent 60%, var(--highlight))
+    border-box;
+  --footer-mask:
+    linear-gradient(black 0 0) border-box,
+    linear-gradient(black 0 0) padding-box;
   --shadow: 0 2px 2px oklch(0 0 0 / 7%);
 
   --accent: rgba(255, 204, 176, 0.803);
@@ -260,7 +269,12 @@
 @utility bg-background-gradient {
   background: var(--background-gradient);
 }
-@utility bg-footer-gradient {
+@utility bg-footer {
+  background: var(--footer-background);
+}
+@utility footer-border {
+  mask: var(--footer-mask);
+  mask-composite: subtract;
   background: var(--footer-gradient);
 }
 
@@ -398,5 +412,12 @@
   }
   .card-header {
     @apply py-2 bg-background-darker/30 backdrop-blur-2xl rounded-t-4xl border-t border-t-highlight;
+  }
+
+  .footer {
+    @apply relative bg-footer;
+  }
+  .footer::before {
+    @apply absolute content-[''] inset-0 z-[-1] border-t border-transparent footer-border;
   }
 }
