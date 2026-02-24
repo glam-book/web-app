@@ -5,6 +5,7 @@ import {
   mockTelegramEnv,
   swipeBehavior,
   viewport,
+  postEvent,
 } from '@tma.js/sdk-react';
 import { enableMapSet } from 'immer';
 import { createRoot } from 'react-dom/client';
@@ -85,6 +86,7 @@ init();
 
 swipeBehavior.mount();
 swipeBehavior.disableVertical();
+postEvent('web_app_set_header_color', { color: '#e8e8e8' });
 
 viewport
   .mount()
@@ -103,9 +105,7 @@ viewport
 
     document.documentElement.style.setProperty(
       '--tg-safe-area-inset-top',
-      `${
-        viewport.contentSafeAreaInsetTop() + viewport.safeAreaInsetTop()
-      }px`,
+      `${viewport.contentSafeAreaInsetTop() + viewport.safeAreaInsetTop()}px`,
     );
   })
   .catch(e => {

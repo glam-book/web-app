@@ -1,8 +1,8 @@
 import { pipe } from 'effect';
 
-import { UserProfile } from '@/schemas';
+import { User } from '@/schemas';
 import { rest } from '@/services';
 import { tryDecodeInto } from '@/utils';
 
 export const get = (id: number | string) =>
-  pipe(rest.client(`users/${id}`), tryDecodeInto(UserProfile));
+  pipe(rest.client(`users/${id}`), tryDecodeInto(User));
