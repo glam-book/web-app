@@ -86,7 +86,7 @@ init();
 
 swipeBehavior.mount();
 swipeBehavior.disableVertical();
-postEvent('web_app_set_header_color', { color: '#e8e8e8' });
+// postEvent('web_app_set_header_color', { color: '#e8e8e8' });
 
 viewport
   .mount()
