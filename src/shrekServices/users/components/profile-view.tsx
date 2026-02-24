@@ -44,13 +44,13 @@ export const ProfileView = () => {
           )}
         </div>
 
-        <div
-          className={cn('empty:hidden', tgContact?.tgUserName && 'text-brand')}
+        <span
+          className={cn('empty:hidden', tgContact?.tgUserName && 'text-brand underline')}
         >
           {profile?.login ??
             profile?.name ??
             (import.meta.env.DEV && 'ggamabuntattt')}
-        </div>
+        </span>
       </button>
     </>
   );
