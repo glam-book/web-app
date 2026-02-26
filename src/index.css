@@ -39,7 +39,13 @@
     var(--background),
     transparent
   );
-  --footer-gradient: linear-gradient(40deg, transparent 60%, var(--highlight))
+  --footer-gradient: linear-gradient(
+      90deg,
+      transparent 0,
+      var(--highlight) 12%,
+      var(--highlight) 86%,
+      transparent
+    )
     border-box;
   --footer-mask:
     linear-gradient(black 0 0) border-box,
@@ -276,6 +282,7 @@
   mask: var(--footer-mask);
   mask-composite: subtract;
   background: var(--footer-gradient);
+  border-radius: inherit;
 }
 
 @utility scrollbar-hidden {
@@ -415,7 +422,7 @@
   }
 
   .footer {
-    @apply relative bg-footer;
+    @apply relative bg-footer rounded-xl;
   }
   .footer::before {
     @apply absolute content-[''] inset-0 z-[-1] border-t border-transparent footer-border;
